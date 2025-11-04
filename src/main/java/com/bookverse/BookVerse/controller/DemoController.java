@@ -7,8 +7,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("demo")
 public class DemoController {
-    @GetMapping
-    public String home() {
-        return "index-7";
+    @GetMapping("/user")
+    public String user() {
+        return "user/index-7";
+    }
+    @GetMapping("/admin")
+    public String admin() {
+        return "admin/invoice-list";
     }
 }
+
+
