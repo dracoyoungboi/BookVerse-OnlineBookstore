@@ -5783,108 +5783,95 @@ nav.menu .cr-dropdown ul {
 /*----------------------------------------*/
 
 .single-register {
-    margin-bottom: 16px;
+    margin-bottom: 15px;
+    overflow: hidden;
 }
 
+.single-register form {}
+
+.single-register form label,
 .single-register label {
-    color: #222;
+    color: #333;
     display: block;
-    font-family: 'Rufina', serif;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 400;
-    margin-bottom: 8px;
+    margin-top: 7px;
+    font-family: 'Rufina', serif;
+    font-weight: 400;
 }
 
-.single-register input[type="text"],
-.single-register input[type="password"],
-.single-register input[type="email"],
-.single-register input[type="tel"] {
-    width: 100%;
-    height: 48px;
-    padding: 0 14px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background: #fff;
-    color: #111;
-    font-family: 'Rufina', serif;
+.single-register form input {
+    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+    border: 1px solid #eceff8;
+    box-shadow: none;
+    color: #333;
     font-size: 14px;
+    height: 45px;
+    padding-left: 10px;
+    width: 100%;
+    font-family: 'Rufina', serif;
     font-weight: 400;
-    outline: none;
-    transition: border-color .2s ease, box-shadow .2s ease;
 }
 
-.single-register input[type="text"]::placeholder,
-.single-register input[type="password"]::placeholder,
-.single-register input[type="email"]::placeholder,
-.single-register input[type="tel"]::placeholder {
-    color: #9ca3af;
+.single-register .chosen-select {
+    height: 45px;
+    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+    border: 1px solid #eceff8;
+    color: #626262;
+    font-size: 14px;
+    height: 45px;
+    padding-left: 10px;
+    box-shadow: none;
+    text-align: left;
+    font-family: 'Rufina', serif;
+    font-weight: 400;
 }
 
-.single-register input[type="text"]:focus,
-.single-register input[type="password"]:focus,
-.single-register input[type="email"]:focus,
-.single-register input[type="tel"]:focus {
-    border-color: #F07C29;
-    box-shadow: 0 0 0 3px rgba(240,124,41,.15);
-}
-
-.single-register input + input {
-    margin-top: 12px;
-}
-
-.single-register-3 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 6px;
+.single-register input#billing_address_2 {
+    margin-top: 15px;
 }
 
 .single-register-3 #rememberme {
-    width: 18px;
-    height: 18px;
-    accent-color: #F07C29;
+    float: left;
 }
 
-.single-register-3 label.inline {
-    margin: 0;
+.single-register-3 label {
+    float: left;
+    margin-top: 0;
+    padding-left: 10px;
+    font-size: 13px;
     font-family: 'Rufina', serif;
-    font-size: 14px;
-    color: #374151;
+    font-weight: 400;
 }
 
-.single-register-3 label.inline a {
+.single-register-3 label a {
     color: #F07C29;
+    font-size: 14px;
     text-decoration: none;
-}
-
-.single-register button[type="submit"] {
-    display: inline-block;
-    width: 100%;
-    height: 48px;
-    border: 1px solid #F07C29;
-    border-radius: 8px;
-    background: #F07C29;
-    color: #fff;
     font-family: 'Rufina', serif;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: .2px;
-    cursor: pointer;
-    transition: filter .2s ease, transform .02s ease;
+    font-weight: 400;
 }
 
-.single-register button[type="submit"]:hover {
-    filter: brightness(0.95);
+.single-register>a {
+    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+    border: 1px solid #eceff8;
+    box-shadow: none;
+    color: #626262;
+    display: inline-block;
+    font-size: 14px;
+    margin-top: 6px;
+    padding: 12px 48px;
+    text-decoration: none;
+    transition: .3s;
+    font-family: 'Rufina', serif;
+    font-weight: 400;
 }
 
-.single-register button[type="submit"]:active {
-    transform: translateY(1px);
+.single-register>a:hover {
+    background-color: #F07C29;
+    color: #fff;
+    border: 1px solid #F07C29;
 }
-
-@media (min-width: 992px) {
-    .col-lg-6 .single-register { margin-bottom: 20px; }
-}
-
 
 
 /*----------------------------------------*/
