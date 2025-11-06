@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("demo")
+@RequestMapping("/")
 public class DemoController {
     @GetMapping("/user")
     public String user() {
@@ -15,6 +15,7 @@ public class DemoController {
     public String admin() {
         return "admin/invoice-list";
     }
-}
+    }
+
 
 
