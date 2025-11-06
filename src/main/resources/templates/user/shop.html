@@ -99,7 +99,7 @@
                         </ul>
                     </div>
                     <div class="left-title mb-20">
-                        <h4>Random</h4>
+                        <h4>Related</h4>
                     </div>
                     <div class="random-area mb-30">
                         <div class="product-active-2 owl-carousel">
@@ -107,7 +107,7 @@
                                 <div class="single-most-product bd mb-18" th:each="book, iterStat : ${randomBooks}"
                                      th:if="${iterStat.index < 3}">
                                     <div class="most-product-img">
-                                        <a th:href="@{/product/{id}(id=${book.bookId})}">
+                                        <a th:href="@{/shop/product/{id}(id=${book.bookId})}">
                                             <img th:src="${book.imageUrl != null ? book.imageUrl : '/user/img/product/1.jpg'}"
                                                  th:alt="${book.title}" alt="book"/>
                                         </a>
@@ -122,7 +122,8 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                        <h4><a th:href="@{/product/{id}(id=${book.bookId})}" th:text="${book.title}">Book
+                                        <h4><a th:href="@{/shop/product/{id}(id=${book.bookId})}"
+                                               th:text="${book.title}">Book
                                             Title</a></h4>
                                         <div class="product-price">
                                             <ul>
@@ -145,12 +146,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                    </div>
+                            </div>
                             <div class="product-total-2" th:if="${randomBooks != null && randomBooks.size() > 3}">
                                 <div class="single-most-product bd mb-18" th:each="book, iterStat : ${randomBooks}"
                                      th:if="${iterStat.index >= 3 && iterStat.index < 6}">
                                     <div class="most-product-img">
-                                        <a th:href="@{/product/{id}(id=${book.bookId})}">
+                                        <a th:href="@{/shop/product/{id}(id=${book.bookId})}">
                                             <img th:src="${book.imageUrl != null ? book.imageUrl : '/user/img/product/1.jpg'}"
                                                  th:alt="${book.title}" alt="book"/>
                                         </a>
@@ -165,7 +166,8 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                        <h4><a th:href="@{/product/{id}(id=${book.bookId})}" th:text="${book.title}">Book
+                                        <h4><a th:href="@{/shop/product/{id}(id=${book.bookId})}"
+                                               th:text="${book.title}">Book
                                             Title</a></h4>
                                         <div class="product-price">
                                             <ul>
@@ -203,10 +205,15 @@
                 </div>
                 <div class="section-title-5 mb-30">
                     <div class="d-flex align-items-center justify-content-between flex-wrap">
-                        <h2 class="mb-0">Book</h2>
+                        <h2 class="mb-0">
+                            Books
+                            <span th:if="${selectedCategoryObj != null}" style="color: #888; font-weight: normal;">
+                                | <span th:text="${selectedCategoryObj.name}">Category</span>
+                            </span>
+                        </h2>
                         <form th:action="@{/shop}" method="get" class="d-flex align-items-center mt-3 mt-lg-0"
                               style="gap:8px;">
-                            <input type="hidden" name="view" th:value="${viewType}" />
+                            <input type="hidden" name="view" th:value="${viewType}"/>
                             <input type="hidden" name="categoryId" th:value="${selectedCategory}"/>
                             <input type="hidden" name="sortBy" th:value="${sortBy}"/>
                             <input type="hidden" name="sortDir" th:value="${sortDir}"/>
@@ -262,7 +269,7 @@
                                     <option th:value="12" th:selected="${books != null && books.size == 12}">12</option>
                                     <option th:value="16" th:selected="${books != null && books.size == 16}">16</option>
                                     <option th:value="20" th:selected="${books != null && books.size == 20}">20</option>
-                            </select>
+                                </select>
                             </form>
                         </div>
                     </div>
@@ -283,8 +290,7 @@
                                 <option th:value="'title'" th:selected="${sortBy == 'title'}">Product Name</option>
                                 <option th:value="'price'" th:selected="${sortBy == 'price'}">Price</option>
                                 <option th:value="'createdAt'" th:selected="${sortBy == 'createdAt'}">Newest</option>
-                                <option th:value="'discount'" th:selected="${sortBy == 'discount'}">Discount</option>
-                        </select>
+                            </select>
                         </form>
                         <a th:href="@{/shop(view=${viewType}, saleOnly=${saleOnly}, page=${currentPage}, size=${books.size}, categoryId=${selectedCategory}, search=${searchKeyword}, sortBy=${sortBy}, sortDir=${sortDir == 'asc' ? 'desc' : 'asc'})}">
                             <i th:classappend="${sortDir == 'asc' ? 'fa fa-arrow-up' : 'fa fa-arrow-down'}"></i>
@@ -297,32 +303,30 @@
                         <div class="row" th:if="${books.isEmpty()}">
                             <div class="col-12">
                                 <p class="text-center">No books found.</p>
-                                        </div>
-                                        </div>
+                            </div>
+                        </div>
                         <div class="row" th:unless="${books.isEmpty()}">
                             <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6" th:each="book : ${books.content}">
                                 <!-- single-product-start -->
                                 <div class="product-wrapper mb-40">
                                     <div class="product-img">
-                                        <a th:href="@{/product/{id}(id=${book.bookId})}">
+                                        <a th:href="@{/shop/product/{id}(id=${book.bookId})}">
                                             <img th:src="${book.imageUrl != null ? book.imageUrl : '/user/img/product/1.jpg'}"
                                                  th:alt="${book.title}"
                                                  class="primary"/>
                                         </a>
-                                        <div class="quick-view">
-                                            <a class="action-view" href="#" data-bs-target="#productModal"
-                                               data-bs-toggle="modal" title="Quick View">
-                                                <i class="fa fa-search-plus"></i>
-                                            </a>
-                                        </div>
+
                                         <div class="product-flag" th:if="${book.stock == 0}">
                                             <ul>
                                                 <li><span class="sale">Out of stock</span></li>
                                             </ul>
                                         </div>
-                                        <div class="product-flag" th:if="${book.discountPercent != null && book.discountPercent > 0}">
+                                        <div class="product-flag"
+                                             th:if="${book.discountPercent != null && book.discountPercent > 0}">
                                             <ul>
-                                                <li><span class="discount-percentage">-<span th:text="${#numbers.formatDecimal(book.discountPercent, 1, 0)}"></span>%</span></li>
+                                                <li><span class="discount-percentage">-<span
+                                                        th:text="${#numbers.formatDecimal(book.discountPercent, 1, 0)}"></span>%</span>
+                                                </li>
                                             </ul>
                                         </div>
                                         <div class="product-flag" th:if="${book.stock > 0 && book.stock < 10}">
@@ -335,13 +339,14 @@
                                         <div class="product-rating">
                                             <ul>
                                                 <li th:each="i : ${#numbers.sequence(1, 5)}">
-                                        <a href="#">
+                                                    <a href="#">
                                                         <i th:classappend="${i <= 4 ? 'fa fa-star' : 'fa fa-star-o'}"></i>
-                                            </a>
+                                                    </a>
                                                 </li>
                                             </ul>
                                         </div>
-                                        <h4><a th:href="@{/product/{id}(id=${book.bookId})}" th:text="${book.title}">Book
+                                        <h4><a th:href="@{/shop/product/{id}(id=${book.bookId})}"
+                                               th:text="${book.title}">Book
                                             Title</a></h4>
                                         <div class="product-price">
                                             <ul>
@@ -373,7 +378,8 @@
                                         </div>
                                         <div class="add-to-link">
                                             <ul>
-                                                <li><a th:href="@{/product/{id}(id=${book.bookId})}" title="Details">
+                                                <li><a th:href="@{/shop/product/{id}(id=${book.bookId})}"
+                                                       title="Details">
                                                     <i class="fa fa-external-link"></i></a></li>
                                             </ul>
                                         </div>
@@ -381,77 +387,77 @@
                                 </div>
                                 <!-- single-product-end -->
                             </div>
-                                        </div>
-                                        </div>
+                        </div>
+                    </div>
                     <div class="tab-pane fade" th:classappend="${viewType} == 'list' ? 'show active' : ''" id="list">
                         <div th:if="${books.isEmpty()}">
                             <p class="text-center">No books found.</p>
-                                    </div>
+                        </div>
                         <div th:unless="${books.isEmpty()}">
                             <div class="single-shop mb-30" th:each="book : ${books.content}">
-                            <div class="row">
-                                <div class="col-lg-4 col-md-4 col-12">
-                                    <div class="product-wrapper-2">
-                                        <div class="product-img">
-                                                <a th:href="@{/product/{id}(id=${book.bookId})}">
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4 col-12">
+                                        <div class="product-wrapper-2">
+                                            <div class="product-img">
+                                                <a th:href="@{/shop/product/{id}(id=${book.bookId})}">
                                                     <img th:src="${book.imageUrl != null ? book.imageUrl : '/user/img/product/1.jpg'}"
                                                          th:alt="${book.title}"
                                                          class="primary"/>
-                                            </a>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-lg-8 col-md-8 col-12">
-                                    <div class="product-wrapper-content">
-                                        <div class="product-details">
-                                            <div class="product-rating">
-                                                <ul>
+                                    <div class="col-lg-8 col-md-8 col-12">
+                                        <div class="product-wrapper-content">
+                                            <div class="product-details">
+                                                <div class="product-rating">
+                                                    <ul>
                                                         <li th:each="i : ${#numbers.sequence(1, 5)}">
-                                            <a href="#">
+                                                            <a href="#">
                                                                 <i th:classappend="${i <= 4 ? 'fa fa-star' : 'fa fa-star-o'}"></i>
                                                             </a>
                                                         </li>
-                                                </ul>
-                                            </div>
-                                                <h4><a th:href="@{/product/{id}(id=${book.bookId})}"
+                                                    </ul>
+                                                </div>
+                                                <h4><a th:href="@{/shop/product/{id}(id=${book.bookId})}"
                                                        th:text="${book.title}">Book Title</a></h4>
-                                        <div class="product-price">
-                                            <ul>
-                                                <li th:if="${book.discountPercent != null && book.discountPercent > 0}"
-                                                    class="old-price"
-                                                    style="text-decoration: line-through; color: #888;"
-                                                    th:text="'$' + ${#numbers.formatDecimal(book.price, 1, 2)}">
-                                                    $0.00
-                                                </li>
-                                                <li th:if="${book.discountPercent != null && book.discountPercent > 0}"
-                                                    th:text="'$' + ${#numbers.formatDecimal(book.discountPrice, 1, 2)}"
-                                                    style="color:#e74c3c;font-weight:bold;">
-                                                    $0.00
-                                                </li>
-                                                <li th:if="${book.discountPercent == null || book.discountPercent == 0}"
-                                                    th:text="'$' + ${#numbers.formatDecimal(book.price, 1, 2)}">
-                                                    $0.00
-                                                </li>
-                                            </ul>
-                                        </div>
+                                                <div class="product-price">
+                                                    <ul>
+                                                        <li th:if="${book.discountPercent != null && book.discountPercent > 0}"
+                                                            class="old-price"
+                                                            style="text-decoration: line-through; color: #888;"
+                                                            th:text="'$' + ${#numbers.formatDecimal(book.price, 1, 2)}">
+                                                            $0.00
+                                                        </li>
+                                                        <li th:if="${book.discountPercent != null && book.discountPercent > 0}"
+                                                            th:text="'$' + ${#numbers.formatDecimal(book.discountPrice, 1, 2)}"
+                                                            style="color:#e74c3c;font-weight:bold;">
+                                                            $0.00
+                                                        </li>
+                                                        <li th:if="${book.discountPercent == null || book.discountPercent == 0}"
+                                                            th:text="'$' + ${#numbers.formatDecimal(book.price, 1, 2)}">
+                                                            $0.00
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                                 <p th:text="${book.description != null ? (#strings.abbreviate(book.description, 200)) : 'No description available'}">
                                                     Description</p>
-                                        </div>
-                                        <div class="product-link">
-                                            <div class="product-button">
+                                            </div>
+                                            <div class="product-link">
+                                                <div class="product-button">
                                                     <a th:href="@{/cart/add/{id}(id=${book.bookId})}"
                                                        th:classappend="${book.stock == 0 ? 'disabled' : ''}"
                                                        title="Add to cart">
                                                         <i class="fa fa-shopping-cart"></i>Add to cart
                                                     </a>
-                                            </div>
-                                            <div class="add-to-link">
-                                                <ul>
-                                                        <li><a th:href="@{/product/{id}(id=${book.bookId})}"
+                                                </div>
+                                                <div class="add-to-link">
+                                                    <ul>
+                                                        <li><a th:href="@{/shop/product/{id}(id=${book.bookId})}"
                                                                title="Details">
                                                             <i class="fa fa-external-link"></i></a></li>
-                                                </ul>
-                                            </div>
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

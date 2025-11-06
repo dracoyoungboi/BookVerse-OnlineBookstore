@@ -59,6 +59,25 @@ public class BookService {
         return bookRepository.findById(id);
     }
     
+    // Lấy sách theo ID với reviews
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public Optional<Book> getBookByIdWithDetails(Long id) {
+        // Fetch book với reviews
+        Optional<Book> bookOpt = bookRepository.findByIdWithReviews(id);
+        if (bookOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Book book = bookOpt.get();
+        
+        // Đảm bảo reviews đã được load
+        if (book.getReviews() != null) {
+            book.getReviews().size(); // Trigger lazy loading nếu cần
+        }
+        
+        return Optional.of(book);
+    }
+    
     // Lấy tất cả categories
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
@@ -94,6 +113,13 @@ public class BookService {
         List<Book> allBooks = bookRepository.findAll();
         Collections.shuffle(allBooks);
         return allBooks.stream().limit(limit).collect(java.util.stream.Collectors.toList());
+    }
+    
+    // Lấy sách liên quan (cùng category, loại trừ sách hiện tại)
+    public List<Book> getRelatedBooks(Long bookId, Long categoryId, int limit) {
+        List<Book> relatedBooks = bookRepository.findRelatedBooks(categoryId, bookId);
+        Collections.shuffle(relatedBooks);
+        return relatedBooks.stream().limit(limit).collect(java.util.stream.Collectors.toList());
     }
 }
 
