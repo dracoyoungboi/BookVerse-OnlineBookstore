@@ -19,6 +19,38 @@ public class Book {
     private String imageUrl;
     private LocalDateTime createdAt;
 
+    // Discount (sale)
+    private Double discountPercent = 0.0; // percent (0 = no sale)
+    private LocalDateTime discountStart;
+    private LocalDateTime discountEnd;
+    
+    // Giá đã giảm (tính động)
+    public Double getDiscountPrice() {
+        if (discountPercent != null && discountPercent > 0) {
+            return Math.round((price * (1 - discountPercent / 100)) * 100.0) / 100.0;
+        } else {
+            return price;
+        }
+    }
+    public Double getDiscountPercent() {
+        return discountPercent;
+    }
+    public void setDiscountPercent(Double discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+    public LocalDateTime getDiscountStart() {
+        return discountStart;
+    }
+    public void setDiscountStart(LocalDateTime discountStart) {
+        this.discountStart = discountStart;
+    }
+    public LocalDateTime getDiscountEnd() {
+        return discountEnd;
+    }
+    public void setDiscountEnd(LocalDateTime discountEnd) {
+        this.discountEnd = discountEnd;
+    }
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
