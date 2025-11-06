@@ -64,9 +64,6 @@ public class Book {
     @OneToMany(mappedBy = "book")
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "book")
-    private List<BookImage> bookImages;
-
     public Book() {}
 
     // Getters & Setters
@@ -164,13 +161,5 @@ public class Book {
 
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
-    }
-
-    public List<BookImage> getBookImages() {
-        return bookImages;
-    }
-
-    public void setBookImages(List<BookImage> bookImages) {
-        this.bookImages = bookImages;
     }
 }

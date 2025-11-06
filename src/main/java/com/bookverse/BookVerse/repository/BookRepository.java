@@ -36,5 +36,13 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     // Lấy tất cả sách có phân trang
     Page<Book> findAll(Pageable pageable);
+    
+    // Lấy sách cùng category nhưng loại trừ sách hiện tại
+    @Query("SELECT b FROM Book b WHERE b.category.categoryId = :categoryId AND b.bookId != :bookId")
+    List<Book> findRelatedBooks(@Param("categoryId") Long categoryId, @Param("bookId") Long bookId);
+    
+    // Lấy sách với reviews (fetch join để tránh LazyInitializationException)
+    @Query("SELECT DISTINCT b FROM Book b LEFT JOIN FETCH b.reviews WHERE b.bookId = :id")
+    java.util.Optional<Book> findByIdWithReviews(@Param("id") Long id);
 }
 
