@@ -1,0 +1,99 @@
+package com.bookverse.BookVerse.service;
+
+import com.bookverse.BookVerse.entity.Book;
+import com.bookverse.BookVerse.entity.Category;
+import com.bookverse.BookVerse.repository.BookRepository;
+import com.bookverse.BookVerse.repository.CategoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class BookService {
+    
+    private final BookRepository bookRepository;
+    private final CategoryRepository categoryRepository;
+    
+    public BookService(BookRepository bookRepository, CategoryRepository categoryRepository) {
+        this.bookRepository = bookRepository;
+        this.categoryRepository = categoryRepository;
+    }
+    
+    public Page<Book> getAllBooks(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? 
+            Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return bookRepository.findAll(pageable);
+    }
+    
+    public Page<Book> getBooksByCategory(Long categoryId, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? 
+            Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return bookRepository.findByCategoryCategoryId(categoryId, pageable);
+    }
+    
+    public Page<Book> searchBooks(String keyword, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? 
+            Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return bookRepository.findByTitleContainingIgnoreCase(keyword, pageable);
+    }
+    
+    // Lấy sách theo khoảng giá
+    public Page<Book> getBooksByPriceRange(Double minPrice, Double maxPrice, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? 
+            Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return bookRepository.findByPriceBetween(minPrice, maxPrice, pageable);
+    }
+    
+    // Lấy sách theo ID
+    public Optional<Book> getBookById(Long id) {
+        return bookRepository.findById(id);
+    }
+    
+    // Lấy tất cả categories
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
+    }
+    
+    // Lấy sách còn hàng
+    public Page<Book> getAvailableBooks(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? 
+            Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return bookRepository.findByStockGreaterThan(0, pageable);
+    }
+    
+    // Lấy sách đang giảm giá
+    public Page<Book> getOnSaleBooks(int page, int size, String sortBy, String sortDir) {
+        // map 'discount' to 'discountPercent' for sorting
+        if ("discount".equalsIgnoreCase(sortBy)) {
+            sortBy = "discountPercent";
+            sortDir = "desc"; // mặc định giảm giá nhiều trước
+        }
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return bookRepository.findByDiscountPercentGreaterThan(0.0, pageable);
+    }
+    // Đếm số lượng sách theo category
+    public long countBooksByCategory(Long categoryId) {
+        return bookRepository.findByCategoryCategoryId(categoryId).size();
+    }
+    
+    // Lấy sách ngẫu nhiên (limit số lượng)
+    public List<Book> getRandomBooks(int limit) {
+        List<Book> allBooks = bookRepository.findAll();
+        Collections.shuffle(allBooks);
+        return allBooks.stream().limit(limit).collect(java.util.stream.Collectors.toList());
+    }
+}
+
