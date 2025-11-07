@@ -7624,3 +7624,21 @@ p.lost-password a:hover {
 }
 
 /*------ end Compare Page Wrapper -----*/
+
+.menu-area ul li .mega-menu span {
+    float: left;
+    width: 25%;
+    padding-right: 20px;
+}
+
+.menu-area ul li .mega-menu.mega-menu-category {
+    width: auto;
+    min-width: 240px;
+    padding: 20px;
+}
+
+.menu-area ul li .mega-menu.mega-menu-category span {
+    float: none;
+    width: 100%;
+    padding-right: 0;
+}
