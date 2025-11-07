@@ -73,7 +73,7 @@
                                 </div>
                                 <div class="product-info-stock-sku">
                                     <span th:if="${book.stock > 0}">In stock</span>
-                                    <span th:if="${book.stock <= 0}" style="color: #e74c3c;">Out of stock</span>
+                                    <span th:if="${book.stock <= 0}" style="color: #d4af37;">Out of stock</span>
                                     <div class="product-attribute">
                                         <span>Author</span>
                                         <span class="value" th:text="${book.author}">Author Name</span>
@@ -101,7 +101,7 @@
                                         <!-- Nếu có discount -->
                                         <span th:if="${book.discountPercent != null && book.discountPercent > 0}"
                                               th:text="'$' + ${#numbers.formatDecimal(book.discountPrice, 1, 2)}"
-                                              style="color:#e74c3c;font-weight:bold;">$0.00</span>
+                                              style="color:#d4af37;font-weight:bold;">$0.00</span>
                                         <span th:if="${book.discountPercent != null && book.discountPercent > 0}"
                                               class="old-price"
                                               th:text="'$' + ${#numbers.formatDecimal(book.price, 1, 2)}"
@@ -314,7 +314,7 @@
                                                 </li>
                                                 <li th:if="${relatedBook.discountPercent != null && relatedBook.discountPercent > 0}"
                                                     th:text="'$' + ${#numbers.formatDecimal(relatedBook.discountPrice, 1, 2)}"
-                                                    style="color:#e74c3c;font-weight:bold;">
+                                                    style="color:#d4af37;font-weight:bold;">
                                                     $0.00
                                                 </li>
                                                 <!-- Nếu không có discount -->
