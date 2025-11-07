@@ -44,5 +44,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     // Lấy sách với reviews (fetch join để tránh LazyInitializationException)
     @Query("SELECT DISTINCT b FROM Book b LEFT JOIN FETCH b.reviews WHERE b.bookId = :id")
     java.util.Optional<Book> findByIdWithReviews(@Param("id") Long id);
+    
+    // Lấy sách mới nhất (new arrival)
+    List<Book> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }
 

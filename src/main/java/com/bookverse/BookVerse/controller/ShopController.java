@@ -133,7 +133,8 @@ public class ShopController {
         model.addAttribute("book", book);
         model.addAttribute("relatedBooks", relatedBooks);
         model.addAttribute("avgRating", avgRating);
-        
+        model.addAttribute("categories", bookService.getAllCategories());
+ 
         return "user/product-details";
     }
 }

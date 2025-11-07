@@ -121,5 +121,35 @@ public class BookService {
         Collections.shuffle(relatedBooks);
         return relatedBooks.stream().limit(limit).collect(java.util.stream.Collectors.toList());
     }
+    
+    // Lấy best seller books (random hoặc mới nhất)
+    public List<Book> getBestSellerBooks(int limit) {
+        return getRandomBooks(limit);
+    }
+    
+    // Lấy new arrival books (sách mới nhất)
+    public List<Book> getNewArrivalBooks(int limit) {
+        Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
+        return bookRepository.findAllByOrderByCreatedAtDesc(pageable);
+    }
+    
+    // Lấy on sale books (không phân trang, chỉ lấy list)
+    public List<Book> getOnSaleBooksList(int limit) {
+        Pageable pageable = PageRequest.of(0, limit, Sort.by("discountPercent").descending());
+        Page<Book> page = bookRepository.findByDiscountPercentGreaterThan(0.0, pageable);
+        return page.getContent();
+    }
+    
+    // Lấy featured books (random)
+    public List<Book> getFeaturedBooks(int limit) {
+        return getRandomBooks(limit);
+    }
+    
+    // Lấy sách theo category (không phân trang, chỉ lấy list)
+    public List<Book> getBooksByCategoryList(Long categoryId, int limit) {
+        List<Book> books = bookRepository.findByCategoryCategoryId(categoryId);
+        Collections.shuffle(books);
+        return books.stream().limit(limit).collect(java.util.stream.Collectors.toList());
+    }
 }
 
