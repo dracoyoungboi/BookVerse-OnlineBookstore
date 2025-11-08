@@ -23,6 +23,7 @@
     your browser</a> to improve your experience.</p>
 <![endif]-->
 
+<<<<<<< HEAD
 <!-- Add your site or application content here -->
 <!-- header-area-start -->
 <div th:replace="common/user/header :: header"></div>
@@ -33,6 +34,26 @@
         <div class="slider-active owl-carousel">
             <div class="single-slider pt-100 pb-145 bg-img"
                  th:style="'background-image: url(' + @{/user/img/slider/5.jpg} + ');'">
+=======
+    <!-- Add your site or application content here -->
+    <!-- header-area-start -->
+    <div th:replace="common/user/header :: header"></div>
+    <!-- header-area-end -->
+    
+    <!-- Logout message -->
+    <div th:if="${logoutMessage}" class="container" style="margin-top: 20px;">
+        <div class="alert alert-success" role="alert" style="color: green; text-align: center; padding: 15px; background-color: #d4edda; border-radius: 4px; border: 1px solid #c3e6cb;">
+            <span th:text="${logoutMessage}"></span>
+        </div>
+    </div>
+    
+    <!-- slider-area-start -->
+    <div class="slider-area mt-30">
+        <div class="container">
+            <div class="slider-active owl-carousel">
+                <div class="single-slider pt-100 pb-145 bg-img"
+                     th:style="'background-image: url(' + @{/user/img/slider/14.jpg} + ');'">
+>>>>>>> PhanAnh
                 <div class="row">
                     <div class="col-md-12">
                         <div class="slider-content-3 slider-animated-1 pl-100">
