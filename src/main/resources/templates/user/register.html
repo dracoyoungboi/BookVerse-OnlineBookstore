@@ -1,0 +1,213 @@
+<!doctype html>
+<html class="no-js" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Register | BookVerse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <div th:replace="~{common/user/css :: css}"></div>
+
+    <style>
+        /* To center the form and style it nicely */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .register-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+
+        form.billing-fields {
+            width: 100%;
+            max-width: 480px;
+            background: #fff;
+            padding: 40px 50px;
+            border: 1px solid #e6e6e6;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .login-title h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .login-title p {
+            color: #555;
+            font-size: 15px;
+            margin: 0 auto;
+            max-width: 400px;
+        }
+
+        .form-row {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button.btn-primary {
+            background-color: #0d6efd;
+            border: none;
+            color: white;
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button.btn-primary:hover {
+            background-color: #0056d2;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .required {
+            color: red;
+        }
+
+        .bottom-text {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .bottom-text a {
+            color: #0d6efd;
+            text-decoration: none;
+        }
+
+        .bottom-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body class="register">
+
+<!-- Header -->
+<div th:replace="~{common/user/header :: header}"></div>
+
+<!-- breadcrumbs -->
+<div class="breadcrumbs-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumbs-menu">
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#" class="active">Register</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- user-login-area -->
+<div class="register-container">
+    <div class="form-wrapper">
+        <div class="login-title">
+            <h2>Sign Up</h2>
+            <p>Create your BookVerse account and start exploring!</p>
+        </div>
+
+        <form th:action="@{/register}" th:object="${user}" method="post" class="billing-fields">
+
+            <div th:if="${error}" class="alert alert-danger text-center" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success text-center" th:text="${success}"></div>
+
+            <div class="form-row">
+                <label>Full Name <span class="required">*</span></label>
+                <input type="text" th:field="*{fullName}" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-row">
+                <label>Username <span class="required">*</span></label>
+                <input type="text" th:field="*{username}" placeholder="Choose a username" required>
+            </div>
+
+            <div class="form-row">
+                <label>Email Address <span class="required">*</span></label>
+                <input type="email" th:field="*{email}" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-row">
+                <label>Phone</label>
+                <input type="text" th:field="*{phone}" placeholder="Enter your phone number">
+            </div>
+
+            <div class="form-row">
+                <label>Address</label>
+                <input type="text" th:field="*{address}" placeholder="Enter your address">
+            </div>
+
+            <div class="form-row">
+                <label>Password <span class="required">*</span></label>
+                <input type="password" th:field="*{password}" placeholder="Enter password" minlength="4" required>
+            </div>
+
+            <div class="form-row">
+                <label>Confirm Password <span class="required">*</span></label>
+                <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+            </div>
+
+            <button type="submit" class="btn-primary">Register</button>
+
+            <div class="bottom-text">
+                Already have an account? <a th:href="@{/login}">Login here</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{common/user/footer :: footer}"></div>
+<div th:replace="~{common/user/js :: js}"></div>
+
+<script>
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const pwd = document.querySelector('[name="password"]').value;
+        const confirm = document.getElementById('confirmPassword').value;
+        if (pwd !== confirm) {
+            e.preventDefault();
+            alert("Passwords do not match!");
+        }
+    });
+</script>
+
+</body>
+</html>

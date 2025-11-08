@@ -34,7 +34,17 @@
                         <ul>
                             <li><a href="my-account.html">My Account</a></li>
                             <li><a href="checkout.html">Checkout</a></li>
-                            <li><a href="login.html">Sign in</a></li>
+                            <!-- Show username and logout when logged in -->
+                            <li th:if="${username != null or session.username != null}">
+                                <a href="#">Hello, <span th:text="${username != null ? username : session.username}"></span></a>
+                            </li>
+                            <li th:if="${username != null or session.username != null}">
+                                <form th:action="@{/logout}" method="post" style="display:inline; margin-left:8px;">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <button type="submit" style="background:none;border:none;color:#fff;cursor:pointer;padding:0;">Logout</button>
+                                </form>
+                            </li>
+                            <li th:if="${username == null and session.username == null}"><a th:href="@{/login}">Sign in</a></li>
                         </ul>
                     </div>
                 </div>
@@ -240,7 +250,7 @@
                                             <li><a href="contact.html">contact</a></li>
                                             <li><a href="about.html">about</a></li>
                                             <li><a href="login.html">login</a></li>
-                                            <li><a href="register.html">register</a></li>
+                                            <li><a href="/register">register</a></li>
                                             <li><a href="my-account.html">my-account</a></li>
                                             <li><a href="cart.html">cart</a></li>
                                             <li><a href="compare.html">compare</a></li>

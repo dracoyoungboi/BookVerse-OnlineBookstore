@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>OAuth2 Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .info { background: #f0f0f0; padding: 10px; margin: 5px 0; border-left: 4px solid #007bff; }
+        .error { background: #ffe0e0; padding: 10px; margin: 5px 0; border-left: 4px solid #dc3545; }
+        .success { background: #e0ffe0; padding: 10px; margin: 5px 0; border-left: 4px solid #28a745; }
+    </style>
+</head>
+<body>
+    <h1>OAuth2 Configuration Debug</h1>
+    <div th:each="line : ${info}">
+        <div th:class="${line.contains('ERROR') ? 'error' : (line.contains('SUCCESS') ? 'success' : 'info')}" th:text="${line}"></div>
+    </div>
+    <br/>
+    <a href="/login">Back to Login</a>
+</body>
+</html>
+
