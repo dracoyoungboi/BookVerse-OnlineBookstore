@@ -1,20 +1,38 @@
 package com.bookverse.BookVerse.controller;
 
+import com.bookverse.BookVerse.dto.ContactFormDTO;
 import com.bookverse.BookVerse.entity.Category;
 import com.bookverse.BookVerse.service.BookService;
+import com.bookverse.BookVerse.service.EmailService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
     
     private final BookService bookService;
+    private final EmailService emailService;
     
-    public HomeController(BookService bookService) {
+    public HomeController(BookService bookService, EmailService emailService) {
         this.bookService = bookService;
+        this.emailService = emailService;
     }
     
     @GetMapping("/")
@@ -68,6 +86,76 @@ public class HomeController {
         model.addAttribute("categories", categories);
         
         return "user/index-7";
+    }
+    
+    @GetMapping("/about")
+    public String aboutPage(Model model) {
+        // Lấy categories để hiển thị trong header
+        List<Category> categories = bookService.getAllCategories();
+        model.addAttribute("categories", categories);
+        return "user/about";
+    }
+    
+    @GetMapping("/contact")
+    public String contactPage(Model model) {
+        // Lấy categories để hiển thị trong header
+        List<Category> categories = bookService.getAllCategories();
+        model.addAttribute("categories", categories);
+        model.addAttribute("contactForm", new ContactFormDTO());
+        return "user/contact";
+    }
+    
+    @PostMapping("/contact")
+    @ResponseBody
+    public ResponseEntity<?> submitContactForm(@Valid ContactFormDTO contactForm, BindingResult bindingResult) {
+        // Validate form
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errors.put(error.getField(), error.getDefaultMessage());
+            }
+            
+            // Tạo error message từ validation errors
+            String errorMessage = errors.values().stream()
+                .collect(Collectors.joining(", "));
+            
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(errorMessage);
+        }
+        
+        try {
+            // Gửi email
+            emailService.sendContactEmail(
+                contactForm.getName(),
+                contactForm.getEmail(),
+                contactForm.getSubject(),
+                contactForm.getMessage()
+            );
+            
+            return ResponseEntity.ok("Thank you for contacting us! We have received your message and will get back to you soon.");
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Sorry, there was an error sending your message. Please try again later or contact us directly at contact@bookverse.com");
+        }
+    }
+    
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        
+        // Tạo error message từ validation errors
+        String errorMessage = errors.values().stream()
+            .collect(Collectors.joining(", "));
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
     }
 }
 
