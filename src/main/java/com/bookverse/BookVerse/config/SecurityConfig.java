@@ -59,30 +59,73 @@ public class SecurityConfig {
         
         http
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints and static resources - must be first
+                        // 1. Static resources - must be first (always public)
+                        // Allow admin static assets before protecting admin routes
                         .requestMatchers(
-                                "/",
-                                "/index",
-                                "/login",
-                                "/register",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/user/**",           // static assets served under /user/**
-                                "/admin/**",          // admin static assets
-                                "/common/**",         // thymeleaf fragments
                                 "/img/**",
+                                "/user/**",           // static assets served under /user/**
+                                "/common/**",         // thymeleaf fragments
+                                "/admin/css/**",      // admin static CSS (if exists)
+                                "/admin/js/**",       // admin static JS (if exists)
+                                "/admin/images/**",   // admin static images (if exists)
+                                "/admin/img/**"       // admin static img (if exists)
+                        ).permitAll()
+                        
+                        // 2. Admin routes - require ADMIN role
+                        // This protects all admin pages (present and future)
+                        .requestMatchers(
+                                "/demo/admin",
+                                "/admin/**"           // All admin routes (pages, APIs, etc.)
+                        ).hasRole("ADMIN")
+                        
+                        // 3. Authentication and OAuth2 routes - public
+                        .requestMatchers(
+                                "/login",
+                                "/register",
+                                "/forgot-password",
+                                "/reset-password",
+                                "/logout",
                                 "/oauth2/**",
                                 "/login/oauth2/**",
                                 "/GoogleLogin",
+                                "/perform_login",
                                 "/debug/oauth/**"
                         ).permitAll()
-                        // Protected by role
-                        .requestMatchers("/demo/admin").hasRole("ADMIN")
-                        // Public user page
-                        .requestMatchers("/demo/user").permitAll()
-                        // All other requests require authentication
-                        .anyRequest().authenticated()
+                        
+                        // 4. Checkout and payment routes - require authentication (will redirect to login if not authenticated)
+                        .requestMatchers(
+                                "/checkout/**",
+                                "/payment/**",
+                                "/order/**",
+                                "/orders/**"
+                        ).authenticated()
+                        
+                        // 4.1. My Account route - require authentication
+                        .requestMatchers(
+                                "/my-account"
+                        ).authenticated()
+                        
+                        // 5. Cart routes - public (can view cart without login)
+                        .requestMatchers(
+                                "/cart/**"
+                        ).permitAll()
+                        
+                        // 6. Public pages - allow all (home, shop, about, contact, user page, etc.)
+                        .requestMatchers(
+                                "/",
+                                "/index",
+                                "/shop/**",
+                                "/about",
+                                "/contact",
+                                "/demo/user"
+                        ).permitAll()
+                        
+                        // 7. All other requests - permit all by default (for future pages)
+                        // Change to .authenticated() if you want to protect all other routes
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -117,16 +160,16 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID")
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            // Session is already invalidated by Spring Security
-                            // Create a new session for the logout message
-                            HttpSession newSession = request.getSession(true);
-                            newSession.setAttribute("logoutMessage", "You have been logged out successfully.");
-                            // Redirect to home page
-                            response.sendRedirect("/demo/user?logout=true");
-                        })
+                        .deleteCookies("JSESSIONID", "remember-me")
+                        .logoutSuccessUrl("/login?logout=true")
                         .permitAll()
+                )
+                .rememberMe(remember -> remember
+                        .key("bookverse-remember-me-secret-key-2024") // Secret key to encrypt remember-me token
+                        .tokenValiditySeconds(7 * 24 * 60 * 60) // 7 days in seconds
+                        .userDetailsService(customUserDetailsService)
+                        .rememberMeParameter("rememberme") // Match the checkbox name in login form
+                        .rememberMeCookieName("remember-me") // Cookie name
                 )
                 .userDetailsService(customUserDetailsService);
 

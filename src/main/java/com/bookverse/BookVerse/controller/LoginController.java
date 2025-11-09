@@ -3,15 +3,20 @@ package com.bookverse.BookVerse.controller;
 import com.bookverse.BookVerse.entity.Role;
 import com.bookverse.BookVerse.entity.User;
 import com.bookverse.BookVerse.repository.RoleRepository;
+import com.bookverse.BookVerse.repository.UserRepository;
+import com.bookverse.BookVerse.service.EmailService;
 import com.bookverse.BookVerse.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -22,9 +27,29 @@ public class LoginController {
 
     @Autowired
     private RoleRepository roleRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/login")
-    public String loginForm(Model model, HttpSession session) {
+    public String loginForm(Model model, HttpSession session, Authentication authentication) {
+        // If user is already authenticated, redirect to appropriate page
+        if (authentication != null && authentication.isAuthenticated()) {
+            // Check if user is admin
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN") 
+                            || authority.getAuthority().contains("ADMIN"));
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            } else {
+                return "redirect:/demo/user";
+            }
+        }
+        
         // Get last username from session if login failed
         String lastUsername = (String) session.getAttribute("lastUsername");
         if (lastUsername != null) {
@@ -40,7 +65,21 @@ public class LoginController {
 
 
     @GetMapping("/register")
-    public String showRegisterForm(Model model) {
+    public String showRegisterForm(Model model, Authentication authentication) {
+        // If user is already authenticated, redirect to appropriate page
+        if (authentication != null && authentication.isAuthenticated()) {
+            // Check if user is admin
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN") 
+                            || authority.getAuthority().contains("ADMIN"));
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            } else {
+                return "redirect:/demo/user";
+            }
+        }
+        
         model.addAttribute("user", new User());
         return "user/register";
     }
@@ -90,6 +129,215 @@ public class LoginController {
             return "user/register";
         }
     }
+    @GetMapping("/forgot-password")
+    public String showForgotPasswordForm(Model model, Authentication authentication) {
+        // If user is already authenticated, redirect to appropriate page
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN") 
+                            || authority.getAuthority().contains("ADMIN"));
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            } else {
+                return "redirect:/demo/user";
+            }
+        }
+        
+        return "user/forgot-password";
+    }
+    
+    @PostMapping("/forgot-password")
+    public String processForgotPassword(@RequestParam("email") String email, 
+                                        Model model, 
+                                        HttpServletRequest request) {
+        try {
+            // Validate email format
+            if (email == null || email.trim().isEmpty()) {
+                model.addAttribute("error", "Email cannot be empty!");
+                return "user/forgot-password";
+            }
+            
+            if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+                model.addAttribute("error", "Invalid email format!");
+                model.addAttribute("email", email);
+                return "user/forgot-password";
+            }
+            
+            // Find user by email
+            List<User> users = userRepository.findAllByEmailWithRole(email);
+            
+            if (users.isEmpty()) {
+                // For security, don't reveal if email exists or not
+                // Just show success message
+                model.addAttribute("success", 
+                    "If an account with that email exists, we have sent a password reset link to your email address.");
+                return "user/forgot-password";
+            }
+            
+            // Get the first user (most recent if duplicates exist)
+            User user = users.get(0);
+            String userName = user.getFullName() != null ? user.getFullName() : user.getUsername();
+            
+            // Generate reset link (for demo, we'll use a simple approach)
+            // In production, you should generate a secure token and store it in database
+            String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+            String resetLink = baseUrl + "/reset-password?email=" + email + "&token=" + 
+                             java.util.UUID.randomUUID().toString();
+            
+            // Send password reset email
+            emailService.sendPasswordResetEmail(email, resetLink, userName);
+            
+            model.addAttribute("success", 
+                "If an account with that email exists, we have sent a password reset link to your email address.");
+            
+        } catch (Exception e) {
+            model.addAttribute("error", "An error occurred. Please try again later.");
+            model.addAttribute("email", email);
+        }
+        
+        return "user/forgot-password";
+    }
+    
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(@RequestParam(value = "email", required = false) String email,
+                                        @RequestParam(value = "token", required = false) String token,
+                                        Model model,
+                                        Authentication authentication) {
+        // If user is already authenticated, redirect to appropriate page
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN") 
+                            || authority.getAuthority().contains("ADMIN"));
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            } else {
+                return "redirect:/demo/user";
+            }
+        }
+        
+        // Validate email and token are provided
+        if (email == null || email.trim().isEmpty() || token == null || token.trim().isEmpty()) {
+            model.addAttribute("error", "Invalid reset link. Please request a new password reset.");
+            return "user/reset-password";
+        }
+        
+        // Validate email format
+        if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            model.addAttribute("error", "Invalid email format.");
+            return "user/reset-password";
+        }
+        
+        // Check if user exists
+        List<User> users = userRepository.findAllByEmailWithRole(email);
+        if (users.isEmpty()) {
+            model.addAttribute("error", "Invalid reset link. User not found.");
+            return "user/reset-password";
+        }
+        
+        // For demo purposes, we'll accept any token format (UUID)
+        // In production, you should validate token against database and check expiration
+        try {
+            java.util.UUID.fromString(token);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", "Invalid reset token format.");
+            return "user/reset-password";
+        }
+        
+        model.addAttribute("email", email);
+        model.addAttribute("token", token);
+        return "user/reset-password";
+    }
+    
+    @PostMapping("/reset-password")
+    public String processResetPassword(@RequestParam("email") String email,
+                                       @RequestParam("token") String token,
+                                       @RequestParam("password") String password,
+                                       @RequestParam("confirmPassword") String confirmPassword,
+                                       Model model,
+                                       Authentication authentication) {
+        // If user is already authenticated, redirect to appropriate page
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN") 
+                            || authority.getAuthority().contains("ADMIN"));
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            } else {
+                return "redirect:/demo/user";
+            }
+        }
+        
+        try {
+            // Validate inputs
+            if (email == null || email.trim().isEmpty() || token == null || token.trim().isEmpty()) {
+                model.addAttribute("error", "Invalid reset link. Please request a new password reset.");
+                return "user/reset-password";
+            }
+            
+            if (password == null || password.trim().isEmpty()) {
+                model.addAttribute("error", "Password cannot be empty!");
+                model.addAttribute("email", email);
+                model.addAttribute("token", token);
+                return "user/reset-password";
+            }
+            
+            if (password.length() < 4) {
+                model.addAttribute("error", "Password must be at least 4 characters long!");
+                model.addAttribute("email", email);
+                model.addAttribute("token", token);
+                return "user/reset-password";
+            }
+            
+            if (!password.equals(confirmPassword)) {
+                model.addAttribute("error", "Passwords do not match!");
+                model.addAttribute("email", email);
+                model.addAttribute("token", token);
+                return "user/reset-password";
+            }
+            
+            // Validate email format
+            if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+                model.addAttribute("error", "Invalid email format.");
+                return "user/reset-password";
+            }
+            
+            // Validate token format
+            try {
+                java.util.UUID.fromString(token);
+            } catch (IllegalArgumentException e) {
+                model.addAttribute("error", "Invalid reset token format.");
+                return "user/reset-password";
+            }
+            
+            // Find user by email
+            List<User> users = userRepository.findAllByEmailWithRole(email);
+            if (users.isEmpty()) {
+                model.addAttribute("error", "Invalid reset link. User not found.");
+                return "user/reset-password";
+            }
+            
+            // Get the first user (most recent if duplicates exist)
+            User user = users.get(0);
+            
+            // Update password
+            user.setPassword(userService.encodePassword(password));
+            userRepository.save(user);
+            
+            model.addAttribute("success", "Your password has been reset successfully! You can now login with your new password.");
+            // Don't include email and token in model after success to prevent form display
+            
+        } catch (Exception e) {
+            model.addAttribute("error", "An error occurred while resetting your password. Please try again.");
+            model.addAttribute("email", email);
+            model.addAttribute("token", token);
+        }
+        
+        return "user/reset-password";
+    }
+    
     @GetMapping("/GoogleLogin")
     public String home(Model model,
                        @AuthenticationPrincipal OAuth2User

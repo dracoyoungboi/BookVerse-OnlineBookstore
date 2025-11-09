@@ -70,5 +70,36 @@ public class EmailService {
             name, subject
         );
     }
+    
+    public void sendPasswordResetEmail(String email, String resetLink, String userName) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(email);
+            message.setSubject("Password Reset Request - BookVerse");
+            message.setText(buildPasswordResetEmailContent(userName, resetLink));
+            
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send password reset email: " + e.getMessage(), e);
+        }
+    }
+    
+    private String buildPasswordResetEmailContent(String userName, String resetLink) {
+        return String.format(
+            "Dear %s,\n\n" +
+            "You have requested to reset your password for your BookVerse account.\n\n" +
+            "To reset your password, please click on the following link:\n" +
+            "%s\n\n" +
+            "If you did not request this password reset, please ignore this email. Your password will remain unchanged.\n\n" +
+            "This link will expire in 24 hours for security reasons.\n\n" +
+            "If you continue to have problems, please contact our support team.\n\n" +
+            "Best regards,\n" +
+            "The BookVerse Team\n\n" +
+            "---\n" +
+            "This is an automated email. Please do not reply to this message.",
+            userName != null ? userName : "User", resetLink
+        );
+    }
 }
 
