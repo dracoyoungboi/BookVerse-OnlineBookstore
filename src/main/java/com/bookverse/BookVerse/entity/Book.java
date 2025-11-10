@@ -18,6 +18,7 @@ public class Book {
     private String description;
     private String imageUrl;
     private LocalDateTime createdAt;
+    private Boolean deleted = false; // Soft delete flag
 
     // Discount (sale)
     private Double discountPercent = 0.0; // percent (0 = no sale)
@@ -161,5 +162,13 @@ public class Book {
 
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
+    }
+
+    public Boolean getDeleted() {
+        return deleted != null ? deleted : false;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted != null ? deleted : false;
     }
 }

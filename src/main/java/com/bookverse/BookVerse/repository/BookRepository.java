@@ -47,5 +47,33 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     
     // Lấy sách mới nhất (new arrival)
     List<Book> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    
+    // Find all books with category (for admin panel)
+    @Query("SELECT b FROM Book b LEFT JOIN FETCH b.category ORDER BY b.bookId DESC")
+    java.util.List<Book> findAllWithCategory();
+    
+    // Find book by ID with category (for admin panel)
+    @Query("SELECT b FROM Book b LEFT JOIN FETCH b.category WHERE b.bookId = :id")
+    java.util.Optional<Book> findByIdWithCategory(@Param("id") Long id);
+    
+    // Find books with category and pagination (for admin panel) - including both active and inactive
+    // Using LEFT JOIN instead of JOIN FETCH to avoid pagination issues
+    // Category will be fetched automatically when accessed (ManyToOne relationship)
+    @Query(value = "SELECT b FROM Book b LEFT JOIN b.category ORDER BY b.bookId DESC",
+           countQuery = "SELECT COUNT(b) FROM Book b")
+    Page<Book> findAllWithCategoryPaged(Pageable pageable);
+    
+    // Search books by title or author with pagination - including both active and inactive
+    @Query(value = "SELECT DISTINCT b FROM Book b LEFT JOIN b.category WHERE " +
+           "LOWER(b.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%')) ORDER BY b.bookId DESC",
+           countQuery = "SELECT COUNT(DISTINCT b) FROM Book b WHERE " +
+           "LOWER(b.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%'))")
+    Page<Book> searchBooksWithCategory(@Param("search") String search, Pageable pageable);
+    
+    // Find book by ID with category (for admin panel) - including inactive books
+    @Query("SELECT b FROM Book b LEFT JOIN b.category WHERE b.bookId = :id")
+    java.util.Optional<Book> findByIdWithCategoryForAdmin(@Param("id") Long id);
 }
 

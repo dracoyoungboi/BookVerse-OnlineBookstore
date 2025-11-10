@@ -46,7 +46,15 @@ public class UserService {
     }
 
     public void saveUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // Only encode password if it's not already encoded (doesn't start with $2a$)
+        if (user.getPassword() != null && !user.getPassword().startsWith("$2a$")) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        userRepository.save(user);
+    }
+    
+    public void saveUserWithoutEncoding(User user) {
+        // Save user without encoding password (password should already be encoded)
         userRepository.save(user);
     }
     public void registerUser(User user) {

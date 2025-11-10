@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Account - Admin | BookVerse</title>
+  <title>View User - Admin | BookVerse</title>
   <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
   <!-- common css import -->
   <div th:replace="common/admin/css :: css"></div>
@@ -131,7 +131,7 @@
   <div class="dashboard-main-body">
 
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-  <h6 class="fw-semibold mb-0">My Account</h6>
+  <h6 class="fw-semibold mb-0">User Details</h6>
   <ul class="d-flex align-items-center gap-2">
     <li class="fw-medium">
       <a th:href="@{/demo/admin}" class="d-flex align-items-center gap-1 hover-text-primary">
@@ -140,12 +140,60 @@
       </a>
     </li>
     <li>-</li>
-    <li class="fw-medium">My Account</li>
+    <li class="fw-medium">
+      <a th:href="@{/admin/users}" class="d-flex align-items-center gap-1 hover-text-primary">Users</a>
+    </li>
+    <li>-</li>
+    <li class="fw-medium">User Details</li>
   </ul>
 </div>
 
+    <!-- Success/Error Messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <span th:text="${success}">Success message</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <span th:text="${error}">Error message</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="card">
       <div class="card-body">
+        
+        <!-- Account Overview -->
+        <div class="mb-40">
+          <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Account Overview</h5>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">User ID</label>
+                <p class="text-lg fw-semibold mb-0" th:text="${user.userId}">-</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Role</label>
+                <p class="text-lg fw-semibold mb-0 text-primary-600" th:text="${user.role != null ? user.role.name : 'N/A'}">Role</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Status</label>
+                <span class="badge" 
+                      th:classappend="${isActive ? 'bg-success' : 'bg-danger'}"
+                      th:text="${status}">Active</span>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Account Active Duration</label>
+                <p class="text-md mb-0" th:text="${accountActiveDuration}">Not available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Personal Information -->
         <div class="mb-40">
           <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Personal Information</h5>
@@ -153,31 +201,37 @@
             <div class="col-md-6">
               <div class="p-16 bg-neutral-50 rounded-3">
                 <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Full Name</label>
-                <p class="text-md mb-0" th:text="${fullName}">-</p>
+                <p class="text-md mb-0" th:text="${user.fullName != null ? user.fullName : 'N/A'}">-</p>
               </div>
             </div>
             <div class="col-md-6">
               <div class="p-16 bg-neutral-50 rounded-3">
                 <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Username</label>
-                <p class="text-md mb-0" th:text="${username}">-</p>
+                <p class="text-md mb-0" th:text="${user.username}">-</p>
               </div>
             </div>
             <div class="col-md-6">
               <div class="p-16 bg-neutral-50 rounded-3">
                 <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Email</label>
-                <p class="text-md mb-0" th:text="${email}">-</p>
+                <p class="text-md mb-0" th:text="${user.email}">-</p>
               </div>
             </div>
             <div class="col-md-6">
               <div class="p-16 bg-neutral-50 rounded-3">
                 <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Phone</label>
-                <p class="text-md mb-0" th:text="${phone}">Not provided</p>
+                <p class="text-md mb-0" th:text="${user.phone != null ? user.phone : 'N/A'}">Not provided</p>
               </div>
             </div>
             <div class="col-12">
               <div class="p-16 bg-neutral-50 rounded-3">
                 <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Address</label>
-                <p class="text-md mb-0" th:text="${address}">Not provided</p>
+                <p class="text-md mb-0" th:text="${user.address != null ? user.address : 'N/A'}">Not provided</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Created At</label>
+                <p class="text-md mb-0" th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm:ss') : 'N/A'}">-</p>
               </div>
             </div>
           </div>
@@ -185,7 +239,18 @@
 
         <!-- Action Buttons -->
         <div class="d-flex flex-wrap gap-3 justify-content-end pt-24 border-top">
-          <a th:href="@{/demo/admin}" class="btn btn-primary-600">Back to Dashboard</a>
+          <a th:href="@{/admin/users}" class="btn btn-secondary">Back to Users</a>
+          <a th:href="@{/admin/users/edit/{id}(id=${user.userId})}" class="btn btn-primary-600">Edit User</a>
+          <form th:action="@{/admin/users/toggle-status/{id}(id=${user.userId}, redirect='view')}" 
+                method="post" 
+                style="display: inline;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" 
+                    th:class="${isActive ? 'btn btn-warning' : 'btn btn-success'}"
+                    th:text="${isActive ? 'Set to Inactive' : 'Set to Active'}">
+              Toggle Status
+            </button>
+          </form>
         </div>
 
       </div>

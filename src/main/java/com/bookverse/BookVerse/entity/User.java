@@ -20,6 +20,7 @@ public class User {
     private String phone;
     private String address;
     private LocalDateTime createdAt;
+    private Boolean deleted = false; // Soft delete flag
 
     @ManyToOne
     @JoinColumn(name = "role_id")
@@ -131,5 +132,13 @@ public class User {
 
     public void setWishlists(List<Wishlist> wishlists) {
         this.wishlists = wishlists;
+    }
+
+    public Boolean getDeleted() {
+        return deleted != null ? deleted : false;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted != null ? deleted : false;
     }
 }

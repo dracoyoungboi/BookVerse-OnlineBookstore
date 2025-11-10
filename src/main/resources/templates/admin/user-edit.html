@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Account - Admin | BookVerse</title>
+  <title>Edit User - Admin | BookVerse</title>
   <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
   <!-- common css import -->
   <div th:replace="common/admin/css :: css"></div>
@@ -131,7 +131,7 @@
   <div class="dashboard-main-body">
 
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-  <h6 class="fw-semibold mb-0">My Account</h6>
+  <h6 class="fw-semibold mb-0">Edit User</h6>
   <ul class="d-flex align-items-center gap-2">
     <li class="fw-medium">
       <a th:href="@{/demo/admin}" class="d-flex align-items-center gap-1 hover-text-primary">
@@ -140,54 +140,74 @@
       </a>
     </li>
     <li>-</li>
-    <li class="fw-medium">My Account</li>
+    <li class="fw-medium">
+      <a th:href="@{/admin/users}" class="d-flex align-items-center gap-1 hover-text-primary">Users</a>
+    </li>
+    <li>-</li>
+    <li class="fw-medium">Edit User</li>
   </ul>
 </div>
 
+    <!-- Error Messages -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <span th:text="${error}">Error message</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="card">
       <div class="card-body">
-        <!-- Personal Information -->
-        <div class="mb-40">
-          <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Personal Information</h5>
+        <form th:action="@{/admin/users/edit/{id}(id=${user.userId})}" th:object="${user}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          
           <div class="row g-3">
             <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Full Name</label>
-                <p class="text-md mb-0" th:text="${fullName}">-</p>
-              </div>
+              <label class="form-label">Username <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" th:field="*{username}" required>
             </div>
+            
             <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Username</label>
-                <p class="text-md mb-0" th:text="${username}">-</p>
-              </div>
+              <label class="form-label">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" th:field="*{email}" required>
             </div>
+            
             <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Email</label>
-                <p class="text-md mb-0" th:text="${email}">-</p>
-              </div>
+              <label class="form-label">New Password (leave blank to keep current password)</label>
+              <input type="password" class="form-control" name="password" minlength="4">
+              <small class="text-secondary-light">Minimum 4 characters. Leave blank if you don't want to change password.</small>
             </div>
+            
             <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Phone</label>
-                <p class="text-md mb-0" th:text="${phone}">Not provided</p>
-              </div>
+              <label class="form-label">Role <span class="text-danger">*</span></label>
+              <select class="form-select" name="roleId" required>
+                <option value="">Select Role</option>
+                <option th:each="role : ${roles}" 
+                        th:value="${role.roleId}" 
+                        th:selected="${user.role != null && user.role.roleId == role.roleId}"
+                        th:text="${role.name}">Role</option>
+              </select>
             </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" th:field="*{fullName}">
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" th:field="*{phone}">
+            </div>
+            
             <div class="col-12">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Address</label>
-                <p class="text-md mb-0" th:text="${address}">Not provided</p>
-              </div>
+              <label class="form-label">Address</label>
+              <textarea class="form-control" th:field="*{address}" rows="3"></textarea>
             </div>
           </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="d-flex flex-wrap gap-3 justify-content-end pt-24 border-top">
-          <a th:href="@{/demo/admin}" class="btn btn-primary-600">Back to Dashboard</a>
-        </div>
-
+          
+          <div class="d-flex flex-wrap gap-3 justify-content-end mt-24 pt-24 border-top">
+            <a th:href="@{/admin/users}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary-600">Update User</button>
+          </div>
+        </form>
       </div>
     </div>
     
