@@ -171,9 +171,6 @@ public class SecurityConfig {
                         .rememberMeParameter("rememberme") // Match the checkbox name in login form
                         .rememberMeCookieName("remember-me") // Cookie name
                 )
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/contact") // Disable CSRF for contact form POST (public endpoint)
-                )
                 .userDetailsService(customUserDetailsService);
 
         return http.build();
