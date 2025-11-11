@@ -113,6 +113,26 @@
         .bottom-text a:hover {
             text-decoration: underline;
         }
+
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+            color: #666;
+        }
+
+        .requirement-item.valid {
+            color: #28a745;
+        }
+
+        .requirement-item.invalid {
+            color: #dc3545;
+        }
+
+        .req-icon {
+            margin-right: 6px;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -162,7 +182,13 @@
 
             <div class="form-row">
                 <label>Email Address <span class="required">*</span></label>
-                <input type="email" th:field="*{email}" placeholder="Enter your email" required>
+                <input type="email" th:field="*{email}" id="email" placeholder="Enter your email" required>
+                <div id="emailError" style="margin-top: 5px; font-size: 12px; color: #dc3545; display: none;">
+                    <span id="emailErrorText">This email is already registered. Please use a different email or try logging in.</span>
+                </div>
+                <div id="emailSuccess" style="margin-top: 5px; font-size: 12px; color: #28a745; display: none;">
+                    <span>✓ This email is available</span>
+                </div>
             </div>
 
             <div class="form-row">
@@ -177,7 +203,24 @@
 
             <div class="form-row">
                 <label>Password <span class="required">*</span></label>
-                <input type="password" th:field="*{password}" placeholder="Enter password" minlength="4" required>
+                <input type="password" th:field="*{password}" id="password" placeholder="Enter password" minlength="8" required>
+                <div id="passwordRequirements" style="margin-top: 8px; font-size: 12px;">
+                    <div id="req-length" class="requirement-item">
+                        <span class="req-icon">❌</span> At least 8 characters
+                    </div>
+                    <div id="req-uppercase" class="requirement-item">
+                        <span class="req-icon">❌</span> One uppercase letter
+                    </div>
+                    <div id="req-lowercase" class="requirement-item">
+                        <span class="req-icon">❌</span> One lowercase letter
+                    </div>
+                    <div id="req-digit" class="requirement-item">
+                        <span class="req-icon">❌</span> One digit
+                    </div>
+                    <div id="req-special" class="requirement-item">
+                        <span class="req-icon">❌</span> One special character
+                    </div>
+                </div>
             </div>
 
             <div class="form-row">
@@ -199,12 +242,128 @@
 <div th:replace="~{common/user/js :: js}"></div>
 
 <script>
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    
+    // Password validation function
+    function validatePassword(password) {
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            digit: /[0-9]/.test(password),
+            special: /[^A-Za-z0-9]/.test(password)
+        };
+        
+        // Update UI for each requirement
+        updateRequirement('req-length', requirements.length);
+        updateRequirement('req-uppercase', requirements.uppercase);
+        updateRequirement('req-lowercase', requirements.lowercase);
+        updateRequirement('req-digit', requirements.digit);
+        updateRequirement('req-special', requirements.special);
+        
+        // Return true if all requirements are met
+        return Object.values(requirements).every(req => req === true);
+    }
+    
+    function updateRequirement(elementId, isValid) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            const icon = element.querySelector('.req-icon');
+            if (isValid) {
+                element.classList.remove('invalid');
+                element.classList.add('valid');
+                icon.textContent = '✅';
+            } else {
+                element.classList.remove('valid');
+                element.classList.add('invalid');
+                icon.textContent = '❌';
+            }
+        }
+    }
+    
+    // Real-time password validation
+    passwordInput.addEventListener('input', function() {
+        validatePassword(this.value);
+    });
+    
+    // Email validation - check if email exists
+    const emailInput = document.getElementById('email');
+    const emailError = document.getElementById('emailError');
+    const emailSuccess = document.getElementById('emailSuccess');
+    let emailCheckTimeout;
+    
+    emailInput.addEventListener('input', function() {
+        const email = this.value.trim();
+        
+        // Clear previous timeout
+        clearTimeout(emailCheckTimeout);
+        
+        // Hide messages while typing
+        emailError.style.display = 'none';
+        emailSuccess.style.display = 'none';
+        
+        // Validate email format first
+        const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        if (!emailRegex.test(email)) {
+            return; // Don't check if format is invalid
+        }
+        
+        // Debounce: wait 500ms after user stops typing before checking
+        emailCheckTimeout = setTimeout(function() {
+            // Check if email exists via AJAX
+            fetch('/check-email?email=' + encodeURIComponent(email))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        emailError.style.display = 'block';
+                        emailSuccess.style.display = 'none';
+                    } else {
+                        emailError.style.display = 'none';
+                        emailSuccess.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking email:', error);
+                    // Don't show error to user, just log it
+                });
+        }, 500);
+    });
+    
+    // Form submission validation
     document.querySelector('form').addEventListener('submit', function (e) {
-        const pwd = document.querySelector('[name="password"]').value;
-        const confirm = document.getElementById('confirmPassword').value;
+        const pwd = passwordInput.value;
+        const confirm = confirmPasswordInput.value;
+        const email = emailInput.value.trim();
+        
+        // Validate email format
+        const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        if (!emailRegex.test(email)) {
+            e.preventDefault();
+            alert("Please enter a valid email address!");
+            return false;
+        }
+        
+        // Check if email exists (synchronous check before submit)
+        // Note: This is a quick check, server will validate again
+        if (emailError.style.display === 'block') {
+            e.preventDefault();
+            alert("This email is already registered. Please use a different email or try logging in.");
+            return false;
+        }
+        
+        // Validate password strength
+        if (!validatePassword(pwd)) {
+            e.preventDefault();
+            alert("Password does not meet the requirements! Please check the requirements above.");
+            return false;
+        }
+        
+        // Validate password match
         if (pwd !== confirm) {
             e.preventDefault();
             alert("Passwords do not match!");
+            return false;
         }
     });
 </script>

@@ -106,8 +106,16 @@ public class LoginController {
                 return "user/register";
             }
 
-            if (user.getPassword() == null || user.getPassword().length() < 4) {
-                model.addAttribute("error", "Password must be at least 4 characters!");
+            // Check if email already exists
+            if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+                model.addAttribute("error", "Email already exists! Please use a different email or try logging in.");
+                return "user/register";
+            }
+
+            // Validate password strength
+            String passwordError = validatePassword(user.getPassword());
+            if (passwordError != null) {
+                model.addAttribute("error", passwordError);
                 return "user/register";
             }
 
@@ -277,15 +285,10 @@ public class LoginController {
                 return "user/reset-password";
             }
             
-            if (password == null || password.trim().isEmpty()) {
-                model.addAttribute("error", "Password cannot be empty!");
-                model.addAttribute("email", email);
-                model.addAttribute("token", token);
-                return "user/reset-password";
-            }
-            
-            if (password.length() < 4) {
-                model.addAttribute("error", "Password must be at least 4 characters long!");
+            // Validate password strength
+            String passwordError = validatePassword(password);
+            if (passwordError != null) {
+                model.addAttribute("error", passwordError);
                 model.addAttribute("email", email);
                 model.addAttribute("token", token);
                 return "user/reset-password";
@@ -338,6 +341,15 @@ public class LoginController {
         return "user/reset-password";
     }
     
+    @GetMapping("/check-email")
+    @ResponseBody
+    public java.util.Map<String, Boolean> checkEmail(@RequestParam("email") String email) {
+        java.util.Map<String, Boolean> response = new java.util.HashMap<>();
+        boolean exists = userRepository.findByEmail(email).isPresent();
+        response.put("exists", exists);
+        return response;
+    }
+    
     @GetMapping("/GoogleLogin")
     public String home(Model model,
                        @AuthenticationPrincipal OAuth2User
@@ -347,5 +359,62 @@ public class LoginController {
                     oauth2User.getAttribute("name"));
         }
         return "index";
+    }
+    
+    /**
+     * Validates password strength
+     * Password must contain:
+     * - At least one uppercase letter
+     * - At least one lowercase letter
+     * - At least one digit
+     * - At least one special character
+     * - Minimum 8 characters
+     * 
+     * @param password The password to validate
+     * @return Error message if validation fails, null if valid
+     */
+    private String validatePassword(String password) {
+        if (password == null || password.trim().isEmpty()) {
+            return "Password cannot be empty!";
+        }
+        
+        if (password.length() < 8) {
+            return "Password must be at least 8 characters long!";
+        }
+        
+        boolean hasUppercase = false;
+        boolean hasLowercase = false;
+        boolean hasDigit = false;
+        boolean hasSpecialChar = false;
+        
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) {
+                hasUppercase = true;
+            } else if (Character.isLowerCase(c)) {
+                hasLowercase = true;
+            } else if (Character.isDigit(c)) {
+                hasDigit = true;
+            } else if (!Character.isLetterOrDigit(c)) {
+                hasSpecialChar = true;
+            }
+        }
+        
+        if (!hasUppercase) {
+            return "Password must contain at least one uppercase letter!";
+        }
+        
+        if (!hasLowercase) {
+            return "Password must contain at least one lowercase letter!";
+        }
+        
+        if (!hasDigit) {
+            return "Password must contain at least one digit!";
+        }
+        
+        if (!hasSpecialChar) {
+            return "Password must contain at least one special character!";
+        }
+        
+        return null; // Password is valid
     }
 }
