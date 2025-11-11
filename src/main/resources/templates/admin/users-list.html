@@ -234,7 +234,8 @@
                      title="Edit">
                     <iconify-icon icon="lucide:edit"></iconify-icon>
                   </a>
-                  <form th:action="@{/admin/users/toggle-status/{id}(id=${user.userId}, redirect='list')}" 
+                  <form th:if="${user.role == null || user.role.name != 'ADMIN'}"
+                        th:action="@{/admin/users/toggle-status/{id}(id=${user.userId}, redirect='list')}" 
                         method="post" 
                         style="display: inline;"
                         onsubmit="return confirm('Are you sure you want to change this user status?');">
