@@ -6,6 +6,7 @@ import com.bookverse.BookVerse.entity.User;
 import com.bookverse.BookVerse.repository.BookRepository;
 import com.bookverse.BookVerse.repository.CategoryRepository;
 import com.bookverse.BookVerse.repository.UserRepository;
+import com.bookverse.BookVerse.service.FileUploadService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
@@ -36,6 +38,9 @@ public class AdminBookController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private FileUploadService fileUploadService;
 
     // List all books
     @GetMapping
@@ -158,6 +163,8 @@ public class AdminBookController {
                          @RequestParam("categoryId") Long categoryId,
                          @RequestParam(value = "discountStart", required = false) String discountStartStr,
                          @RequestParam(value = "discountEnd", required = false) String discountEndStr,
+                         @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                         @RequestParam(value = "imageUrl", required = false) String imageUrl,
                          RedirectAttributes redirectAttributes,
                          Authentication authentication) {
         // Check if user is authenticated and has ADMIN role
@@ -196,6 +203,27 @@ public class AdminBookController {
             if (book.getStock() < 0) {
                 redirectAttributes.addFlashAttribute("error", "Stock cannot be negative!");
                 return "redirect:/admin/books/add";
+            }
+
+            // Handle image upload
+            if (imageFile != null && !imageFile.isEmpty()) {
+                // Validate image file
+                if (!fileUploadService.isImageFile(imageFile)) {
+                    redirectAttributes.addFlashAttribute("error", "Please upload a valid image file!");
+                    return "redirect:/admin/books/add";
+                }
+                
+                // Upload image and get URL
+                String uploadedImageUrl = fileUploadService.uploadFile(imageFile);
+                if (uploadedImageUrl != null) {
+                    book.setImageUrl(uploadedImageUrl);
+                } else {
+                    redirectAttributes.addFlashAttribute("error", "Failed to upload image!");
+                    return "redirect:/admin/books/add";
+                }
+            } else if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                // Use provided URL if no file is uploaded
+                book.setImageUrl(imageUrl.trim());
             }
 
             // Set category
@@ -303,6 +331,9 @@ public class AdminBookController {
                             @RequestParam("categoryId") Long categoryId,
                             @RequestParam(value = "discountStart", required = false) String discountStartStr,
                             @RequestParam(value = "discountEnd", required = false) String discountEndStr,
+                            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                            @RequestParam(value = "imageUrl", required = false) String imageUrl,
+                            @RequestParam(value = "deleteOldImage", required = false) String deleteOldImage,
                             RedirectAttributes redirectAttributes,
                             Authentication authentication) {
         // Check if user is authenticated and has ADMIN role
@@ -351,13 +382,49 @@ public class AdminBookController {
                 return "redirect:/admin/books/edit/" + id;
             }
 
+            // Handle image upload
+            String oldImageUrl = existingBook.getImageUrl();
+            if (imageFile != null && !imageFile.isEmpty()) {
+                // Validate image file
+                if (!fileUploadService.isImageFile(imageFile)) {
+                    redirectAttributes.addFlashAttribute("error", "Please upload a valid image file!");
+                    return "redirect:/admin/books/edit/" + id;
+                }
+                
+                // Upload new image and get URL
+                String uploadedImageUrl = fileUploadService.uploadFile(imageFile);
+                if (uploadedImageUrl != null) {
+                    // Delete old image if it exists and is in our upload directory
+                    if (oldImageUrl != null && oldImageUrl.startsWith("/user/img/product/")) {
+                        fileUploadService.deleteFile(oldImageUrl);
+                    }
+                    existingBook.setImageUrl(uploadedImageUrl);
+                } else {
+                    redirectAttributes.addFlashAttribute("error", "Failed to upload image!");
+                    return "redirect:/admin/books/edit/" + id;
+                }
+            } else if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                // Use provided URL if no file is uploaded
+                // Delete old image if it exists and is in our upload directory, and URL has changed
+                if (oldImageUrl != null && oldImageUrl.startsWith("/user/img/product/") && !oldImageUrl.equals(imageUrl.trim())) {
+                    fileUploadService.deleteFile(oldImageUrl);
+                }
+                existingBook.setImageUrl(imageUrl.trim());
+            } else if ("true".equals(deleteOldImage)) {
+                // Delete old image if user wants to remove it
+                if (oldImageUrl != null && oldImageUrl.startsWith("/user/img/product/")) {
+                    fileUploadService.deleteFile(oldImageUrl);
+                }
+                existingBook.setImageUrl(null);
+            }
+            // If no image file, no image URL, and no delete flag, keep the existing image
+
             // Update book fields
             existingBook.setTitle(book.getTitle());
             existingBook.setAuthor(book.getAuthor());
             existingBook.setPrice(book.getPrice());
             existingBook.setStock(book.getStock());
             existingBook.setDescription(book.getDescription());
-            existingBook.setImageUrl(book.getImageUrl());
             existingBook.setDiscountPercent(book.getDiscountPercent() != null ? book.getDiscountPercent() : 0.0);
             
             // Parse datetime strings to LocalDateTime
@@ -391,7 +458,7 @@ public class AdminBookController {
                 return "redirect:/admin/books/edit/" + id;
             }
 
-            // Save book
+            // Save updated book
             bookRepository.save(existingBook);
 
             redirectAttributes.addFlashAttribute("success", "Book updated successfully!");
