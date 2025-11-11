@@ -15,6 +15,133 @@
 
     <!-- common css import -->
     <div th:replace="common/user/css :: css"></div>
+    <style>
+        /* Fix product cards alignment - only for grid view (#th) */
+        /* Make the row containing products use flexbox for grid view only */
+        #th .row {
+            display: flex !important;
+            flex-wrap: wrap;
+            align-items: stretch;
+        }
+        
+        /* Make columns stretch to same height in grid view */
+        #th .col-xl-3,
+        #th .col-lg-4,
+        #th .col-md-6,
+        #th .col-sm-6 {
+            display: flex !important;
+            flex-direction: column;
+        }
+        
+        /* Product wrapper in grid view - take full height and use flexbox internally */
+        #th .product-wrapper {
+            display: flex !important;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: relative;
+            padding-bottom: 50px; /* Space for product-link when visible */
+        }
+        
+        /* Product image container - fixed aspect ratio for consistent height */
+        #th .product-wrapper .product-img {
+            position: relative;
+            width: 100%;
+            padding-bottom: 133.33% !important; /* 3:4 aspect ratio (portrait) */
+            overflow: hidden;
+            background: #f5f5f5;
+            flex-shrink: 0;
+            height: auto !important;
+        }
+        
+        /* Product image - fill the container */
+        #th .product-wrapper .product-img a {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        #th .product-wrapper .product-img img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+        
+        /* Product details - flexible section */
+        #th .product-wrapper .product-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 140px;
+            padding: 15px 10px 10px;
+        }
+        
+        /* Product rating - consistent height */
+        #th .product-wrapper .product-rating {
+            min-height: 20px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+        
+        /* Product title - limit to 2 lines with ellipsis */
+        #th .product-wrapper .product-details h4 {
+            flex: 0 0 auto;
+            min-height: 44px;
+            max-height: 44px;
+            margin-bottom: 10px;
+            margin-top: 0;
+            overflow: hidden;
+        }
+        
+        #th .product-wrapper .product-details h4 a {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
+            max-height: 2.8em;
+        }
+        
+        /* Product price - consistent height */
+        #th .product-wrapper .product-price {
+            min-height: 30px;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+        
+        /* Product flag - maintain positioning */
+        #th .product-wrapper .product-flag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+        }
+        
+        /* Responsive adjustments for grid view */
+        @media (max-width: 991px) {
+            #th .product-wrapper .product-img {
+                padding-bottom: 133.33% !important; /* Keep 3:4 ratio on tablets */
+            }
+        }
+        
+        @media (max-width: 767px) {
+            #th .product-wrapper .product-img {
+                padding-bottom: 133.33% !important; /* Keep 3:4 ratio on mobile */
+            }
+            #th .product-wrapper .product-details {
+                min-height: 120px;
+            }
+        }
+    </style>
 </head>
 
 <body class="shop">
@@ -195,7 +322,55 @@
                     </div>
                     <div class="left-title-2 mb-30">
                         <h2>My Wish List</h2>
-                        <p>You have no items in your wish list.</p>
+                        <div class="random-area mb-30" th:if="${wishlistBooksGroups != null && !wishlistBooksGroups.isEmpty()}">
+                            <div class="product-active-2 owl-carousel">
+                                <!-- Mỗi nhóm 3 items là một slide -->
+                                <div th:each="bookGroup, groupIter : ${wishlistBooksGroups}" class="product-total-2">
+                                    <div th:each="book, bookIter : ${bookGroup}"
+                                         th:class="${bookIter.last} ? 'single-most-product' : 'single-most-product bd mb-18'">
+                                        <div class="most-product-img">
+                                            <a th:href="@{/shop/product/{id}(id=${book.bookId})}">
+                                                <img th:src="${book.imageUrl != null ? book.imageUrl : '/user/img/product/1.jpg'}"
+                                                     th:alt="${book.title}" alt="book"/>
+                                            </a>
+                                        </div>
+                                        <div class="most-product-content">
+                                            <div class="product-rating">
+                                                <ul>
+                                                    <li th:each="i : ${#numbers.sequence(1, 5)}">
+                                                        <a href="#">
+                                                            <i th:classappend="${i <= 4 ? 'fa fa-star' : 'fa fa-star-o'}"></i>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <h4><a th:href="@{/shop/product/{id}(id=${book.bookId})}"
+                                                   th:text="${book.title}">Book Title</a></h4>
+                                            <div class="product-price">
+                                                <ul>
+                                                    <li th:if="${book.discountPercent != null && book.discountPercent > 0}"
+                                                        class="old-price"
+                                                        style="text-decoration: line-through; color: #888;"
+                                                        th:text="'$' + ${#numbers.formatDecimal(book.price, 1, 2)}">
+                                                        $0.00
+                                                    </li>
+                                                    <li th:if="${book.discountPercent != null && book.discountPercent > 0}"
+                                                        th:text="'$' + ${#numbers.formatDecimal(book.discountPrice, 1, 2)}"
+                                                        style="color:#d4af37;font-weight:bold;">
+                                                        $0.00
+                                                    </li>
+                                                    <li th:if="${book.discountPercent == null || book.discountPercent == 0}"
+                                                        th:text="'$' + ${#numbers.formatDecimal(book.price, 1, 2)}">
+                                                        $0.00
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p th:if="${wishlistBooksGroups == null || wishlistBooksGroups.isEmpty()}">You have no items in your wish list.</p>
                     </div>
                 </div>
             </div>
@@ -381,6 +556,12 @@
                                                 <li><a th:href="@{/shop/product/{id}(id=${book.bookId})}"
                                                        title="Details">
                                                     <i class="fa fa-external-link"></i></a></li>
+                                                <li><a href="#" 
+                                                       th:onclick="'toggleWishlist(' + ${book.bookId} + '); return false;'" 
+                                                       th:id="'wishlist-btn-' + ${book.bookId}"
+                                                       class="wishlist-btn"
+                                                       title="Add to Wishlist">
+                                                    <i class="fa fa-heart"></i></a></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -456,6 +637,12 @@
                                                         <li><a th:href="@{/shop/product/{id}(id=${book.bookId})}"
                                                                title="Details">
                                                             <i class="fa fa-external-link"></i></a></li>
+                                                        <li><a href="#" 
+                                                               th:onclick="'toggleWishlist(' + ${book.bookId} + '); return false;'" 
+                                                               th:id="'wishlist-btn-' + ${book.bookId}"
+                                                               class="wishlist-btn"
+                                                               title="Add to Wishlist">
+                                                            <i class="fa fa-heart"></i></a></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -550,6 +737,129 @@
 
     <!-- all js here -->
     <div th:replace="common/user/js :: js"></div>
+    <script>
+        // Wishlist functionality
+        function toggleWishlist(bookId) {
+            fetch('/wishlist/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                credentials: 'same-origin', // Include cookies for session
+                body: 'bookId=' + bookId
+            })
+            .then(response => {
+                // Check if response is ok (200-299)
+                if (!response.ok) {
+                    // If 403 or 401, redirect to login
+                    if (response.status === 403 || response.status === 401) {
+                        if (confirm('You need to login to add items to wishlist. Would you like to go to login page?')) {
+                            window.location.href = '/login';
+                        }
+                        return null;
+                    }
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return; // User was redirected
+                
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+                
+                if (data.success) {
+                    // Update wishlist button state
+                    const btn = document.getElementById('wishlist-btn-' + bookId);
+                    if (btn) {
+                        const icon = btn.querySelector('i');
+                        if (data.inWishlist) {
+                            btn.classList.add('in-wishlist');
+                            if (icon) {
+                                icon.classList.remove('fa-heart-o');
+                                icon.classList.add('fa-heart');
+                            }
+                            btn.style.color = '#d4af37';
+                            btn.title = 'Remove from Wishlist';
+                        } else {
+                            btn.classList.remove('in-wishlist');
+                            if (icon) {
+                                icon.classList.remove('fa-heart');
+                                icon.classList.add('fa-heart-o');
+                            }
+                            btn.style.color = '';
+                            btn.title = 'Add to Wishlist';
+                        }
+                    }
+                    
+                    // Show message
+                    alert(data.message);
+                    
+                    // Update wishlist count if element exists
+                    if (data.wishlistCount !== undefined) {
+                        const countElement = document.getElementById('wishlist-count');
+                        if (countElement) {
+                            countElement.textContent = data.wishlistCount;
+                        }
+                    }
+                } else {
+                    alert(data.message || 'Failed to update wishlist');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+        
+        // Check wishlist status on page load for each book
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all book IDs from wishlist buttons
+            const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+            wishlistButtons.forEach(btn => {
+                const bookId = btn.id.replace('wishlist-btn-', '');
+                if (bookId) {
+                    // Check if book is in wishlist
+                    fetch('/wishlist/check?bookId=' + bookId, {
+                        credentials: 'same-origin' // Include cookies for session
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                // If 403 or 401, user is not logged in, skip
+                                return null;
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data && data.inWishlist) {
+                                btn.classList.add('in-wishlist');
+                                const icon = btn.querySelector('i');
+                                if (icon) {
+                                    icon.classList.remove('fa-heart-o');
+                                    icon.classList.add('fa-heart');
+                                }
+                                btn.style.color = '#d4af37';
+                                btn.title = 'Remove from Wishlist';
+                            }
+                        })
+                        .catch(error => {
+                            // Silently fail - user might not be logged in
+                            console.log('Wishlist check skipped (user might not be logged in)');
+                        });
+                }
+            });
+        });
+    </script>
+    <style>
+        .wishlist-btn.in-wishlist {
+            color: #d4af37 !important;
+        }
+        .wishlist-btn:hover {
+            color: #d4af37 !important;
+        }
+    </style>
 </body>
 
 

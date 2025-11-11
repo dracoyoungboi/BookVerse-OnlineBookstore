@@ -111,19 +111,25 @@
                                               th:text="'$' + ${#numbers.formatDecimal(book.price, 1, 2)}">$0.00</span>
                                     </div>
                                 </div>
-                                <div class="product-add-form">
+                                <div class="product-add-form product-social-links">
                                     <form action="#">
                                         <div class="quality-button">
                                             <input class="qty" type="number" value="1">
                                         </div>
                                         <a href="#">Add to cart</a>
+                                       
                                     </form>
+                                    
                                 </div>
                                 <div class="product-social-links">
                                     <div class="product-addto-links">
-                                        <a href="#"><i class="fa fa-heart"></i></a>
-                                        <a href="#"><i class="fa fa-pie-chart"></i></a>
-                                        <a href="#"><i class="fa fa-envelope-o"></i></a>
+                                        <a href="#" 
+                                        th:onclick="'toggleWishlist(' + ${book.bookId} + '); return false;'" 
+                                        th:id="'wishlist-btn-' + ${book.bookId}"
+                                        class="wishlist-btn"
+                                        title="Add to Wishlist">
+                                         <i class="fa fa-heart"></i>
+                                     </a>
                                     </div>
                                     <div class="product-addto-links-text">
                                         <p th:text="${book.description != null ? book.description : 'No description available.'}">
@@ -336,7 +342,55 @@
                     </div>
                     <div class="left-title-2">
                         <h2>My Wish List</h2>
-                        <p>You have no items in your wish list.</p>
+                        <div class="random-area mb-30" th:if="${wishlistBooksGroups != null && !wishlistBooksGroups.isEmpty()}">
+                            <div class="product-active-2 owl-carousel">
+                                <!-- Mỗi nhóm 3 items là một slide -->
+                                <div th:each="bookGroup, groupIter : ${wishlistBooksGroups}" class="product-total-2">
+                                    <div th:each="book, bookIter : ${bookGroup}"
+                                         th:class="${bookIter.last} ? 'single-most-product' : 'single-most-product bd mb-18'">
+                                        <div class="most-product-img">
+                                            <a th:href="@{/shop/product/{id}(id=${book.bookId})}">
+                                                <img th:src="${book.imageUrl != null ? book.imageUrl : '/user/img/product/1.jpg'}"
+                                                     th:alt="${book.title}" alt="book"/>
+                                            </a>
+                                        </div>
+                                        <div class="most-product-content">
+                                            <div class="product-rating">
+                                                <ul>
+                                                    <li th:each="k : ${#numbers.sequence(1, 5)}">
+                                                        <a href="#">
+                                                            <i th:classappend="${k <= 4 ? 'fa fa-star' : 'fa fa-star-o'}"></i>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <h4><a th:href="@{/shop/product/{id}(id=${book.bookId})}"
+                                                   th:text="${book.title}">Book Title</a></h4>
+                                            <div class="product-price">
+                                                <ul>
+                                                    <li th:if="${book.discountPercent != null && book.discountPercent > 0}"
+                                                        class="old-price"
+                                                        style="text-decoration: line-through; color: #888;"
+                                                        th:text="'$' + ${#numbers.formatDecimal(book.price, 1, 2)}">
+                                                        $0.00
+                                                    </li>
+                                                    <li th:if="${book.discountPercent != null && book.discountPercent > 0}"
+                                                        th:text="'$' + ${#numbers.formatDecimal(book.discountPrice, 1, 2)}"
+                                                        style="color:#d4af37;font-weight:bold;">
+                                                        $0.00
+                                                    </li>
+                                                    <li th:if="${book.discountPercent == null || book.discountPercent == 0}"
+                                                        th:text="'$' + ${#numbers.formatDecimal(book.price, 1, 2)}">
+                                                        $0.00
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p th:if="${wishlistBooksGroups == null || wishlistBooksGroups.isEmpty()}">You have no items in your wish list.</p>
                     </div>
                 </div>
             </div>
@@ -352,6 +406,119 @@
 <!-- all js here -->
 <!-- jquery latest version -->
 <div th:replace="common/user/js :: js"></div>
+<script th:inline="javascript">
+    // Wishlist functionality
+    function toggleWishlist(bookId) {
+        fetch('/wishlist/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            credentials: 'same-origin', // Include cookies for session
+            body: 'bookId=' + bookId
+        })
+        .then(response => {
+            // Check if response is ok (200-299)
+            if (!response.ok) {
+                // If 403 or 401, redirect to login
+                if (response.status === 403 || response.status === 401) {
+                    if (confirm('You need to login to add items to wishlist. Would you like to go to login page?')) {
+                        window.location.href = '/login';
+                    }
+                    return null;
+                }
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data) return; // User was redirected
+            
+            if (data.redirect) {
+                window.location.href = data.redirect;
+                return;
+            }
+            
+            if (data.success) {
+                // Update wishlist button state
+                const btn = document.getElementById('wishlist-btn-' + bookId);
+                if (btn) {
+                    const icon = btn.querySelector('i');
+                    if (data.inWishlist) {
+                        btn.classList.add('in-wishlist');
+                        if (icon) {
+                            icon.classList.remove('fa-heart-o');
+                            icon.classList.add('fa-heart');
+                        }
+                        btn.style.color = '#d4af37';
+                        btn.title = 'Remove from Wishlist';
+                    } else {
+                        btn.classList.remove('in-wishlist');
+                        if (icon) {
+                            icon.classList.remove('fa-heart');
+                            icon.classList.add('fa-heart-o');
+                        }
+                        btn.style.color = '';
+                        btn.title = 'Add to Wishlist';
+                    }
+                }
+                
+                // Show message
+                alert(data.message);
+            } else {
+                alert(data.message || 'Failed to update wishlist');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    }
+    
+    // Check wishlist status on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const bookId = /*[[${book.bookId}]]*/ null;
+        if (bookId) {
+            fetch('/wishlist/check?bookId=' + bookId, {
+                credentials: 'same-origin' // Include cookies for session
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        // If 403 or 401, user is not logged in, skip
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.inWishlist) {
+                        const btn = document.getElementById('wishlist-btn-' + bookId);
+                        if (btn) {
+                            btn.classList.add('in-wishlist');
+                            const icon = btn.querySelector('i');
+                            if (icon) {
+                                icon.classList.remove('fa-heart-o');
+                                icon.classList.add('fa-heart');
+                            }
+                            btn.style.color = '#d4af37';
+                            btn.title = 'Remove from Wishlist';
+                        }
+                    }
+                })
+                .catch(error => {
+                    // Silently fail - user might not be logged in
+                    console.log('Wishlist check skipped (user might not be logged in)');
+                });
+        }
+    });
+</script>
+<style>
+    .wishlist-btn.in-wishlist {
+        color: #d4af37 !important;
+    }
+    .wishlist-btn:hover {
+        color: #d4af37 !important;
+    }
+</style>
 </body>
 
 <!-- Mirrored from htmldemo.net/koparion/koparion/product-details.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 03 Nov 2025 15:14:52 GMT -->
