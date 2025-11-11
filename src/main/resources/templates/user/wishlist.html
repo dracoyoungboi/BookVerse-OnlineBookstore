@@ -1,0 +1,253 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+
+<!-- Mirrored from htmldemo.net/koparion/koparion/wishlist.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 03 Nov 2025 15:14:57 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Wishlist - BookVerse</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png">
+
+    <!-- common css import -->
+    <div th:replace="common/user/css :: css"></div>
+    <style>
+        .wishlist-out-of-stock {
+            color: red;
+        }
+        .product-add-to-cart a.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body class="wishlist">
+<!-- header-area-start -->
+<div th:replace="common/user/header :: header"></div>
+<!-- header-area-end -->
+<!-- breadcrumbs-area-start -->
+<div class="breadcrumbs-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumbs-menu">
+                    <ul>
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a href="#" class="active">Wishlist</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- breadcrumbs-area-end -->
+<!-- entry-header-area-start -->
+<div class="entry-header-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="entry-header-title">
+                    <h2>Wishlist</h2>
+                </div>
+                <!-- Pagination area -->
+                <div class="pagination-area mt-50" th:if="${totalPages > 1}">
+                    <div class="list-page-2">
+                        <p th:text="'Items ' + ${currentPage * pageSize + 1} + '-' + ${(currentPage == totalPages - 1) ? totalItems : (currentPage + 1) * pageSize} + ' of ' + ${totalItems}">
+                            Items 1-5 of 10
+                        </p>
+                    </div>
+                    <div class="page-number">
+                        <ul>
+                            <li th:if="${currentPage > 0}">
+                                <a th:href="@{/wishlist(page=${currentPage - 1})}"
+                                   class="angle">
+                                    <i class="fa fa-angle-left"></i>
+                                </a>
+                            </li>
+                            <!-- First page -->
+                            <li th:if="${showFirstPage}">
+                                <a th:href="@{/wishlist(page=0)}"
+                                   th:text="1">1</a>
+                            </li>
+                            <li th:if="${showFirstEllipsis}">
+                                <span>...</span>
+                            </li>
+                            <!-- Page numbers -->
+                            <li th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
+                                <a th:href="@{/wishlist(page=${pageNum})}"
+                                   th:classappend="${pageNum == currentPage ? 'active' : ''}"
+                                   th:text="${pageNum + 1}">1</a>
+                            </li>
+                            <li th:if="${showLastEllipsis}">
+                                <span>...</span>
+                            </li>
+                            <!-- Last page -->
+                            <li th:if="${showLastPage && totalPages > 1}">
+                                <a th:href="@{/wishlist(page=${totalPages - 1})}"
+                                   th:text="${totalPages}">1</a>
+                            </li>
+                            <li th:if="${currentPage < totalPages - 1}">
+                                <a th:href="@{/wishlist(page=${currentPage + 1})}"
+                                   class="angle">
+                                    <i class="fa fa-angle-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- entry-header-area-end -->
+<!-- cart-main-area-start -->
+<div class="cart-main-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="wishlist-content">
+                    <form action="#">
+                        <div class="wishlist-table table-responsive">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th class="product-remove">
+                                        <span class="nobr">Remove</span>
+                                    </th>
+                                    <th class="product-thumbnail">Image</th>
+                                    <th class="product-name">Product Name</th>
+                                    <th class="product-price">Unit Price</th>
+                                    <th class="product-stock-stauts">Stock Status</th>
+                                    <th class="product-subtotal">Add To Cart</th>
+                                </tr>
+                                </thead>
+                                <tbody th:if="${wishlistItems != null && !wishlistItems.isEmpty()}">
+                                <tr th:each="item : ${wishlistItems}">
+                                    <td class="product-remove">
+                                        <a href="#" th:onclick="'removeFromWishlist(' + ${item.book.bookId} + ', ' + ${currentPage} + '); return false;'" title="Remove">×</a>
+                                    </td>
+                                    <td class="product-thumbnail">
+                                        <a th:href="@{/shop/product/{id}(id=${item.book.bookId})}">
+                                            <img th:src="${item.book.imageUrl != null ? item.book.imageUrl : '/user/img/product/1.jpg'}" 
+                                                 th:alt="${item.book.title}" 
+                                                 alt="book"
+                                                 style="width: 80px; height: auto;"/>
+                                        </a>
+                                    </td>
+                                    <td class="product-name">
+                                        <a th:href="@{/shop/product/{id}(id=${item.book.bookId})}" th:text="${item.book.title}">Book Title</a>
+                                    </td>
+                                    <td class="product-price">
+                                        <span class="amount" th:if="${item.book.discountPercent == null || item.book.discountPercent == 0}">
+                                            $<span th:text="${#numbers.formatDecimal(item.book.price, 1, 2)}">0.00</span>
+                                        </span>
+                                        <span class="amount" th:if="${item.book.discountPercent != null && item.book.discountPercent > 0}">
+                                            $<span th:text="${#numbers.formatDecimal(item.book.discountPrice, 1, 2)}" style="color:#d4af37;font-weight:bold;">0.00</span>
+                                            <span style="text-decoration: line-through; color: #888; margin-left: 8px;">
+                                                $<span th:text="${#numbers.formatDecimal(item.book.price, 1, 2)}">0.00</span>
+                                            </span>
+                                        </span>
+                                    </td>
+                                    <td class="product-stock-status">
+                                        <span class="wishlist-in-stock" th:if="${item.book.stock > 0}">In Stock</span>
+                                        <span class="wishlist-out-of-stock" th:if="${item.book.stock == 0}" style="color: red;">Out of Stock</span>
+                                    </td>
+                                    <td class="product-add-to-cart">
+                                        <a th:href="@{/cart/add/{id}(id=${item.book.bookId})}" 
+                                           th:classappend="${item.book.stock == 0 ? 'disabled' : ''}"
+                                           th:if="${item.book.stock > 0}">Add to Cart</a>
+                                        <span th:if="${item.book.stock == 0}" style="color: #999;">Out of Stock</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                                <tbody th:if="${wishlistItems == null || wishlistItems.isEmpty()}">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 40px;">
+                                        <p>Your wishlist is empty.</p>
+                                        <a th:href="@{/shop}" style="color: #d4af37; text-decoration: underline;">Continue Shopping</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                                <tfoot>
+                                
+                                </tfoot>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+<!-- cart-main-area-end -->
+<!-- footer-area-start -->
+<div th:replace="common/user/footer :: footer"></div>
+<!-- footer-area-end -->
+
+
+<!-- all js here -->
+<div th:replace="common/user/js :: js"></div>
+    <script>
+    function removeFromWishlist(bookId, currentPage) {
+        if (confirm('Are you sure you want to remove this book from your wishlist?')) {
+            fetch('/wishlist/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                credentials: 'same-origin',
+                body: 'bookId=' + bookId + '&redirect=false'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Get current URL parameters to maintain pagination state
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const page = urlParams.get('page') || currentPage || 0;
+                    
+                    // Calculate new page: if current page becomes empty, go to previous page
+                    // Default size is 5
+                    const size = 5;
+                    const itemsOnCurrentPage = data.wishlistCount - (page * size);
+                    let newPage = page;
+                    
+                    // If we deleted the last item on the current page and page > 0, go to previous page
+                    if (itemsOnCurrentPage <= 0 && page > 0) {
+                        newPage = parseInt(page) - 1;
+                    }
+                    
+                    // Reload page with updated page number only
+                    if (newPage > 0) {
+                        window.location.href = '/wishlist?page=' + newPage;
+                    } else {
+                        window.location.href = '/wishlist';
+                    }
+                } else {
+                    alert(data.message || 'Failed to remove book from wishlist');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    }
+</script>
+</body>
+
+
+<!-- Mirrored from htmldemo.net/koparion/koparion/wishlist.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 03 Nov 2025 15:14:57 GMT -->
+</html>

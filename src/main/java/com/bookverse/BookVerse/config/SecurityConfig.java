@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -108,6 +109,17 @@ public class SecurityConfig {
                                 "/my-account"
                         ).authenticated()
                         
+                        // 4.2. Wishlist routes - allow API endpoints to handle auth in controller
+                        .requestMatchers(
+                                "/wishlist/check",
+                                "/wishlist/add",
+                                "/wishlist/remove",
+                                "/wishlist/toggle"
+                        ).permitAll() // Allow API endpoints - controller will check auth and return JSON
+                        .requestMatchers(
+                                "/wishlist" // Only protect the page view
+                        ).authenticated()
+                        
                         // 5. Cart routes - public (can view cart without login)
                         .requestMatchers(
                                 "/cart/**"
@@ -171,7 +183,19 @@ public class SecurityConfig {
                         .rememberMeParameter("rememberme") // Match the checkbox name in login form
                         .rememberMeCookieName("remember-me") // Cookie name
                 )
-                .userDetailsService(customUserDetailsService);
+                .userDetailsService(customUserDetailsService)
+                // Configure CSRF - disable for API endpoints that use fetch/AJAX
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(
+                                "/wishlist/add",
+                                "/wishlist/remove", 
+                                "/wishlist/toggle"
+                        ) // Disable CSRF for wishlist API POST endpoints
+                )
+                // Configure exception handling for access denied
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedPage("/login?error=access_denied")
+                );
 
         return http.build();
     }

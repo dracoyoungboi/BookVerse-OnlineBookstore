@@ -2,8 +2,14 @@ package com.bookverse.BookVerse.controller;
 
 import com.bookverse.BookVerse.entity.Book;
 import com.bookverse.BookVerse.entity.Review;
+import com.bookverse.BookVerse.entity.User;
+import com.bookverse.BookVerse.entity.Wishlist;
 import com.bookverse.BookVerse.service.BookService;
+import com.bookverse.BookVerse.service.WishlistService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,15 +20,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/shop")
 public class ShopController {
     
     private final BookService bookService;
+    private final WishlistService wishlistService;
     
-    public ShopController(BookService bookService) {
+    public ShopController(BookService bookService, WishlistService wishlistService) {
         this.bookService = bookService;
+        this.wishlistService = wishlistService;
     }
     
     @GetMapping
@@ -37,7 +46,9 @@ public class ShopController {
             @RequestParam(defaultValue = "asc") String sortDir,
             @RequestParam(required = false, defaultValue = "grid") String view,
             @RequestParam(required = false, defaultValue = "false") boolean saleOnly,
-            Model model) {
+            Model model,
+            HttpSession session,
+            Authentication authentication) {
         
         Page<Book> books;
         
@@ -77,10 +88,32 @@ public class ShopController {
         // Lấy sách ngẫu nhiên cho sidebar (6 sách)
         var randomBooks = bookService.getRandomBooks(6);
         
+        // Lấy wishlist items và chia thành các nhóm 3 items cho carousel
+        List<List<Book>> wishlistBooksGroups = new java.util.ArrayList<>();
+        if (authentication != null && authentication.isAuthenticated()) {
+            User currentUser = (User) session.getAttribute("currentUser");
+            if (currentUser != null) {
+                List<Wishlist> allWishlistItems = wishlistService.getUserWishlist(currentUser.getUserId());
+                // Lấy tất cả books từ wishlist
+                List<Book> allWishlistBooks = allWishlistItems.stream()
+                    .map(Wishlist::getBook)
+                    .collect(Collectors.toList());
+                
+                // Chia thành các nhóm 3 items
+                int itemsPerSlide = 3;
+                for (int i = 0; i < allWishlistBooks.size(); i += itemsPerSlide) {
+                    int endIndex = Math.min(i + itemsPerSlide, allWishlistBooks.size());
+                    List<Book> group = new java.util.ArrayList<>(allWishlistBooks.subList(i, endIndex));
+                    wishlistBooksGroups.add(group);
+                }
+            }
+        }
+        
         // Thêm dữ liệu vào model
         model.addAttribute("books", books);
         model.addAttribute("categories", categories);
         model.addAttribute("randomBooks", randomBooks);
+        model.addAttribute("wishlistBooksGroups", wishlistBooksGroups);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", books.getTotalPages());
         model.addAttribute("totalItems", books.getTotalElements());
@@ -96,7 +129,11 @@ public class ShopController {
     }
     
     @GetMapping("/product/{id}")
-    public String productDetails(@PathVariable Long id, Model model) {
+    public String productDetails(
+            @PathVariable Long id, 
+            Model model, 
+            HttpSession session, 
+            Authentication authentication) {
         Optional<Book> bookOpt = bookService.getBookByIdWithDetails(id);
         
         if (bookOpt.isEmpty()) {
@@ -130,8 +167,31 @@ public class ShopController {
                 .orElse(0.0);
         }
         
+        // Lấy tất cả wishlist items và chia thành các nhóm 3 items cho carousel
+        List<List<Book>> wishlistBooksGroups = new java.util.ArrayList<>();
+        if (authentication != null && authentication.isAuthenticated()) {
+            User currentUser = (User) session.getAttribute("currentUser");
+            if (currentUser != null) {
+                List<Wishlist> allWishlistItems = wishlistService.getUserWishlist(currentUser.getUserId());
+                // Loại trừ sách hiện tại khỏi wishlist
+                List<Book> allWishlistBooks = allWishlistItems.stream()
+                    .map(Wishlist::getBook)
+                    .filter(b -> !b.getBookId().equals(book.getBookId())) // Loại trừ sách hiện tại
+                    .collect(Collectors.toList());
+                
+                // Chia thành các nhóm 3 items
+                int itemsPerSlide = 3;
+                for (int i = 0; i < allWishlistBooks.size(); i += itemsPerSlide) {
+                    int endIndex = Math.min(i + itemsPerSlide, allWishlistBooks.size());
+                    List<Book> group = new java.util.ArrayList<>(allWishlistBooks.subList(i, endIndex));
+                    wishlistBooksGroups.add(group);
+                }
+            }
+        }
+        
         model.addAttribute("book", book);
         model.addAttribute("relatedBooks", relatedBooks);
+        model.addAttribute("wishlistBooksGroups", wishlistBooksGroups);
         model.addAttribute("avgRating", avgRating);
         model.addAttribute("categories", bookService.getAllCategories());
  
