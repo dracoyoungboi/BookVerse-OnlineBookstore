@@ -12,5 +12,266 @@
     <link rel="stylesheet" th:href="@{/user/css/style.css}">
     <link rel="stylesheet" th:href="@{/user/css/responsive.css}">
     <script th:src="@{/user/js/vendor/modernizr-2.8.3.min.js}"></script>
+    <!-- Custom CSS to ensure consistent header color across all pages -->
+    <style>
+        /* Override header-top-area background to be consistent across all pages */
+        /* This ensures header has the same color on home page (home-2) and other pages */
+        .header-top-area {
+            background: #666666 !important;
+        }
+        
+        /* Also override text color for consistency */
+        .header-top-area .language-area ul li a,
+        .header-top-area .account-area ul li a {
+            color: #fff !important;
+        }
+        
+        .header-top-area .language-area ul li a:hover,
+        .header-top-area .account-area ul li a:hover {
+            color: #ddd !important;
+        }
+        
+        /* Override divider color (::before pseudo-element) to be white on all pages */
+        /* This ensures dividers are visible on the dark header background (#666666) */
+        /* Original CSS has #666 for default pages and #fff for home-2, but we need #fff for all */
+        .header-top-area .account-area ul>li::before {
+            background: #fff !important;
+            content: "" !important;
+            height: 12px !important;
+            position: absolute !important;
+            right: -13px !important;
+            top: 50% !important;
+            width: 1px !important;
+            transform: translateY(-50%) !important;
+        }
+        
+        /* Ensure last item doesn't show divider (already in original CSS but ensure it works) */
+        .header-top-area .account-area ul li:last-child::before {
+            display: none !important;
+        }
+        
+        /* Toast Notification Styles */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        
+        .toast-notification.show {
+            display: flex;
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        .toast-notification.success {
+            background: #28a745;
+        }
+        
+        .toast-notification.error {
+            background: #dc3545;
+        }
+        
+        .toast-notification.info {
+            background: #17a2b8;
+        }
+        
+        .toast-notification.warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .toast-notification .toast-icon {
+            font-size: 20px;
+        }
+        
+        .toast-notification .toast-message {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .toast-notification .toast-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+        }
+        
+        .toast-notification .toast-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .toast-notification.hide {
+            animation: slideOutRight 0.3s ease-out;
+        }
+        
+        /* ============================================
+           CART TOTALS STYLING - Hide Shipping
+           ============================================ */
+        
+        /* Force hide shipping section completely */
+        .cart_totals table tr.shipping,
+        .cart_totals table .shipping,
+        .cart_totals table tr.shipping *,
+        .cart_totals #shipping_method,
+        .cart_totals table td ul#shipping_method,
+        .cart_totals table td ul#shipping_method * {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden !important;
+            line-height: 0 !important;
+            font-size: 0 !important;
+        }
+        
+        /* Override default cart_totals table styles */
+        .cart_totals table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            float: none !important;
+            margin: 0 !important;
+            text-align: left !important;
+        }
+        
+        .cart_totals table tbody {
+            display: table-row-group !important;
+        }
+        
+        .cart_totals table tbody tr {
+            display: table-row !important;
+        }
+        
+        /* Style for subtotal row */
+        .cart_totals table tbody tr.cart-subtotal th,
+        .cart_totals table tbody tr.cart-subtotal td {
+            padding: 15px 0 !important;
+            text-align: right !important;
+            border-bottom: 1px solid #e5e5e5 !important;
+        }
+        
+        .cart_totals table tbody tr.cart-subtotal th {
+            text-align: left !important;
+            font-weight: 400 !important;
+            color: #666 !important;
+            font-size: 14px !important;
+            text-transform: uppercase !important;
+            padding-right: 20px !important;
+        }
+        
+        .cart_totals table tbody tr.cart-subtotal .amount {
+            color: #d4af37 !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+        }
+        
+        /* Style for savings row (when visible) */
+        .cart_totals table tbody tr.cart-savings th,
+        .cart_totals table tbody tr.cart-savings td {
+            padding: 12px 0 !important;
+            text-align: right !important;
+        }
+        
+        .cart_totals table tbody tr.cart-savings th {
+            text-align: left !important;
+            font-weight: 400 !important;
+            font-size: 13px !important;
+            padding-right: 20px !important;
+        }
+        
+        /* Style for coupon discount row (when visible) */
+        .cart_totals table tbody tr.cart-coupon-discount th,
+        .cart_totals table tbody tr.cart-coupon-discount td {
+            padding: 12px 0 !important;
+            text-align: right !important;
+        }
+        
+        .cart_totals table tbody tr.cart-coupon-discount th {
+            text-align: left !important;
+            font-weight: 400 !important;
+            font-size: 13px !important;
+            padding-right: 20px !important;
+        }
+        
+        /* Style for total row - Make it prominent */
+        .cart_totals table tbody tr.order-total {
+            border-top: 2px solid #333 !important;
+            border-bottom: none !important;
+        }
+        
+        .cart_totals table tbody tr.order-total th,
+        .cart_totals table tbody tr.order-total td {
+            padding: 20px 0 15px 0 !important;
+            text-align: right !important;
+        }
+        
+        .cart_totals table tbody tr.order-total th {
+            text-align: left !important;
+            font-size: 18px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            color: #333 !important;
+            padding-right: 20px !important;
+        }
+        
+        .cart_totals table tbody tr.order-total .amount {
+            font-size: 20px !important;
+            font-weight: 600 !important;
+            color: #d4af37 !important;
+            text-transform: uppercase !important;
+        }
+        
+        /* Ensure table cells align properly */
+        .cart_totals table th {
+            text-align: left !important;
+            padding-right: 20px !important;
+        }
+        
+        .cart_totals table td {
+            text-align: right !important;
+            padding-left: 20px !important;
+        }
+    </style>
 </head>
 </html>

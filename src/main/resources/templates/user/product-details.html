@@ -112,14 +112,15 @@
                                     </div>
                                 </div>
                                 <div class="product-add-form product-social-links">
-                                    <form action="#">
+                                    <form action="#" th:if="${book.stock > 0}">
                                         <div class="quality-button">
-                                            <input class="qty" type="number" value="1">
+                                            <input class="qty" type="number" value="1" min="1" th:max="${book.stock}" id="product-quantity" style="width: 60px; text-align: center;">
                                         </div>
-                                        <a href="#">Add to cart</a>
-                                       
+                                        <a href="#" th:onclick="'addToCart(' + ${book.bookId} + ', document.getElementById(\'product-quantity\').value); return false;'" class="add-to-cart-btn">Add to cart</a>
                                     </form>
-                                    
+                                    <div th:if="${book.stock <= 0}" style="padding: 10px; color: #d4af37;">
+                                        <p>This product is currently out of stock.</p>
+                                    </div>
                                 </div>
                                 <div class="product-social-links">
                                     <div class="product-addto-links">
