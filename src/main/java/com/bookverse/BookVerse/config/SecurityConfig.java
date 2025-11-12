@@ -189,8 +189,14 @@ public class SecurityConfig {
                         .ignoringRequestMatchers(
                                 "/wishlist/add",
                                 "/wishlist/remove", 
-                                "/wishlist/toggle"
-                        ) // Disable CSRF for wishlist API POST endpoints
+                                "/wishlist/toggle",
+                                "/cart/add",
+                                "/cart/update",
+                                "/cart/remove",
+                                "/cart/clear",
+                                "/cart/apply-coupon",
+                                "/cart/remove-coupon"
+                        ) // Disable CSRF for wishlist and cart API POST endpoints
                 )
                 // Configure exception handling for access denied
                 .exceptionHandling(exceptions -> exceptions

@@ -159,9 +159,10 @@
                                         <span class="wishlist-out-of-stock" th:if="${item.book.stock == 0}" style="color: red;">Out of Stock</span>
                                     </td>
                                     <td class="product-add-to-cart">
-                                        <a th:href="@{/cart/add/{id}(id=${item.book.bookId})}" 
-                                           th:classappend="${item.book.stock == 0 ? 'disabled' : ''}"
-                                           th:if="${item.book.stock > 0}">Add to Cart</a>
+                                        <a href="#" 
+                                           th:if="${item.book.stock > 0}"
+                                           th:onclick="'addToCart(' + ${item.book.bookId} + ', 1); return false;'"
+                                           style="cursor: pointer;">Add to Cart</a>
                                         <span th:if="${item.book.stock == 0}" style="color: #999;">Out of Stock</span>
                                     </td>
                                 </tr>
