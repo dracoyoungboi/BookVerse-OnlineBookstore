@@ -545,9 +545,17 @@
                                     </div>
                                     <div class="product-link">
                                         <div class="product-button">
-                                            <a th:href="@{/cart/add/{id}(id=${book.bookId})}"
-                                               th:classappend="${book.stock == 0 ? 'disabled' : ''}"
+                                            <a href="#" 
+                                               th:if="${book.stock > 0}"
+                                               th:onclick="'addToCart(' + ${book.bookId} + ', 1); return false;'"
                                                title="Add to cart">
+                                                <i class="fa fa-shopping-cart"></i>Add to cart
+                                            </a>
+                                            <a href="#" 
+                                               th:if="${book.stock == 0}"
+                                               class="disabled"
+                                               style="pointer-events: none; opacity: 0.5; cursor: not-allowed;"
+                                               title="Out of stock">
                                                 <i class="fa fa-shopping-cart"></i>Add to cart
                                             </a>
                                         </div>
@@ -626,9 +634,17 @@
                                             </div>
                                             <div class="product-link">
                                                 <div class="product-button">
-                                                    <a th:href="@{/cart/add/{id}(id=${book.bookId})}"
-                                                       th:classappend="${book.stock == 0 ? 'disabled' : ''}"
+                                                    <a href="#" 
+                                                       th:if="${book.stock > 0}"
+                                                       th:onclick="'addToCart(' + ${book.bookId} + ', 1); return false;'"
                                                        title="Add to cart">
+                                                        <i class="fa fa-shopping-cart"></i>Add to cart
+                                                    </a>
+                                                    <a href="#" 
+                                                       th:if="${book.stock == 0}"
+                                                       class="disabled"
+                                                       style="pointer-events: none; opacity: 0.5; cursor: not-allowed;"
+                                                       title="Out of stock">
                                                         <i class="fa fa-shopping-cart"></i>Add to cart
                                                     </a>
                                                 </div>

@@ -14,5 +14,170 @@
 <script th:src="@{/user/js/waypoints.min.js}"></script>
 <script th:src="@{/user/js/plugins.js}"></script>
 <script th:src="@{/user/js/main.js}"></script>
+
+<!-- Cart JavaScript - Available on all pages -->
+<script>
+    // Toast Notification Functions
+    function showToast(message, type) {
+        const toast = document.getElementById('toast-notification');
+        if (!toast) return;
+        
+        // Hide toast first if it's already showing
+        toast.classList.remove('show', 'hide');
+        
+        // Set message
+        const messageElement = toast.querySelector('.toast-message');
+        if (messageElement) {
+            messageElement.textContent = message || 'Book added to cart successfully!';
+        }
+        
+        // Set type (success, error, info, warning)
+        type = type || 'success';
+        toast.className = 'toast-notification ' + type;
+        
+        // Set icon based on type
+        const iconElement = toast.querySelector('.toast-icon i');
+        if (iconElement) {
+            if (type === 'error') {
+                iconElement.className = 'fa fa-exclamation-circle';
+            } else if (type === 'info') {
+                iconElement.className = 'fa fa-info-circle';
+            } else if (type === 'warning') {
+                iconElement.className = 'fa fa-exclamation-triangle';
+            } else {
+                iconElement.className = 'fa fa-check-circle';
+            }
+        }
+        
+        // Show toast with animation
+        setTimeout(function() {
+            toast.classList.add('show');
+        }, 10);
+        
+        // Auto hide after 3 seconds
+        setTimeout(function() {
+            hideToast();
+        }, 3000);
+    }
+    
+    function hideToast() {
+        const toast = document.getElementById('toast-notification');
+        if (!toast) return;
+        
+        toast.classList.add('hide');
+        setTimeout(function() {
+            toast.classList.remove('show', 'hide');
+        }, 300);
+    }
+    
+    // Check URL parameter and show toast on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const addedToCart = urlParams.get('addedToCart');
+        const removedFromCart = urlParams.get('removedFromCart');
+        
+        if (addedToCart === 'true') {
+            // Show toast after a short delay to ensure page is loaded
+            setTimeout(function() {
+                showToast('Book added to cart successfully!', 'success');
+            }, 200);
+            
+            // Remove parameter from URL without reload
+            urlParams.delete('addedToCart');
+            const newSearch = urlParams.toString();
+            const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+        
+        if (removedFromCart === 'true') {
+            // Show toast after a short delay to ensure page is loaded
+            setTimeout(function() {
+                showToast('Book removed from cart successfully!', 'success');
+            }, 200);
+            
+            // Remove parameter from URL without reload
+            urlParams.delete('removedFromCart');
+            const newSearch = urlParams.toString();
+            const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    });
+    
+    // Add to cart function - Available globally
+    function addToCart(bookId, quantity) {
+        if (!quantity || quantity <= 0) {
+            quantity = 1;
+        }
+        
+        fetch('/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'bookId=' + bookId + '&quantity=' + quantity
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload trang với parameter addedToCart=true
+                const url = new URL(window.location.href);
+                url.searchParams.set('addedToCart', 'true');
+                window.location.href = url.toString();
+            } else {
+                console.error('Failed to add book to cart:', data.message);
+                showToast(data.message || 'Failed to add book to cart', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('An error occurred. Please try again.', 'error');
+        });
+    }
+    
+    // Update cart info in header
+    function updateCartInfo() {
+        fetch('/cart/info')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cập nhật cart count
+                const cartCountElement = document.querySelector('.my-cart span');
+                if (cartCountElement) {
+                    cartCountElement.textContent = data.cartItemCount || 0;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error updating cart info:', error);
+        });
+    }
+    
+    // Remove from cart function - Available globally
+    function removeFromCart(bookId) {
+        fetch('/cart/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'bookId=' + bookId
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload trang với parameter removedFromCart=true
+                const url = new URL(window.location.href);
+                url.searchParams.set('removedFromCart', 'true');
+                window.location.href = url.toString();
+            } else {
+                console.error('Failed to remove book from cart:', data.message);
+                showToast(data.message || 'Failed to remove book from cart', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('An error occurred. Please try again.', 'error');
+        });
+    }
+</script>
 </body>
 </html>

@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body th:fragment="header">
+<!-- Toast Notification -->
+<div id="toast-notification" class="toast-notification">
+    <span class="toast-icon">
+        <i class="fa fa-check-circle"></i>
+    </span>
+    <span class="toast-message">Book added to cart successfully!</span>
+    <button class="toast-close" onclick="hideToast()">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+
 <!-- header-area-start -->
 <header>
     <!-- header-top-area-start -->
@@ -10,11 +21,7 @@
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="language-area">
                         <ul>
-                            <li><img th:src="@{/user/img/flag/1.jpg}" alt="flag"/><a href="#">English<i
-                                    class="fa fa-angle-down"></i></a>
-                            </li>
-                            <li><a href="#">USD $<i class="fa fa-angle-down"></i></a>
-                            </li>
+
                         </ul>
                     </div>
                 </div>
@@ -53,43 +60,8 @@
                 <div class="col-lg-9 col-md-8 col-12">
                     <div class="my-cart" style="text-align: right; float: right;">
                         <ul>
-                            <li><a href="#"><i class="fa fa-shopping-cart"></i>My Cart</a>
-                                <span>2</span>
-                                <div class="mini-cart-sub">
-                                    <div class="cart-product">
-                                        <div class="single-cart">
-                                            <div class="cart-img">
-                                                <a href="#"><img th:src="@{/user/img/product/1.jpg}" alt="book"/></a>
-                                            </div>
-                                            <div class="cart-info">
-                                                <h5><a href="#">Joust Duffle Bag</a></h5>
-                                                <p>1 x £60.00</p>
-                                            </div>
-                                            <div class="cart-icon">
-                                                <a href="#"><i class="fa fa-remove"></i></a>
-                                            </div>
-                                        </div>
-                                        <div class="single-cart">
-                                            <div class="cart-img">
-                                                <a href="#"><img th:src="@{/user/img/product/3.jpg}" alt="book"/></a>
-                                            </div>
-                                            <div class="cart-info">
-                                                <h5><a href="#">Chaz Kangeroo Hoodie</a></h5>
-                                                <p>1 x £52.00</p>
-                                            </div>
-                                            <div class="cart-icon">
-                                                <a href="#"><i class="fa fa-remove"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="cart-totals">
-                                        <h5>Total <span>£12.00</span></h5>
-                                    </div>
-                                    <div class="cart-bottom">
-                                        <a class="view-cart" href="cart.html">view cart</a>
-                                        <a href="checkout.html">Check out</a>
-                                    </div>
-                                </div>
+                            <li><a th:href="@{/cart}"><i class="fa fa-shopping-cart"></i>My Cart</a>
+                                <span th:text="${cartItemCount != null ? cartItemCount : 0}">0</span>
                             </li>
                         </ul>
                     </div>
