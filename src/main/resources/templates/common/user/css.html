@@ -12,5 +12,24 @@
     <link rel="stylesheet" th:href="@{/user/css/style.css}">
     <link rel="stylesheet" th:href="@{/user/css/responsive.css}">
     <script th:src="@{/user/js/vendor/modernizr-2.8.3.min.js}"></script>
+    <!-- Custom CSS to ensure consistent header color across all pages -->
+    <style>
+        /* Override header-top-area background to be consistent across all pages */
+        /* This ensures header has the same color on home page (home-2) and other pages */
+        .header-top-area {
+            background: #666666 !important;
+        }
+        
+        /* Also override text color for consistency */
+        .header-top-area .language-area ul li a,
+        .header-top-area .account-area ul li a {
+            color: #fff !important;
+        }
+        
+        .header-top-area .language-area ul li a:hover,
+        .header-top-area .account-area ul li a:hover {
+            color: #ddd !important;
+        }
+    </style>
 </head>
 </html>
