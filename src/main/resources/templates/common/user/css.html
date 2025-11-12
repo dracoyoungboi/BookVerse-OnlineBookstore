@@ -143,6 +143,135 @@
         .toast-notification.hide {
             animation: slideOutRight 0.3s ease-out;
         }
+        
+        /* ============================================
+           CART TOTALS STYLING - Hide Shipping
+           ============================================ */
+        
+        /* Force hide shipping section completely */
+        .cart_totals table tr.shipping,
+        .cart_totals table .shipping,
+        .cart_totals table tr.shipping *,
+        .cart_totals #shipping_method,
+        .cart_totals table td ul#shipping_method,
+        .cart_totals table td ul#shipping_method * {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden !important;
+            line-height: 0 !important;
+            font-size: 0 !important;
+        }
+        
+        /* Override default cart_totals table styles */
+        .cart_totals table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            float: none !important;
+            margin: 0 !important;
+            text-align: left !important;
+        }
+        
+        .cart_totals table tbody {
+            display: table-row-group !important;
+        }
+        
+        .cart_totals table tbody tr {
+            display: table-row !important;
+        }
+        
+        /* Style for subtotal row */
+        .cart_totals table tbody tr.cart-subtotal th,
+        .cart_totals table tbody tr.cart-subtotal td {
+            padding: 15px 0 !important;
+            text-align: right !important;
+            border-bottom: 1px solid #e5e5e5 !important;
+        }
+        
+        .cart_totals table tbody tr.cart-subtotal th {
+            text-align: left !important;
+            font-weight: 400 !important;
+            color: #666 !important;
+            font-size: 14px !important;
+            text-transform: uppercase !important;
+            padding-right: 20px !important;
+        }
+        
+        .cart_totals table tbody tr.cart-subtotal .amount {
+            color: #d4af37 !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+        }
+        
+        /* Style for savings row (when visible) */
+        .cart_totals table tbody tr.cart-savings th,
+        .cart_totals table tbody tr.cart-savings td {
+            padding: 12px 0 !important;
+            text-align: right !important;
+        }
+        
+        .cart_totals table tbody tr.cart-savings th {
+            text-align: left !important;
+            font-weight: 400 !important;
+            font-size: 13px !important;
+            padding-right: 20px !important;
+        }
+        
+        /* Style for coupon discount row (when visible) */
+        .cart_totals table tbody tr.cart-coupon-discount th,
+        .cart_totals table tbody tr.cart-coupon-discount td {
+            padding: 12px 0 !important;
+            text-align: right !important;
+        }
+        
+        .cart_totals table tbody tr.cart-coupon-discount th {
+            text-align: left !important;
+            font-weight: 400 !important;
+            font-size: 13px !important;
+            padding-right: 20px !important;
+        }
+        
+        /* Style for total row - Make it prominent */
+        .cart_totals table tbody tr.order-total {
+            border-top: 2px solid #333 !important;
+            border-bottom: none !important;
+        }
+        
+        .cart_totals table tbody tr.order-total th,
+        .cart_totals table tbody tr.order-total td {
+            padding: 20px 0 15px 0 !important;
+            text-align: right !important;
+        }
+        
+        .cart_totals table tbody tr.order-total th {
+            text-align: left !important;
+            font-size: 18px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            color: #333 !important;
+            padding-right: 20px !important;
+        }
+        
+        .cart_totals table tbody tr.order-total .amount {
+            font-size: 20px !important;
+            font-weight: 600 !important;
+            color: #d4af37 !important;
+            text-transform: uppercase !important;
+        }
+        
+        /* Ensure table cells align properly */
+        .cart_totals table th {
+            text-align: left !important;
+            padding-right: 20px !important;
+        }
+        
+        .cart_totals table td {
+            text-align: right !important;
+            padding-left: 20px !important;
+        }
     </style>
 </head>
 </html>

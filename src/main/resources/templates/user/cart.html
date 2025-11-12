@@ -131,17 +131,40 @@
                         <li><a href="#" onclick="clearCart(); return false;">Clear Cart</a></li>
                     </ul>
                 </div>
-                <!-- Coupon section - có thể bỏ qua hoặc implement sau -->
-                <!--
-                <div class="coupon">
+                <!-- Coupon section -->
+                <div class="coupon mb-30" th:if="${cartItems != null && !cartItems.isEmpty()}">
                     <h3>Coupon</h3>
                     <p>Enter your coupon code if you have one.</p>
-                    <form action="#">
-                        <input type="text" placeholder="Coupon code">
-                        <a href="#">Apply Coupon</a>
+                    <div th:if="${couponCode == null || couponCode.isEmpty()}">
+                        <form id="coupon-form" onsubmit="applyCoupon(event); return false;">
+                            <input type="text" 
+                                   id="coupon-code-input" 
+                                   placeholder="Coupon code" 
+                                   required
+                                   style="padding: 8px; width: 200px; margin-right: 10px;">
+                            <button type="submit" 
+                                    style="padding: 8px 20px; background: #333; color: #fff; border: none; cursor: pointer;">
+                                Apply Coupon
+                            </button>
                     </form>
+                        <div id="coupon-message" style="margin-top: 10px; color: #d32f2f; display: none;"></div>
+                    </div>
+                    <div th:if="${couponCode != null && !couponCode.isEmpty()}" style="padding: 15px; background: #f5f5f5; border-radius: 4px;">
+                        <p style="margin: 0 0 10px 0;">
+                            <strong>Applied Coupon:</strong> 
+                            <span th:text="${couponCode}">COUPON</span>
+                            <a href="#" th:onclick="'removeCoupon(); return false;'" 
+                               style="margin-left: 10px; color: #d32f2f; text-decoration: none;">
+                                Remove
+                            </a>
+                        </p>
+                        <p th:if="${couponDescription != null}" 
+                           style="margin: 0; color: #666; font-size: 0.9em;" 
+                           th:text="${couponDescription}">
+                            Coupon description
+                        </p>
+                    </div>
                 </div>
-                -->
             </div>
             <div class="col-lg-4 col-md-6 col-12">
                 <div class="cart_totals">
@@ -155,34 +178,27 @@
                             </td>
                         </tr>
                         <tr th:if="${cartSavings != null && cartSavings > 0}" class="cart-savings" style="color: #28a745;">
-                            <th>Savings</th>
+                            <th>Savings (from discounts)</th>
                             <td>
                                 <span class="amount" th:text="|$${#numbers.formatDecimal(cartSavings, 1, 2)}|">$0.00</span>
                             </td>
                         </tr>
-                        <tr class="shipping">
-                            <th>Shipping</th>
+                        <tr th:if="${couponDiscount != null && couponDiscount > 0}" class="cart-coupon-discount" style="color: #1976d2;">
+                            <th>Coupon Discount</th>
                             <td>
-                                <ul id="shipping_method">
-                                    <li>
-                                        <input type="radio" name="shipping" value="flat" checked>
-                                        <label>
-                                            Flat Rate:
-                                            <span class="amount">$7.00</span>
-                                        </label>
-                                    </li>
-                                    <li>
-                                        <input type="radio" name="shipping" value="free">
-                                        <label> Free Shipping </label>
-                                    </li>
-                                </ul>
+                                <span class="amount" id="coupon-discount" th:text="|$${#numbers.formatDecimal(couponDiscount, 1, 2)}|">$0.00</span>
                             </td>
                         </tr>
                         <tr class="order-total">
                             <th>Total</th>
                             <td>
                                 <strong>
-                                    <span class="amount" id="cart-total" th:text="|$${#numbers.formatDecimal(cartTotal != null ? cartTotal : 0, 1, 2)}|">$0.00</span>
+                                    <span class="amount" id="cart-total" 
+                                          th:text="${couponDiscount != null && couponDiscount > 0 ? 
+                                                    ('$' + #numbers.formatDecimal(cartTotalAfterCoupon != null ? cartTotalAfterCoupon : cartTotal, 1, 2)) : 
+                                                    ('$' + #numbers.formatDecimal(cartTotal != null ? cartTotal : 0, 1, 2))}">
+                                        $0.00
+                                    </span>
                                 </strong>
                             </td>
                         </tr>
@@ -295,6 +311,70 @@
             input.defaultValue = input.value;
         });
     });
+    
+    // Apply coupon
+    function applyCoupon(event) {
+        event.preventDefault();
+        
+        const couponCode = document.getElementById('coupon-code-input').value.trim();
+        const messageDiv = document.getElementById('coupon-message');
+        
+        if (!couponCode) {
+            messageDiv.textContent = 'Please enter a coupon code';
+            messageDiv.style.display = 'block';
+            messageDiv.style.color = '#d32f2f';
+            return;
+        }
+        
+        fetch('/cart/apply-coupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'couponCode=' + encodeURIComponent(couponCode)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload trang để hiển thị coupon đã áp dụng
+                window.location.reload();
+            } else {
+                messageDiv.textContent = data.message || 'Failed to apply coupon';
+                messageDiv.style.display = 'block';
+                messageDiv.style.color = '#d32f2f';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            messageDiv.textContent = 'An error occurred. Please try again.';
+            messageDiv.style.display = 'block';
+            messageDiv.style.color = '#d32f2f';
+        });
+    }
+    
+    // Remove coupon
+    function removeCoupon() {
+        fetch('/cart/remove-coupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload trang để cập nhật giá
+                window.location.reload();
+            } else {
+                console.error('Failed to remove coupon:', data.message);
+                showToast(data.message || 'Failed to remove coupon', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('An error occurred. Please try again.', 'error');
+        });
+    }
 </script>
 </body>
 

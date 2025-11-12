@@ -193,7 +193,9 @@ public class SecurityConfig {
                                 "/cart/add",
                                 "/cart/update",
                                 "/cart/remove",
-                                "/cart/clear"
+                                "/cart/clear",
+                                "/cart/apply-coupon",
+                                "/cart/remove-coupon"
                         ) // Disable CSRF for wishlist and cart API POST endpoints
                 )
                 // Configure exception handling for access denied

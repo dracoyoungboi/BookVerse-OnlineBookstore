@@ -17,9 +17,13 @@ import java.util.stream.Collectors;
 public class CartService {
     
     private static final String CART_SESSION_KEY = "cart";
+    private static final String COUPON_SESSION_KEY = "cartCoupon";
     
     @Autowired
     private BookRepository bookRepository;
+    
+    @Autowired
+    private CouponService couponService;
     
     /**
      * Lấy cart từ session
@@ -207,6 +211,67 @@ public class CartService {
         return items.stream()
                 .limit(limit)
                 .collect(Collectors.toList());
+    }
+    
+    /**
+     * Lấy coupon code từ session
+     */
+    public String getCouponCode(HttpSession session) {
+        return (String) session.getAttribute(COUPON_SESSION_KEY);
+    }
+    
+    /**
+     * Lưu coupon code vào session
+     */
+    public void setCouponCode(HttpSession session, String couponCode) {
+        if (couponCode != null && !couponCode.trim().isEmpty()) {
+            session.setAttribute(COUPON_SESSION_KEY, couponCode.trim().toUpperCase());
+        } else {
+            session.removeAttribute(COUPON_SESSION_KEY);
+        }
+    }
+    
+    /**
+     * Xóa coupon khỏi session
+     */
+    public void removeCoupon(HttpSession session) {
+        session.removeAttribute(COUPON_SESSION_KEY);
+    }
+    
+    /**
+     * Tính tổng giá của cart sau khi áp dụng coupon
+     */
+    public Double getCartTotalAfterCoupon(HttpSession session) {
+        Double cartTotal = getCartTotal(session);
+        String couponCode = getCouponCode(session);
+        
+        if (couponCode != null && !couponCode.isEmpty()) {
+            CouponService.CouponValidationResult result = couponService.validateCoupon(couponCode, cartTotal);
+            if (result.isValid() && result.getCoupon() != null) {
+                Double discount = result.getCoupon().calculateDiscount(cartTotal);
+                Double totalAfterCoupon = cartTotal - discount;
+                return Math.max(0.0, Math.round(totalAfterCoupon * 100.0) / 100.0);
+            }
+        }
+        
+        return cartTotal;
+    }
+    
+    /**
+     * Tính số tiền giảm giá từ coupon
+     */
+    public Double getCouponDiscount(HttpSession session) {
+        Double cartTotal = getCartTotal(session);
+        String couponCode = getCouponCode(session);
+        
+        if (couponCode != null && !couponCode.isEmpty()) {
+            CouponService.CouponValidationResult result = couponService.validateCoupon(couponCode, cartTotal);
+            if (result.isValid() && result.getCoupon() != null) {
+                return result.getCoupon().calculateDiscount(cartTotal);
+            }
+        }
+        
+        return 0.0;
     }
 }
 
