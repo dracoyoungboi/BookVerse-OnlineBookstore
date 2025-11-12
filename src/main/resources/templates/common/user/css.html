@@ -30,6 +30,119 @@
         .header-top-area .account-area ul li a:hover {
             color: #ddd !important;
         }
+        
+        /* Override divider color (::before pseudo-element) to be white on all pages */
+        /* This ensures dividers are visible on the dark header background (#666666) */
+        /* Original CSS has #666 for default pages and #fff for home-2, but we need #fff for all */
+        .header-top-area .account-area ul>li::before {
+            background: #fff !important;
+            content: "" !important;
+            height: 12px !important;
+            position: absolute !important;
+            right: -13px !important;
+            top: 50% !important;
+            width: 1px !important;
+            transform: translateY(-50%) !important;
+        }
+        
+        /* Ensure last item doesn't show divider (already in original CSS but ensure it works) */
+        .header-top-area .account-area ul li:last-child::before {
+            display: none !important;
+        }
+        
+        /* Toast Notification Styles */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        
+        .toast-notification.show {
+            display: flex;
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        .toast-notification.success {
+            background: #28a745;
+        }
+        
+        .toast-notification.error {
+            background: #dc3545;
+        }
+        
+        .toast-notification.info {
+            background: #17a2b8;
+        }
+        
+        .toast-notification.warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .toast-notification .toast-icon {
+            font-size: 20px;
+        }
+        
+        .toast-notification .toast-message {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .toast-notification .toast-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+        }
+        
+        .toast-notification .toast-close:hover {
+            opacity: 1;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .toast-notification.hide {
+            animation: slideOutRight 0.3s ease-out;
+        }
     </style>
 </head>
 </html>

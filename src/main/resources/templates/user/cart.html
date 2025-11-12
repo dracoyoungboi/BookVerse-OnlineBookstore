@@ -32,8 +32,8 @@
             <div class="col-lg-12">
                 <div class="breadcrumbs-menu">
                     <ul>
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#" class="active">cart</a></li>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/cart" class="active">Cart</a></li>
                     </ul>
                 </div>
             </div>
@@ -59,7 +59,15 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <form action="#">
+                <!-- Empty cart message -->
+                <div th:if="${cartItems == null || cartItems.isEmpty()}" class="empty-cart-message" style="text-align: center; padding: 60px 20px;">
+                    <h2>Your cart is empty</h2>
+                    <p>Looks like you haven't added any items to your cart yet.</p>
+                    <a th:href="@{/shop}" class="btn" style="margin-top: 20px; display: inline-block; padding: 10px 30px; background: #333; color: #fff; text-decoration: none;">Continue Shopping</a>
+                </div>
+                
+                <!-- Cart items table -->
+                <form th:if="${cartItems != null && !cartItems.isEmpty()}" id="cart-form">
                     <div class="table-content table-responsive mb-15 border-1">
                         <table>
                             <thead>
@@ -73,21 +81,41 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <td class="product-thumbnail"><a href="#"><img src="img/cart/1.jpg" alt="man"/></a></td>
-                                <td class="product-name"><a href="#">Vestibulum suscipit</a></td>
-                                <td class="product-price"><span class="amount">£165.00</span></td>
-                                <td class="product-quantity"><input type="number" value="1"></td>
-                                <td class="product-subtotal">£165.00</td>
-                                <td class="product-remove"><a href="#"><i class="fa fa-times"></i></a></td>
-                            </tr>
-                            <tr>
-                                <td class="product-thumbnail"><a href="#"><img src="img/cart/2.jpg" alt="man"/></a></td>
-                                <td class="product-name"><a href="#">Vestibulum dictum magna</a></td>
-                                <td class="product-price"><span class="amount">£50.00</span></td>
-                                <td class="product-quantity"><input type="number" value="1"></td>
-                                <td class="product-subtotal">£50.00</td>
-                                <td class="product-remove"><a href="#"><i class="fa fa-times"></i></a></td>
+                            <tr th:each="item : ${cartItems}">
+                                <td class="product-thumbnail">
+                                    <a th:href="@{/shop/product/{id}(id=${item.book.bookId})}">
+                                        <img th:src="${item.book.imageUrl != null ? item.book.imageUrl : '/user/img/product/1.jpg'}" 
+                                             th:alt="${item.book.title}" alt="book"/>
+                                    </a>
+                                </td>
+                                <td class="product-name">
+                                    <a th:href="@{/shop/product/{id}(id=${item.book.bookId})}" th:text="${item.book.title}">Book Title</a>
+                                </td>
+                                <td class="product-price">
+                                    <span class="amount" th:text="|$${#numbers.formatDecimal(item.book.discountPrice != null ? item.book.discountPrice : item.book.price, 1, 2)}|">$0.00</span>
+                                    <span th:if="${item.book.discountPercent != null && item.book.discountPercent > 0}" 
+                                          class="original-price" 
+                                          style="text-decoration: line-through; color: #999; font-size: 0.9em; display: block; margin-top: 5px;"
+                                          th:text="|$${#numbers.formatDecimal(item.book.price, 1, 2)}|">$0.00</span>
+                                </td>
+                                <td class="product-quantity">
+                                    <input type="number" 
+                                           th:value="${item.quantity}" 
+                                           th:data-book-id="${item.book.bookId}"
+                                           min="1" 
+                                           th:max="${item.book.stock}"
+                                           class="cart-quantity-input"
+                                           onchange="updateCartItem(this)"
+                                           style="width: 60px; text-align: center;"/>
+                                </td>
+                                <td class="product-subtotal">
+                                    <span class="amount" th:text="|$${#numbers.formatDecimal(item.getSubtotal(), 1, 2)}|">$0.00</span>
+                                </td>
+                                <td class="product-remove">
+                                    <a href="#" th:onclick="'removeFromCart(' + ${item.book.bookId} + '); return false;'" title="Remove">
+                                        <i class="fa fa-times"></i>
+                                    </a>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -95,14 +123,16 @@
                 </form>
             </div>
         </div>
-        <div class="row">
+        <div class="row" th:if="${cartItems != null && !cartItems.isEmpty()}">
             <div class="col-lg-8 col-md-6 col-12">
                 <div class="buttons-cart mb-30">
                     <ul>
-                        <li><a href="#">Update Cart</a></li>
-                        <li><a href="#">Continue Shopping</a></li>
+                        <li><a th:href="@{/shop}">Continue Shopping</a></li>
+                        <li><a href="#" onclick="clearCart(); return false;">Clear Cart</a></li>
                     </ul>
                 </div>
+                <!-- Coupon section - có thể bỏ qua hoặc implement sau -->
+                <!--
                 <div class="coupon">
                     <h3>Coupon</h3>
                     <p>Enter your coupon code if you have one.</p>
@@ -111,6 +141,7 @@
                         <a href="#">Apply Coupon</a>
                     </form>
                 </div>
+                -->
             </div>
             <div class="col-lg-4 col-md-6 col-12">
                 <div class="cart_totals">
@@ -120,7 +151,13 @@
                         <tr class="cart-subtotal">
                             <th>Subtotal</th>
                             <td>
-                                <span class="amount">£215.00</span>
+                                <span class="amount" th:text="|$${#numbers.formatDecimal(cartTotal != null ? cartTotal : 0, 1, 2)}|">$0.00</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${cartSavings != null && cartSavings > 0}" class="cart-savings" style="color: #28a745;">
+                            <th>Savings</th>
+                            <td>
+                                <span class="amount" th:text="|$${#numbers.formatDecimal(cartSavings, 1, 2)}|">$0.00</span>
                             </td>
                         </tr>
                         <tr class="shipping">
@@ -128,32 +165,31 @@
                             <td>
                                 <ul id="shipping_method">
                                     <li>
-                                        <input type="radio">
+                                        <input type="radio" name="shipping" value="flat" checked>
                                         <label>
                                             Flat Rate:
-                                            <span class="amount">£7.00</span>
+                                            <span class="amount">$7.00</span>
                                         </label>
                                     </li>
                                     <li>
-                                        <input type="radio">
+                                        <input type="radio" name="shipping" value="free">
                                         <label> Free Shipping </label>
                                     </li>
                                 </ul>
-                                <a href="#">Calculate Shipping</a>
                             </td>
                         </tr>
                         <tr class="order-total">
                             <th>Total</th>
                             <td>
                                 <strong>
-                                    <span class="amount">£215.00</span>
+                                    <span class="amount" id="cart-total" th:text="|$${#numbers.formatDecimal(cartTotal != null ? cartTotal : 0, 1, 2)}|">$0.00</span>
                                 </strong>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                     <div class="wc-proceed-to-checkout">
-                        <a href="#">Proceed to Checkout</a>
+                        <a href="checkout.html">Proceed to Checkout</a>
                     </div>
                 </div>
             </div>
@@ -168,6 +204,98 @@
 
 <!-- all js here -->
 <div th:replace="common/user/js :: js"></div>
+
+<!-- Cart JavaScript -->
+<script>
+    // Cập nhật quantity của sách trong cart
+    function updateCartItem(input) {
+        const bookId = input.getAttribute('data-book-id');
+        const quantity = parseInt(input.value);
+        
+        // Nếu quantity <= 0, xóa item khỏi cart (không cần confirm)
+        if (quantity <= 0) {
+            removeFromCart(bookId);
+            return;
+        }
+        
+        fetch('/cart/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'bookId=' + bookId + '&quantity=' + quantity
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cập nhật subtotal của item
+                const row = input.closest('tr');
+                const subtotalCell = row.querySelector('.product-subtotal .amount');
+                if (subtotalCell && data.itemSubtotal !== undefined) {
+                    subtotalCell.textContent = '$' + data.itemSubtotal.toFixed(2);
+                }
+                
+                // Cập nhật cart total
+                const cartTotalElement = document.getElementById('cart-total');
+                if (cartTotalElement && data.cartTotal !== undefined) {
+                    cartTotalElement.textContent = '$' + data.cartTotal.toFixed(2);
+                }
+                
+                // Cập nhật cart info trong header
+                updateCartInfo();
+                
+                // Cập nhật subtotal trong cart totals
+                const subtotalElement = document.querySelector('.cart-subtotal .amount');
+                if (subtotalElement && data.cartTotal !== undefined) {
+                    subtotalElement.textContent = '$' + data.cartTotal.toFixed(2);
+                }
+            } else {
+                console.error('Failed to update cart:', data.message);
+                // Khôi phục giá trị cũ
+                input.value = input.defaultValue || 1;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Khôi phục giá trị cũ
+            input.value = input.defaultValue || 1;
+        });
+    }
+    
+    // Xóa tất cả items trong cart
+    function clearCart() {
+        if (!confirm('Clear all items from cart?')) {
+            return;
+        }
+        
+        fetch('/cart/clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload trang
+                window.location.reload();
+            } else {
+                console.error('Failed to clear cart:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+    // Lưu giá trị mặc định của input khi trang load
+    document.addEventListener('DOMContentLoaded', function() {
+        const quantityInputs = document.querySelectorAll('.cart-quantity-input');
+        quantityInputs.forEach(input => {
+            input.defaultValue = input.value;
+        });
+    });
+</script>
 </body>
 
 <!-- Mirrored from htmldemo.net/koparion/koparion/cart.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 03 Nov 2025 15:14:39 GMT -->
