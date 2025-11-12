@@ -481,6 +481,7 @@ body {
 }
 
 .language-area ul li a,
+.language-area ul li span,
 .account-area ul li a {
     color: #333;
     font-size: 13px;
