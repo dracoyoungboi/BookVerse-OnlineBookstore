@@ -769,9 +769,10 @@
                 if (!response.ok) {
                     // If 403 or 401, redirect to login
                     if (response.status === 403 || response.status === 401) {
-                        if (confirm('You need to login to add items to wishlist. Would you like to go to login page?')) {
+                        showToast('You need to login to add items to wishlist. Redirecting to login page...', 'warning');
+                        setTimeout(function() {
                             window.location.href = '/login';
-                        }
+                        }, 2000);
                         return null;
                     }
                     throw new Error('Network response was not ok');
@@ -810,8 +811,8 @@
                         }
                     }
                     
-                    // Show message
-                    alert(data.message);
+                    // Show toast message
+                    showToast(data.message, 'success');
                     
                     // Update wishlist count if element exists
                     if (data.wishlistCount !== undefined) {
@@ -821,12 +822,12 @@
                         }
                     }
                 } else {
-                    alert(data.message || 'Failed to update wishlist');
+                    showToast(data.message || 'Failed to update wishlist', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                showToast('An error occurred. Please try again.', 'error');
             });
         }
         
