@@ -1,0 +1,320 @@
+<!-- meta tags and other links -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Order - Admin | BookVerse</title>
+  <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
+  <!-- common css import -->
+  <div th:replace="common/admin/css :: css"></div>
+</head>
+
+<body>
+
+  <!-- Theme Customization Structure Start -->
+<div class="body-overlay"></div>
+
+<button type="button"
+    class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
+    <i class="ri-settings-3-line animate-spin"></i>
+</button>
+<div class="theme-customization-sidebar w-100 bg-base h-100vh overflow-y-auto position-fixed end-0 top-0 shadow-lg">
+    <div class="d-flex align-items-center gap-3 py-16 px-24 justify-content-between border-bottom">
+        <div>
+            <h6 class="text-sm dark:text-white">Theme Settings</h6>
+            <p class="text-xs mb-0 text-neutral-500 dark:text-neutral-200">Customize and preview instantly</p>
+        </div>
+        <button data-slot="button"
+            class="theme-customization-sidebar__close text-neutral-900 bg-transparent text-hover-primary-600 d-flex text-xl">
+            <i class="ri-close-fill"></i>
+        </button>
+    </div>
+
+    <div class="d-flex flex-column gap-48 p-24 overflow-y-auto flex-grow-1">
+
+        <div class="theme-setting-item">
+            <h6 class="fw-medium text-primary-light text-md mb-3">Theme Mode</h6>
+            <div class="d-grid grid-cols-3 gap-3 dark-light-mode">
+                <button type="button"
+                    class="theme-btn theme-setting-item__btn d-flex align-items-center justify-content-center h-64-px rounded-3 text-xl active"
+                    data-theme="light">
+                    <i class="ri-sun-line"></i>
+                </button>
+                <button type="button"
+                    class="theme-btn theme-setting-item__btn d-flex align-items-center justify-content-center h-64-px rounded-3 text-xl"
+                    data-theme="dark">
+                    <i class="ri-moon-line"></i>
+                </button>
+                <button type="button"
+                    class="theme-btn theme-setting-item__btn d-flex align-items-center justify-content-center h-64-px rounded-3 text-xl"
+                    data-theme="system">
+                    <i class="ri-computer-line"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="theme-setting-item">
+            <h6 class="fw-medium text-primary-light text-md mb-3">Page Direction</h6>
+            <div class="d-grid grid-cols-2 gap-3">
+                <button type="button"
+                    class="theme-setting-item__btn ltr-mode-btn d-flex align-items-center justify-content-center gap-2 h-56-px rounded-3 text-xl">
+                    <span><i class="ri-align-item-left-line"></i></span>
+                    <span class="h6 text-sm font-medium mb-0">LTR</span>
+                </button>
+
+                <button type="button"
+                    class="theme-setting-item__btn rtl-mode-btn d-flex align-items-center justify-content-center gap-2 h-56-px rounded-3 text-xl">
+                    <span class="h6 text-sm font-medium mb-0">RTL</span>
+                    <span><i class="ri-align-item-right-line"></i></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="theme-setting-item">
+            <h6 class="fw-medium text-primary-light text-md mb-3">Color Schema</h6>
+            <div class="d-grid grid-cols-3 gap-3">
+                <button type="button"
+                    class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
+                    data-color="blue">
+                    <span class="color-picker-btn__box h-40-px w-100 rounded-3"
+                        style="background-color: #2563eb;"></span>
+                    <span class="fw-medium mt-1" style="color: #2563eb;">Blue</span>
+                </button>
+                <button type="button"
+                    class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
+                    data-color="red">
+                    <span class="color-picker-btn__box h-40-px w-100 rounded-3"
+                        style="background-color: #dc2626;"></span>
+                    <span class="fw-medium mt-1" style="color: #dc2626;">Red</span>
+                </button>
+                <button type="button"
+                    class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
+                    data-color="green">
+                    <span class="color-picker-btn__box h-40-px w-100 rounded-3"
+                        style="background-color: #16a34a;"></span>
+                    <span class="fw-medium mt-1" style="color: #16a34a;">Green</span>
+                </button>
+                <button type="button"
+                    class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
+                    data-color="yellow">
+                    <span class="color-picker-btn__box h-40-px w-100 rounded-3"
+                        style="background-color: #ff9f29;"></span>
+                    <span class="fw-medium mt-1" style="color: #ff9f29;">Yellow</span>
+                </button>
+                <button type="button"
+                    class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
+                    data-color="cyan">
+                    <span class="color-picker-btn__box h-40-px w-100 rounded-3"
+                        style="background-color: #00b8f2;"></span>
+                    <span class="fw-medium mt-1" style="color: #00b8f2;">Cyan</span>
+                </button>
+                <button type="button"
+                    class="color-picker-btn d-flex flex-column justify-content-center align-items-center"
+                    data-color="violet">
+                    <span class="color-picker-btn__box h-40-px w-100 rounded-3"
+                        style="background-color: #7c3aed;"></span>
+                    <span class="fw-medium mt-1" style="color: #7c3aed;">Violet</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Theme Customization Structure End -->
+  <div th:replace="common/admin/sidebar :: sidebar"></div>
+
+<main class="dashboard-main">
+  <div th:replace="common/admin/header :: header"></div>
+
+  <div class="dashboard-main-body">
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+  <h6 class="fw-semibold mb-0">Order Details</h6>
+  <ul class="d-flex align-items-center gap-2">
+    <li class="fw-medium">
+      <a th:href="@{/demo/admin}" class="d-flex align-items-center gap-1 hover-text-primary">
+        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+        Dashboard
+      </a>
+    </li>
+    <li>-</li>
+    <li class="fw-medium">
+      <a th:href="@{/admin/orders}" class="d-flex align-items-center gap-1 hover-text-primary">Orders</a>
+    </li>
+    <li>-</li>
+    <li class="fw-medium">Order Details</li>
+  </ul>
+</div>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+      <span th:text="${success}">Success message</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <span th:text="${error}">Error message</span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        
+        <!-- Order Overview -->
+        <div class="mb-40">
+          <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Order Overview</h5>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Order ID</label>
+                <p class="text-lg fw-semibold mb-0" th:text="${order.orderId}">-</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Total Amount</label>
+                <p class="text-lg fw-semibold mb-0 text-primary-600" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')} + ' $'">$0.00</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Status</label>
+                <span class="badge" 
+                      th:classappend="${order.status == 'pending' ? 'bg-warning' : (order.status == 'processing' ? 'bg-info' : (order.status == 'shipped' ? 'bg-success' : 'bg-secondary'))}"
+                      th:text="${order.status != null ? order.status : 'N/A'}">Status</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Created At</label>
+                <p class="text-md mb-0" th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Information -->
+        <div class="mb-40" th:if="${order.user != null}">
+          <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">User Information</h5>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Username</label>
+                <p class="text-md mb-0" th:text="${order.user.username}">-</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Email</label>
+                <p class="text-md mb-0" th:text="${order.user.email}">-</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Full Name</label>
+                <p class="text-md mb-0" th:text="${order.user.fullName != null ? order.user.fullName : 'N/A'}">-</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Phone</label>
+                <p class="text-md mb-0" th:text="${order.user.phone != null ? order.user.phone : 'N/A'}">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="mb-40" th:if="${order.orderItems != null and !order.orderItems.isEmpty()}">
+          <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Order Items</h5>
+          <div class="table-responsive">
+            <table class="table bordered-table mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Book</th>
+                  <th scope="col">Title</th>
+                  <th scope="col">Author</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="item : ${order.orderItems}">
+                  <td>
+                    <img th:if="${item.book != null and item.book.imageUrl != null and !item.book.imageUrl.isEmpty()}" 
+                         th:src="${item.book.imageUrl}" 
+                         alt="Book image" 
+                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                    <span th:if="${item.book == null or item.book.imageUrl == null or item.book.imageUrl.isEmpty()}" 
+                          class="text-secondary-light">No image</span>
+                  </td>
+                  <td th:text="${item.book != null ? item.book.title : 'N/A'}">Book Title</td>
+                  <td th:text="${item.book != null ? item.book.author : 'N/A'}">Author</td>
+                  <td th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 2, 'POINT')} + ' $'">$0.00</td>
+                  <td th:text="${item.quantity}">1</td>
+                  <td class="fw-semibold" th:text="${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 2, 'POINT')} + ' $'">$0.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="mb-40">
+          <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Order Details</h5>
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Address</label>
+                <p class="text-md mb-0" th:text="${order.address != null ? order.address : 'N/A'}">Not provided</p>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="p-16 bg-neutral-50 rounded-3">
+                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Note</label>
+                <p class="text-md mb-0" th:text="${order.note != null ? order.note : 'N/A'}">Not provided</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex flex-wrap gap-3 justify-content-end pt-24 border-top">
+          <a th:href="@{/admin/orders}" class="btn btn-secondary">Back to Orders</a>
+          <form th:if="${order.status == 'processing'}" 
+                th:action="@{/admin/orders/{id}/update-status(id=${order.orderId}, redirect='view')}" 
+                method="post" 
+                style="display: inline;"
+                onsubmit="return confirm('Are you sure you want to mark this order as shipped?');">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="status" value="shipped" />
+            <button type="submit" class="btn btn-success">
+              Mark as Shipped
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+    
+  </div>
+
+  <footer class="d-footer">
+  <div class="row align-items-center justify-content-between">
+    <div class="col-auto">
+      <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+    </div>
+    <div class="col-auto">
+      <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+    </div>
+  </div>
+</footer>
+</main>
+
+  <div th:replace="common/admin/js :: js"></div>
+</body>
+
+</html>
+

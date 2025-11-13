@@ -1,0 +1,142 @@
+<!doctype html>
+<html class="no-js" lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Invoice #<span th:text="${order.orderId}">-</span> | BookVerse</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png">
+    <div th:replace="common/user/css :: css"></div>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { margin: 0; padding: 20px; }
+            .invoice-container { box-shadow: none !important; }
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+
+<body class="home-2">
+<div th:replace="common/user/header :: header"></div>
+
+<div class="breadcrumbs-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumbs-menu">
+                    <ul>
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/my-orders}">My Orders</a></li>
+                        <li><a class="active">Invoice</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="my-account-area mb-70">
+    <div class="container">
+        <div class="invoice-container">
+            <!-- Invoice Header -->
+            <div class="text-center mb-40">
+                <h1>INVOICE</h1>
+                <p class="text-muted">BookVerse Online Bookstore</p>
+            </div>
+
+            <!-- Invoice Info -->
+            <div class="row mb-40">
+                <div class="col-md-6">
+                    <h5>Bill To:</h5>
+                    <p th:if="${order.user != null}">
+                        <strong th:text="${order.user.fullName != null ? order.user.fullName : order.user.username}">-</strong><br>
+                        <span th:text="${order.user.email}">-</span><br>
+                        <span th:if="${order.user.phone != null}" th:text="${order.user.phone}">-</span>
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h5>Invoice Details:</h5>
+                    <p>
+                        <strong>Invoice #:</strong> <span th:text="${order.orderId}">-</span><br>
+                        <strong>Date:</strong> <span th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'yyyy-MM-dd') : 'N/A'}">-</span><br>
+                        <strong>Status:</strong> 
+                        <span class="badge" 
+                              th:classappend="${order.status == 'processing' ? 'bg-info' : 'bg-success'}"
+                              th:text="${order.status}">-</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <table class="table table-bordered mb-40">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Book</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-center">Qty</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item, iterStat : ${order.orderItems}">
+                        <td th:text="${iterStat.count}">1</td>
+                        <td>
+                            <img th:if="${item.book != null and item.book.imageUrl != null and !item.book.imageUrl.isEmpty()}" 
+                                 th:src="${item.book.imageUrl}" 
+                                 alt="Book" 
+                                 style="width: 40px; height: 40px; object-fit: cover;">
+                        </td>
+                        <td th:text="${item.book != null ? item.book.title : 'N/A'}">-</td>
+                        <td th:text="${item.book != null ? item.book.author : 'N/A'}">-</td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 2, 'POINT')} + ' $'">$0.00</td>
+                        <td class="text-center" th:text="${item.quantity}">1</td>
+                        <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 2, 'POINT')} + ' $'">$0.00</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6" class="text-end fw-bold">Total:</td>
+                        <td class="text-end fw-bold text-primary" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')} + ' $'">$0.00</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- Shipping Address -->
+            <div class="mb-40" th:if="${order.address != null}">
+                <h5>Shipping Address:</h5>
+                <p th:text="${order.address}">-</p>
+            </div>
+
+            <!-- Note -->
+            <div class="mb-40" th:if="${order.note != null}">
+                <h5>Note:</h5>
+                <p th:text="${order.note}">-</p>
+            </div>
+
+            <!-- Print Button -->
+            <div class="text-center no-print">
+                <button onclick="window.print()" class="btn btn-primary">Print Invoice</button>
+                <a th:href="@{/my-orders/{id}(id=${order.orderId})}" class="btn btn-secondary">Back to Order</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="common/user/footer :: footer"></div>
+<div th:replace="common/user/js :: js"></div>
+</body>
+
+</html>
+

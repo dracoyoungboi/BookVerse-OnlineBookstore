@@ -20,15 +20,14 @@
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="language-area">
-                        <ul>
 
-                        </ul>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="account-area text-end">
                         <ul>
                             <li><a th:href="@{/my-account}">My Account</a></li>
+                            <li th:if="${username != null or session.username != null}"><a th:href="@{/my-orders}">My Orders</a></li>
                             <li><a href="checkout.html">Checkout</a></li>
                             <!-- Show username and logout when logged in -->
                             <li th:if="${username != null or session.username != null}">
