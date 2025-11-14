@@ -44,7 +44,9 @@ public class AdminUserController {
                            Authentication authentication,
                            @RequestParam(required = false) String search,
                            @RequestParam(defaultValue = "0") int page,
-                           @RequestParam(defaultValue = "6") int size) {
+                           @RequestParam(defaultValue = "6") int size,
+                           @RequestParam(defaultValue = "userId") String sortBy,
+                           @RequestParam(defaultValue = "asc") String sortDir) {
         // Check if user is authenticated and has ADMIN role
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
@@ -76,7 +78,10 @@ public class AdminUserController {
         }
 
         // Create pageable with sorting
-        Pageable pageable = PageRequest.of(page, size, Sort.by("userId").descending());
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? 
+                   Sort.by(sortBy).ascending() : 
+                   Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
         
         // Get users with pagination
         Page<User> userPage;
@@ -100,6 +105,8 @@ public class AdminUserController {
         model.addAttribute("totalItems", userPage.getTotalElements());
         model.addAttribute("pageSize", size);
         model.addAttribute("search", search != null ? search : "");
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         model.addAttribute("showFirstPage", showFirstPage);

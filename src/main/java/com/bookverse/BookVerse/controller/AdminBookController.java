@@ -50,7 +50,9 @@ public class AdminBookController {
                            Authentication authentication,
                            @RequestParam(required = false) String search,
                            @RequestParam(defaultValue = "0") int page,
-                           @RequestParam(defaultValue = "6") int size) {
+                           @RequestParam(defaultValue = "6") int size,
+                           @RequestParam(defaultValue = "bookId") String sortBy,
+                           @RequestParam(defaultValue = "asc") String sortDir) {
         // Check if user is authenticated and has ADMIN role
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
@@ -82,7 +84,10 @@ public class AdminBookController {
         }
 
         // Create pageable with sorting
-        Pageable pageable = PageRequest.of(page, size, Sort.by("bookId").descending());
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? 
+                   Sort.by(sortBy).ascending() : 
+                   Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
         
         // Get books with pagination
         Page<Book> bookPage;
@@ -106,6 +111,8 @@ public class AdminBookController {
         model.addAttribute("totalItems", bookPage.getTotalElements());
         model.addAttribute("pageSize", size);
         model.addAttribute("search", search != null ? search : "");
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         model.addAttribute("showFirstPage", showFirstPage);

@@ -28,7 +28,7 @@
                         <ul>
                             <li><a th:href="@{/my-account}">My Account</a></li>
                             <li th:if="${username != null or session.username != null}"><a th:href="@{/my-orders}">My Orders</a></li>
-                            <li><a href="checkout.html">Checkout</a></li>
+                            <li><a th:href="@{/checkout}">Checkout</a></li>
                             <!-- Show username and logout when logged in -->
                             <li th:if="${username != null or session.username != null}">
                                 <a href="#">Hello, <span th:text="${username != null ? username : session.username}"></span></a>
@@ -181,10 +181,10 @@
                                         <li><a href="login.html">login</a></li>
                                         <li><a href="register.html">register</a></li>
                                         <li><a href="my-account.html">my-account</a></li>
-                                        <li><a href="cart.html">cart</a></li>
+                                        <li><a th:href="@{/cart}">cart</a></li>
                                         <li><a href="compare.html">compare</a></li>
-                                        <li><a href="checkout.html">checkout</a></li>
-                                        <li><a href="wishlist.html">wishlist</a></li>
+                                        <li><a th:href="@{/checkout}">checkout</a></li>
+                                        <li><a th:href="@{/wishlist}">wishlist</a></li>
                                         <li><a href="404.html">404 Page</a></li>
                                     </ul>
                                 </li>

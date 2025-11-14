@@ -30,6 +30,31 @@ public class DemoController {
                       Authentication authentication) {
         System.out.println("[DEBUG] DemoController.user() called");
         
+        // Check if user is admin - block admin from accessing user pages
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> {
+                        String auth = authority.getAuthority().toUpperCase();
+                        return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                    });
+            
+            // Also check role from session/database as fallback
+            if (!isAdmin) {
+                User sessionUser = (User) session.getAttribute("currentUser");
+                if (sessionUser != null && sessionUser.getRole() != null) {
+                    String roleName = sessionUser.getRole().getName();
+                    if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                        isAdmin = true;
+                    }
+                }
+            }
+            
+            if (isAdmin) {
+                System.out.println("[DEBUG] Admin trying to access /demo/user - redirecting to /demo/admin");
+                return "redirect:/demo/admin";
+            }
+        }
+        
         // Check for logout message from session or URL parameter
         String logoutMessage = (String) session.getAttribute("logoutMessage");
         if (logoutMessage != null) {
@@ -342,5 +367,3 @@ public class DemoController {
         return "admin/my-account";
     }
 }
-
-

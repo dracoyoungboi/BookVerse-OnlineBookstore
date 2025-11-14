@@ -191,12 +191,60 @@
           <table class="table bordered-table mb-0">
             <thead>
               <tr>
-                <th scope="col">User ID</th>
+                <th scope="col">
+                  User ID
+                  <div class="d-inline-flex flex-column ms-2" style="font-size: 10px;">
+                    <a th:href="@{/admin/orders(page=${currentPage}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy='userId', sortDir='asc')}" 
+                       class="text-decoration-none"
+                       th:classappend="${sortBy == 'userId' and sortDir == 'asc' ? 'text-primary-600' : 'text-secondary-light'}"
+                       title="Sort Ascending">
+                      <iconify-icon icon="mdi:chevron-up"></iconify-icon>
+                    </a>
+                    <a th:href="@{/admin/orders(page=${currentPage}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy='userId', sortDir='desc')}" 
+                       class="text-decoration-none"
+                       th:classappend="${sortBy == 'userId' and sortDir == 'desc' ? 'text-primary-600' : 'text-secondary-light'}"
+                       title="Sort Descending">
+                      <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                    </a>
+                  </div>
+                </th>
                 <th scope="col">Username</th>
                 <th scope="col">Full Name</th>
                 <th scope="col">Email</th>
-                <th scope="col">Total Orders</th>
-                <th scope="col">Total Amount</th>
+                <th scope="col">
+                  Total Orders
+                  <div class="d-inline-flex flex-column ms-2" style="font-size: 10px;">
+                    <a th:href="@{/admin/orders(page=${currentPage}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy='orderCount', sortDir='asc')}" 
+                       class="text-decoration-none"
+                       th:classappend="${sortBy == 'orderCount' and sortDir == 'asc' ? 'text-primary-600' : 'text-secondary-light'}"
+                       title="Sort Ascending">
+                      <iconify-icon icon="mdi:chevron-up"></iconify-icon>
+                    </a>
+                    <a th:href="@{/admin/orders(page=${currentPage}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy='orderCount', sortDir='desc')}" 
+                       class="text-decoration-none"
+                       th:classappend="${sortBy == 'orderCount' and sortDir == 'desc' ? 'text-primary-600' : 'text-secondary-light'}"
+                       title="Sort Descending">
+                      <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                    </a>
+                  </div>
+                </th>
+                <th scope="col">
+                  Total Amount
+                  <div class="d-inline-flex flex-column ms-2" style="font-size: 10px;">
+                    <a th:href="@{/admin/orders(page=${currentPage}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy='totalAmount', sortDir='asc')}" 
+                       class="text-decoration-none"
+                       th:classappend="${sortBy == 'totalAmount' and sortDir == 'asc' ? 'text-primary-600' : 'text-secondary-light'}"
+                       title="Sort Ascending">
+                      <iconify-icon icon="mdi:chevron-up"></iconify-icon>
+                    </a>
+                    <a th:href="@{/admin/orders(page=${currentPage}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy='totalAmount', sortDir='desc')}" 
+                       class="text-decoration-none"
+                       th:classappend="${sortBy == 'totalAmount' and sortDir == 'desc' ? 'text-primary-600' : 'text-secondary-light'}"
+                       title="Sort Descending">
+                      <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                    </a>
+                  </div>
+                </th>
                 <th scope="col">Action</th>
               </tr>
             </thead>
@@ -240,7 +288,7 @@
             <!-- Previous button -->
             <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
               <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
-                 th:href="@{/admin/orders(page=${currentPage - 1}, size=${pageSize}, search=${search}, status=${selectedStatus})}"
+                 th:href="@{/admin/orders(page=${currentPage - 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:if="${currentPage > 0}">
                 <iconify-icon icon="ep:d-arrow-left" class="text-xl"></iconify-icon>
               </a>
@@ -253,7 +301,7 @@
             <!-- First page -->
             <li class="page-item" th:if="${showFirstPage}">
               <a class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
-                 th:href="@{/admin/orders(page=0, size=${pageSize}, search=${search}, status=${selectedStatus})}">1</a>
+                 th:href="@{/admin/orders(page=0, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}">1</a>
             </li>
             <li class="page-item" th:if="${showFirstEllipsis}">
               <span class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px">...</span>
@@ -265,7 +313,7 @@
                 th:classappend="${pageNum == currentPage ? 'active' : ''}">
               <a class="page-link fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
                  th:class="${pageNum == currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'}"
-                 th:href="@{/admin/orders(page=${pageNum}, size=${pageSize}, search=${search}, status=${selectedStatus})}"
+                 th:href="@{/admin/orders(page=${pageNum}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:text="${pageNum + 1}">1</a>
             </li>
             
@@ -275,14 +323,302 @@
             </li>
             <li class="page-item" th:if="${showLastPage}">
               <a class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
-                 th:href="@{/admin/orders(page=${totalPages - 1}, size=${pageSize}, search=${search}, status=${selectedStatus})}"
+                 th:href="@{/admin/orders(page=${totalPages - 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:text="${totalPages}">1</a>
             </li>
             
             <!-- Next button -->
             <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
               <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
-                 th:href="@{/admin/orders(page=${currentPage + 1}, size=${pageSize}, search=${search}, status=${selectedStatus})}"
+                 th:href="@{/admin/orders(page=${currentPage + 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                 th:if="${currentPage < totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </a>
+              <span class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base disabled"
+                    th:if="${currentPage == totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script>
+    function changePageSize(size) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('size', size);
+      url.searchParams.set('page', '0');
+      window.location.href = url.toString();
+    }
+  </script>
+
+  <footer class="d-footer">
+  <div class="row align-items-center justify-content-between">
+    <div class="col-auto">
+      <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+    </div>
+    <div class="col-auto">
+      <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+    </div>
+  </div>
+</footer>
+</main>
+
+  <div th:replace="common/admin/js :: js"></div>
+</body>
+
+</html>
+
+
+            </li>
+            
+            <!-- Next button -->
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+              <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
+                 th:href="@{/admin/orders(page=${currentPage + 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                 th:if="${currentPage < totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </a>
+              <span class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base disabled"
+                    th:if="${currentPage == totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script>
+    function changePageSize(size) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('size', size);
+      url.searchParams.set('page', '0');
+      window.location.href = url.toString();
+    }
+  </script>
+
+  <footer class="d-footer">
+  <div class="row align-items-center justify-content-between">
+    <div class="col-auto">
+      <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+    </div>
+    <div class="col-auto">
+      <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+    </div>
+  </div>
+</footer>
+</main>
+
+  <div th:replace="common/admin/js :: js"></div>
+</body>
+
+</html>
+
+
+            </li>
+            
+            <!-- Next button -->
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+              <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
+                 th:href="@{/admin/orders(page=${currentPage + 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                 th:if="${currentPage < totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </a>
+              <span class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base disabled"
+                    th:if="${currentPage == totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script>
+    function changePageSize(size) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('size', size);
+      url.searchParams.set('page', '0');
+      window.location.href = url.toString();
+    }
+  </script>
+
+  <footer class="d-footer">
+  <div class="row align-items-center justify-content-between">
+    <div class="col-auto">
+      <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+    </div>
+    <div class="col-auto">
+      <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+    </div>
+  </div>
+</footer>
+</main>
+
+  <div th:replace="common/admin/js :: js"></div>
+</body>
+
+</html>
+
+
+            </li>
+            
+            <!-- Next button -->
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+              <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
+                 th:href="@{/admin/orders(page=${currentPage + 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                 th:if="${currentPage < totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </a>
+              <span class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base disabled"
+                    th:if="${currentPage == totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script>
+    function changePageSize(size) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('size', size);
+      url.searchParams.set('page', '0');
+      window.location.href = url.toString();
+    }
+  </script>
+
+  <footer class="d-footer">
+  <div class="row align-items-center justify-content-between">
+    <div class="col-auto">
+      <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+    </div>
+    <div class="col-auto">
+      <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+    </div>
+  </div>
+</footer>
+</main>
+
+  <div th:replace="common/admin/js :: js"></div>
+</body>
+
+</html>
+
+
+            </li>
+            
+            <!-- Next button -->
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+              <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
+                 th:href="@{/admin/orders(page=${currentPage + 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                 th:if="${currentPage < totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </a>
+              <span class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base disabled"
+                    th:if="${currentPage == totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script>
+    function changePageSize(size) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('size', size);
+      url.searchParams.set('page', '0');
+      window.location.href = url.toString();
+    }
+  </script>
+
+  <footer class="d-footer">
+  <div class="row align-items-center justify-content-between">
+    <div class="col-auto">
+      <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+    </div>
+    <div class="col-auto">
+      <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+    </div>
+  </div>
+</footer>
+</main>
+
+  <div th:replace="common/admin/js :: js"></div>
+</body>
+
+</html>
+
+
+            </li>
+            
+            <!-- Next button -->
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+              <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
+                 th:href="@{/admin/orders(page=${currentPage + 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                 th:if="${currentPage < totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </a>
+              <span class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base disabled"
+                    th:if="${currentPage == totalPages - 1}">
+                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script>
+    function changePageSize(size) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('size', size);
+      url.searchParams.set('page', '0');
+      window.location.href = url.toString();
+    }
+  </script>
+
+  <footer class="d-footer">
+  <div class="row align-items-center justify-content-between">
+    <div class="col-auto">
+      <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+    </div>
+    <div class="col-auto">
+      <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+    </div>
+  </div>
+</footer>
+</main>
+
+  <div th:replace="common/admin/js :: js"></div>
+</body>
+
+</html>
+
+
+            </li>
+            
+            <!-- Next button -->
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+              <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
+                 th:href="@{/admin/orders(page=${currentPage + 1}, size=${pageSize}, search=${search}, status=${selectedStatus}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:if="${currentPage < totalPages - 1}">
                 <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
               </a>

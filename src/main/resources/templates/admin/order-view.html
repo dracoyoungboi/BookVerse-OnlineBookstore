@@ -261,6 +261,19 @@
           </div>
         </div>
 
+        <!-- QR Code Section -->
+        <div class="mb-40" th:if="${qrCode != null}">
+          <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Order QR Code</h5>
+          <div class="text-center p-24 bg-neutral-50 rounded-3">
+            <div style="display: inline-block; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <img th:src="${qrCode}" 
+                   alt="QR Code" 
+                   style="max-width: 250px; height: auto; display: block;">
+            </div>
+            <p class="text-sm text-secondary-light mt-16 mb-0">Scan this QR code to view order details</p>
+          </div>
+        </div>
+
         <!-- Order Details -->
         <div class="mb-40">
           <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Order Details</h5>
@@ -283,6 +296,20 @@
         <!-- Action Buttons -->
         <div class="d-flex flex-wrap gap-3 justify-content-end pt-24 border-top">
           <a th:href="@{/admin/orders}" class="btn btn-secondary">Back to Orders</a>
+          
+          <!-- Process Payment Button (for pending orders) -->
+          <form th:if="${order.status == 'pending'}" 
+                th:action="@{/admin/orders/{id}/process-payment(id=${order.orderId}, redirect='view')}" 
+                method="post" 
+                style="display: inline;"
+                onsubmit="return confirm('Are you sure you want to process payment for this order? This will deduct stock and change status to processing.');">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="btn btn-primary">
+              Process Payment
+            </button>
+          </form>
+          
+          <!-- Mark as Shipped Button (for processing orders) -->
           <form th:if="${order.status == 'processing'}" 
                 th:action="@{/admin/orders/{id}/update-status(id=${order.orderId}, redirect='view')}" 
                 method="post" 
