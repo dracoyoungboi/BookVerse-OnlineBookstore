@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Book - Admin | BookVerse</title>
+  <title>Add Voucher - Admin | BookVerse</title>
   <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
   <!-- common css import -->
   <div th:replace="common/admin/css :: css"></div>
@@ -131,7 +131,7 @@
   <div class="dashboard-main-body">
 
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-  <h6 class="fw-semibold mb-0">Edit Book</h6>
+  <h6 class="fw-semibold mb-0">Add Voucher</h6>
   <ul class="d-flex align-items-center gap-2">
     <li class="fw-medium">
       <a th:href="@{/demo/admin}" class="d-flex align-items-center gap-1 hover-text-primary">
@@ -141,10 +141,10 @@
     </li>
     <li>-</li>
     <li class="fw-medium">
-      <a th:href="@{/admin/books}" class="d-flex align-items-center gap-1 hover-text-primary">Books</a>
+      <a th:href="@{/admin/coupons}" class="d-flex align-items-center gap-1 hover-text-primary">Vouchers</a>
     </li>
     <li>-</li>
-    <li class="fw-medium">Edit Book</li>
+    <li class="fw-medium">Add Voucher</li>
   </ul>
 </div>
 
@@ -156,131 +156,73 @@
 
     <div class="card">
       <div class="card-body">
-        <form th:action="@{/admin/books/edit/{id}(id=${book.bookId})}" th:object="${book}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/admin/coupons/add}" th:object="${coupon}" method="post">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
           
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Title <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" th:field="*{title}" required>
+              <label class="form-label">Coupon Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" th:field="*{code}" required maxlength="50" placeholder="e.g., SAVE10">
+              <small class="text-secondary-light">Code will be automatically converted to uppercase</small>
             </div>
             
             <div class="col-md-6">
-              <label class="form-label">Author <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" th:field="*{author}" required>
-            </div>
-            
-            <div class="col-md-6">
-              <label class="form-label">Category <span class="text-danger">*</span></label>
-              <select class="form-select" name="categoryId" required>
-                <option value="">Select Category</option>
-                <option th:each="category : ${categories}" 
-                        th:value="${category.categoryId}" 
-                        th:selected="${book.category != null && book.category.categoryId == category.categoryId}"
-                        th:text="${category.name}">Category</option>
+              <label class="form-label">Discount Type <span class="text-danger">*</span></label>
+              <select class="form-select" th:field="*{discountType}" required>
+                <option value="">Select Type</option>
+                <option value="PERCENTAGE">Percentage (%)</option>
+                <option value="FIXED_AMOUNT">Fixed Amount ($)</option>
               </select>
             </div>
             
             <div class="col-md-6">
-              <label class="form-label">Price <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" th:field="*{price}" step="0.01" min="0" required>
+              <label class="form-label">Discount Value <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" th:field="*{discountValue}" step="0.01" min="0" required>
+              <small class="text-secondary-light">Enter percentage (0-100) for PERCENTAGE or amount for FIXED_AMOUNT</small>
             </div>
             
             <div class="col-md-6">
-              <label class="form-label">Stock <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" th:field="*{stock}" min="0" required>
+              <label class="form-label">Minimum Purchase Amount <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" th:field="*{minPurchaseAmount}" step="0.01" min="0" value="0" required>
+              <small class="text-secondary-light">Minimum cart total required to use this voucher</small>
             </div>
             
             <div class="col-md-6">
-              <label class="form-label">Discount Percent (%)</label>
-              <input type="number" class="form-control" th:field="*{discountPercent}" step="0.01" min="0" max="100">
-              <small class="text-secondary-light">Enter 0 for no discount</small>
+              <label class="form-label">Maximum Discount Amount</label>
+              <input type="number" class="form-control" th:field="*{maxDiscountAmount}" step="0.01" min="0">
+              <small class="text-secondary-light">Only for PERCENTAGE type. Leave empty for unlimited.</small>
             </div>
             
             <div class="col-md-6">
-              <label class="form-label">Discount Start Date</label>
-              <input type="datetime-local" 
-                     class="form-control" 
-                     name="discountStart"
-                     th:value="${discountStartFormatted}">
+              <label class="form-label">Usage Limit</label>
+              <input type="number" class="form-control" th:field="*{usageLimit}" min="1">
+              <small class="text-secondary-light">Maximum number of times this voucher can be used. Leave empty for unlimited.</small>
             </div>
             
             <div class="col-md-6">
-              <label class="form-label">Discount End Date</label>
-              <input type="datetime-local" 
-                     class="form-control" 
-                     name="discountEnd"
-                     th:value="${discountEndFormatted}">
+              <label class="form-label">Expiry Date <span class="text-danger">*</span></label>
+              <input type="datetime-local" class="form-control" name="expiryDateStr" required>
+              <small class="text-secondary-light">Date and time when this voucher expires</small>
             </div>
             
-            <div class="col-12">
-              <label class="form-label">Book Image <span class="text-secondary-light">(Optional)</span></label>
-              
-              <!-- Current Image Preview -->
-              <div th:if="${book.imageUrl != null and book.imageUrl != ''}" class="mb-3">
-                <label class="form-label text-sm text-secondary-light">Current Image:</label>
-                <div class="d-flex align-items-center gap-3">
-                  <img th:src="${book.imageUrl}" alt="Current book image" 
-                       style="max-width: 200px; max-height: 200px; border-radius: 4px; border: 1px solid #ddd; object-fit: cover;">
-                  <div>
-                    <button type="button" class="btn btn-sm btn-danger" onclick="deleteCurrentImage(this)">
-                      <i class="ri-delete-bin-line"></i> Remove Current Image
-                    </button>
-                    <input type="hidden" name="deleteOldImage" id="deleteOldImage" value="false">
-                    <p class="text-sm text-secondary-light mt-2 mb-0">Click "Remove" to delete the current image</p>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Upload New Image -->
-              <div class="mb-3">
-                <label class="form-label">Upload New Image File</label>
-                <input type="file" class="form-control" name="imageFile" id="imageFile" accept="image/*" onchange="previewNewImage(this)">
-                <small class="form-text text-muted d-block mt-1">
-                  <i class="ri-information-line"></i> Upload an image file (JPG, PNG, GIF, WebP) to replace the current image. 
-                  <strong>If you upload a new image, it will replace the current one.</strong>
-                </small>
-              </div>
-              <div id="imagePreview" class="mb-3" style="display: none;">
-                <label class="form-label text-sm text-secondary-light">New Image Preview:</label>
-                <div>
-                  <img id="previewImg" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 4px; border: 1px solid #ddd; object-fit: cover;">
-                  <p class="text-sm text-success mt-2 mb-0">
-                    <i class="ri-checkbox-circle-line"></i> New image ready to upload
-                  </p>
-                </div>
-              </div>
-              
-              <!-- Or Enter Image URL -->
-              <div class="mb-3">
-                <label class="form-label">Or Enter Image URL</label>
-                <input type="url" class="form-control" name="imageUrl" id="imageUrl" th:value="${book.imageUrl != null ? book.imageUrl : ''}" placeholder="https://example.com/image.jpg" onchange="clearFileInput()">
-                <small class="form-text text-muted d-block mt-1">
-                  <i class="ri-information-line"></i> Alternatively, you can provide an image URL instead of uploading a file. 
-                  <strong>If you enter a URL, it will replace the current image.</strong>
-                </small>
-              </div>
-              
-              <div class="alert alert-info" role="alert">
-                <i class="ri-lightbulb-line"></i> <strong>Note:</strong> 
-                <ul class="mb-0 mt-2 ps-3">
-                  <li>To keep the current image, leave both fields empty</li>
-                  <li>To replace the image, either upload a new file or enter a new URL</li>
-                  <li>To remove the image, click "Remove Current Image" button above</li>
-                </ul>
-              </div>
+            <div class="col-md-6">
+              <label class="form-label">Status</label>
+              <select class="form-select" th:field="*{active}">
+                <option th:value="true" selected>Active</option>
+                <option th:value="false">Inactive</option>
+              </select>
             </div>
             
             <div class="col-12">
               <label class="form-label">Description</label>
-              <textarea class="form-control" th:field="*{description}" rows="6" placeholder="Enter book description..."></textarea>
-              <small class="form-text text-muted">Provide a detailed description of the book.</small>
+              <textarea class="form-control" th:field="*{description}" rows="4" placeholder="Enter voucher description..."></textarea>
+              <small class="form-text text-muted">Optional description for this voucher.</small>
             </div>
           </div>
           
           <div class="d-flex flex-wrap gap-3 justify-content-end mt-24 pt-24 border-top">
-            <a th:href="@{/admin/books}" class="btn btn-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary-600">Update Book</button>
+            <a th:href="@{/admin/coupons}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary-600">Add Voucher</button>
           </div>
         </form>
       </div>
@@ -301,54 +243,6 @@
 </main>
 
   <div th:replace="common/admin/js :: js"></div>
-  
-  <script>
-    function previewNewImage(input) {
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          document.getElementById('previewImg').src = e.target.result;
-          document.getElementById('imagePreview').style.display = 'block';
-          // Reset delete flag when uploading new image
-          document.getElementById('deleteOldImage').value = 'false';
-          // Clear URL input if file is selected
-          document.getElementById('imageUrl').value = '';
-        };
-        reader.readAsDataURL(input.files[0]);
-      } else {
-        document.getElementById('imagePreview').style.display = 'none';
-      }
-    }
-    
-    function clearFileInput() {
-      // Clear file input when URL is entered
-      const fileInput = document.getElementById('imageFile');
-      if (fileInput) {
-        fileInput.value = '';
-        document.getElementById('imagePreview').style.display = 'none';
-        document.getElementById('deleteOldImage').value = 'false';
-      }
-    }
-    
-    function deleteCurrentImage(button) {
-      if (confirm('Are you sure you want to remove the current image? This action cannot be undone.')) {
-        document.getElementById('deleteOldImage').value = 'true';
-        // Clear file input and URL input
-        document.getElementById('imageFile').value = '';
-        document.getElementById('imageUrl').value = '';
-        document.getElementById('imagePreview').style.display = 'none';
-        // Hide current image container by finding the parent div of the button
-        if (button) {
-          const imageContainer = button.closest('.mb-3');
-          if (imageContainer) {
-            imageContainer.style.display = 'none';
-          }
-        }
-      } else {
-        document.getElementById('deleteOldImage').value = 'false';
-      }
-    }
-  </script>
 </body>
 
 </html>

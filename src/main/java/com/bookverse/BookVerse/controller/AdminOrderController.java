@@ -86,6 +86,14 @@ public class AdminOrderController {
             model.addAttribute("fullName", currentUser.getFullName());
         }
 
+        // Ensure default sort direction is ascending
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            sortBy = "userId";
+        }
+        if (sortDir == null || sortDir.trim().isEmpty()) {
+            sortDir = "asc";
+        }
+        
         // Get order summaries grouped by user
         String statusFilter = (status != null && !status.trim().isEmpty()) ? status.trim() : null;
         String searchFilter = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
@@ -346,8 +354,8 @@ public class AdminOrderController {
         User targetUser = targetUserOpt.get();
         model.addAttribute("targetUser", targetUser);
 
-        // Create pageable with sorting
-        Pageable pageable = PageRequest.of(page, size, Sort.by("orderId").descending());
+        // Create pageable with sorting (ASC by orderId)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("orderId").ascending());
         
         // Get orders for this user
         Page<Order> orderPage;

@@ -51,8 +51,9 @@ public class AdminBookController {
                            @RequestParam(required = false) String search,
                            @RequestParam(defaultValue = "0") int page,
                            @RequestParam(defaultValue = "6") int size,
-                           @RequestParam(defaultValue = "bookId") String sortBy,
-                           @RequestParam(defaultValue = "asc") String sortDir) {
+                           @RequestParam(required = false) String sortBy,
+                           @RequestParam(required = false) String sortDir,
+                           jakarta.servlet.http.HttpServletRequest request) {
         // Check if user is authenticated and has ADMIN role
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
@@ -83,6 +84,34 @@ public class AdminBookController {
             model.addAttribute("fullName", currentUser.getFullName());
         }
 
+        // Ensure default sort direction is ascending
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            sortBy = "bookId";
+        }
+        
+        // Force ascending if sortDir is not specified or is desc (default behavior)
+        String queryString = request.getQueryString();
+        boolean hasSortDirInUrl = queryString != null && queryString.contains("sortDir=");
+        
+        if (!hasSortDirInUrl) {
+            // If sortDir is not in URL, default to asc and redirect
+            sortDir = "asc";
+            StringBuilder redirectUrl = new StringBuilder("/admin/books?");
+            redirectUrl.append("page=").append(page);
+            redirectUrl.append("&size=").append(size);
+            redirectUrl.append("&sortBy=").append(sortBy);
+            redirectUrl.append("&sortDir=asc");
+            if (search != null && !search.trim().isEmpty()) {
+                redirectUrl.append("&search=").append(java.net.URLEncoder.encode(search.trim(), java.nio.charset.StandardCharsets.UTF_8));
+            }
+            return "redirect:" + redirectUrl.toString();
+        } else {
+            // If sortDir is in URL, use it
+            if (sortDir == null || sortDir.trim().isEmpty()) {
+                sortDir = "asc";
+            }
+        }
+        
         // Create pageable with sorting
         Sort sort = sortDir.equalsIgnoreCase("asc") ? 
                    Sort.by(sortBy).ascending() : 
@@ -328,6 +357,21 @@ public class AdminBookController {
         model.addAttribute("book", book);
         List<Category> categories = categoryRepository.findAll();
         model.addAttribute("categories", categories);
+        
+        // Format discount dates for datetime-local input
+        if (book.getDiscountStart() != null) {
+            String discountStartFormatted = book.getDiscountStart().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+            model.addAttribute("discountStartFormatted", discountStartFormatted);
+        } else {
+            model.addAttribute("discountStartFormatted", "");
+        }
+        if (book.getDiscountEnd() != null) {
+            String discountEndFormatted = book.getDiscountEnd().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+            model.addAttribute("discountEndFormatted", discountEndFormatted);
+        } else {
+            model.addAttribute("discountEndFormatted", "");
+        }
+        
         return "admin/book-edit";
     }
 

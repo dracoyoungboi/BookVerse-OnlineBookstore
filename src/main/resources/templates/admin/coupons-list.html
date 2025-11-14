@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Users List - Admin | BookVerse</title>
+  <title>Vouchers List - Admin | BookVerse</title>
   <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
   <!-- common css import -->
   <div th:replace="common/admin/css :: css"></div>
@@ -131,7 +131,7 @@
   <div class="dashboard-main-body">
 
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-  <h6 class="fw-semibold mb-0">Users List</h6>
+  <h6 class="fw-semibold mb-0">Vouchers List</h6>
   <ul class="d-flex align-items-center gap-2">
     <li class="fw-medium">
       <a th:href="@{/demo/admin}" class="d-flex align-items-center gap-1 hover-text-primary">
@@ -140,7 +140,7 @@
       </a>
     </li>
     <li>-</li>
-    <li class="fw-medium">Users List</li>
+    <li class="fw-medium">Vouchers List</li>
   </ul>
 </div>
 
@@ -166,119 +166,140 @@
               <option value="20" th:selected="${pageSize == 20}">20</option>
             </select>
           </div>
-          <form th:action="@{/admin/users}" method="get" class="d-flex align-items-center gap-2">
+          <form th:action="@{/admin/coupons}" method="get" class="d-flex align-items-center gap-2">
             <input type="hidden" name="page" value="0" />
             <input type="hidden" name="size" th:value="${pageSize}" />
-            <input type="hidden" name="sortBy" th:value="${sortBy != null ? sortBy : 'userId'}" />
+            <input type="hidden" name="sortBy" th:value="${sortBy != null ? sortBy : 'couponId'}" />
             <input type="hidden" name="sortDir" th:value="${sortDir != null ? sortDir : 'asc'}" />
             <div class="icon-field">
-              <input type="text" name="search" th:value="${search}" class="form-control form-control-sm w-auto" placeholder="Search by username, email, or name">
+              <input type="text" name="search" th:value="${search}" class="form-control form-control-sm w-auto" placeholder="Search by code">
               <span class="icon">
                 <iconify-icon icon="ion:search-outline"></iconify-icon>
               </span>
             </div>
             <button type="submit" class="btn btn-sm btn-primary-600">Search</button>
-            <a th:href="@{/admin/users(page=0, size=${pageSize}, sortBy='userId', sortDir='asc')}" class="btn btn-sm btn-secondary">Clear</a>
+            <a th:href="@{/admin/coupons(page=0, size=${pageSize}, sortBy='couponId', sortDir='asc')}" class="btn btn-sm btn-secondary">Clear</a>
           </form>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-3">
-          <a th:href="@{/admin/users/add}" class="btn btn-sm btn-primary-600"><i class="ri-add-line"></i> Add User</a>
+          <a th:href="@{/admin/coupons/add}" class="btn btn-sm btn-primary-600"><i class="ri-add-line"></i> Add Voucher</a>
         </div>
       </div>
       <div class="card-body">
-        <table class="table bordered-table mb-0">
-          <thead>
+        <div class="table-responsive">
+          <table class="table bordered-table mb-0">
+            <thead>
               <tr>
                 <th scope="col">
                   ID
                   <div class="d-inline-flex flex-column ms-2" style="font-size: 10px;">
-                    <a th:href="@{/admin/users(page=${currentPage}, size=${pageSize}, search=${search}, sortBy='userId', sortDir='asc')}" 
+                    <a th:href="@{/admin/coupons(page=${currentPage}, size=${pageSize}, search=${search}, sortBy='couponId', sortDir='asc')}" 
                        class="text-decoration-none"
-                       th:classappend="${sortBy == 'userId' and sortDir == 'asc' ? 'text-primary-600' : 'text-secondary-light'}"
+                       th:classappend="${sortBy == 'couponId' and sortDir == 'asc' ? 'text-primary-600' : 'text-secondary-light'}"
                        title="Sort Ascending">
                       <iconify-icon icon="mdi:chevron-up"></iconify-icon>
                     </a>
-                    <a th:href="@{/admin/users(page=${currentPage}, size=${pageSize}, search=${search}, sortBy='userId', sortDir='desc')}" 
+                    <a th:href="@{/admin/coupons(page=${currentPage}, size=${pageSize}, search=${search}, sortBy='couponId', sortDir='desc')}" 
                        class="text-decoration-none"
-                       th:classappend="${sortBy == 'userId' and sortDir == 'desc' ? 'text-primary-600' : 'text-secondary-light'}"
+                       th:classappend="${sortBy == 'couponId' and sortDir == 'desc' ? 'text-primary-600' : 'text-secondary-light'}"
                        title="Sort Descending">
                       <iconify-icon icon="mdi:chevron-down"></iconify-icon>
                     </a>
                   </div>
                 </th>
-              <th scope="col">Username</th>
-              <th scope="col">Full Name</th>
-              <th scope="col">Email</th>
-              <th scope="col">Phone</th>
-              <th scope="col">Role</th>
-              <th scope="col">Status</th>
-              <th scope="col">Created At</th>
-              <th scope="col">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:if="${#lists.isEmpty(users)}">
-              <td colspan="9" class="text-center py-24">
-                <p class="text-secondary-light mb-0">No users found.</p>
-              </td>
-            </tr>
-            <tr th:each="user : ${users}">
-              <td th:text="${user.userId}">1</td>
-              <td th:text="${user.username}">username</td>
-              <td th:text="${user.fullName != null ? user.fullName : 'N/A'}">Full Name</td>
-              <td th:text="${user.email}">email@example.com</td>
-              <td th:text="${user.phone != null ? user.phone : 'N/A'}">Phone</td>
-              <td>
-                <span class="badge" th:classappend="${user.role != null && user.role.name == 'ADMIN' ? 'bg-danger' : 'bg-primary'}" 
-                      th:text="${user.role != null ? user.role.name : 'N/A'}">Role</span>
-              </td>
-              <td>
-                <span class="badge" 
-                      th:classappend="${(user.deleted == null || !user.deleted) ? 'bg-success' : 'bg-danger'}"
-                      th:text="${(user.deleted == null || !user.deleted) ? 'Active' : 'Inactive'}">
-                  Active
-                </span>
-              </td>
-              <td th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}">2024-01-01</td>
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <a th:href="@{/admin/users/view/{id}(id=${user.userId})}" 
-                     class="w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
-                     title="View">
-                    <iconify-icon icon="iconamoon:eye-light"></iconify-icon>
-                  </a>
-                  <a th:href="@{/admin/users/edit/{id}(id=${user.userId})}" 
-                     class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
-                     title="Edit">
-                    <iconify-icon icon="lucide:edit"></iconify-icon>
-                  </a>
-                  <form th:if="${user.role == null || user.role.name != 'ADMIN'}"
-                        th:action="@{/admin/users/toggle-status/{id}(id=${user.userId}, redirect='list')}" 
-                        method="post" 
-                        style="display: inline;"
-                        onsubmit="return confirm('Are you sure you want to change this user status?');">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit" 
-                            class="w-32-px h-32-px rounded-circle d-inline-flex align-items-center justify-content-center border-0"
-                            th:classappend="${(user.deleted == null || !user.deleted) ? 'bg-warning-focus text-warning-main' : 'bg-success-focus text-success-main'}"
-                            th:title="${(user.deleted == null || !user.deleted) ? 'Set to Inactive' : 'Set to Active'}">
-                      <iconify-icon th:icon="${(user.deleted == null || !user.deleted) ? 'material-symbols:block' : 'material-symbols:check-circle-outline'}"></iconify-icon>
-                    </button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <th scope="col">Code</th>
+                <th scope="col">Discount Type</th>
+                <th scope="col">Discount Value</th>
+                <th scope="col">Min Purchase</th>
+                <th scope="col">Max Discount</th>
+                <th scope="col">Usage Limit</th>
+                <th scope="col">Used Count</th>
+                <th scope="col">Expiry Date</th>
+                <th scope="col">Status</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:if="${#lists.isEmpty(coupons)}">
+                <td colspan="11" class="text-center py-24">
+                  <p class="text-secondary-light mb-0">No vouchers found.</p>
+                </td>
+              </tr>
+              <tr th:each="coupon : ${coupons}">
+                <td th:text="${coupon.couponId}">1</td>
+                <td>
+                  <span class="badge bg-primary" th:text="${coupon.code}">CODE</span>
+                </td>
+                <td>
+                  <span class="badge" 
+                        th:classappend="${coupon.discountType == 'PERCENTAGE' ? 'bg-info' : 'bg-warning'}"
+                        th:text="${coupon.discountType}">PERCENTAGE</span>
+                </td>
+                <td>
+                  <span th:if="${coupon.discountType == 'PERCENTAGE'}" 
+                        th:text="|${coupon.discountValue}%|">10%</span>
+                  <span th:if="${coupon.discountType != 'PERCENTAGE'}" 
+                        th:text="|$${#numbers.formatDecimal(coupon.discountValue, 0, 'COMMA', 2, 'POINT')}|">$0.00</span>
+                </td>
+                <td th:text="|$${#numbers.formatDecimal(coupon.minPurchaseAmount, 0, 'COMMA', 2, 'POINT')}|">$0.00</td>
+                <td>
+                  <span th:if="${coupon.maxDiscountAmount != null}" 
+                        th:text="|$${#numbers.formatDecimal(coupon.maxDiscountAmount, 0, 'COMMA', 2, 'POINT')}|">$0.00</span>
+                  <span th:if="${coupon.maxDiscountAmount == null}" class="text-secondary-light">-</span>
+                </td>
+                <td>
+                  <span th:if="${coupon.usageLimit != null}" th:text="${coupon.usageLimit}">∞</span>
+                  <span th:if="${coupon.usageLimit == null}" class="text-secondary-light">∞</span>
+                </td>
+                <td th:text="${coupon.usedCount}">0</td>
+                <td>
+                  <span th:if="${coupon.expiryDate != null}" 
+                        th:text="${#temporals.format(coupon.expiryDate, 'yyyy-MM-dd HH:mm')}">2024-01-01</span>
+                  <span th:if="${coupon.expiryDate == null}" class="text-secondary-light">-</span>
+                </td>
+                <td>
+                  <span class="badge" 
+                        th:classappend="${coupon.active ? 'bg-success' : 'bg-danger'}"
+                        th:text="${coupon.active ? 'Active' : 'Inactive'}">Active</span>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <a th:href="@{/admin/coupons/view/{id}(id=${coupon.couponId})}" 
+                       class="w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
+                       title="View">
+                      <iconify-icon icon="iconamoon:eye-light"></iconify-icon>
+                    </a>
+                    <a th:href="@{/admin/coupons/edit/{id}(id=${coupon.couponId})}" 
+                       class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                       title="Edit">
+                      <iconify-icon icon="lucide:edit"></iconify-icon>
+                    </a>
+                    <form th:action="@{/admin/coupons/delete/{id}(id=${coupon.couponId})}" 
+                          method="post" 
+                          style="display: inline;"
+                          onsubmit="return confirm('Are you sure you want to delete this voucher?');">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                      <button type="submit" 
+                              class="w-32-px h-32-px bg-danger-focus text-danger-main rounded-circle d-inline-flex align-items-center justify-content-center border-0"
+                              title="Delete">
+                        <iconify-icon icon="lucide:trash-2"></iconify-icon>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         
         <!-- Pagination -->
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24" th:if="${totalPages > 0}">
-          <span>Showing <span th:text="${totalItems > 0 ? (currentPage * pageSize + 1) : 0}">1</span> to <span th:text="${totalItems > 0 ? (currentPage * pageSize + users.size()) : 0}">10</span> of <span th:text="${totalItems}">0</span> entries</span>
+          <span>Showing <span th:text="${totalItems > 0 ? (currentPage * pageSize + 1) : 0}">1</span> to <span th:text="${totalItems > 0 ? (currentPage * pageSize + coupons.size()) : 0}">10</span> of <span th:text="${totalItems}">0</span> entries</span>
           <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center mb-0" th:if="${totalPages > 1}">
             <!-- Previous button -->
             <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
               <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
-                 th:href="@{/admin/users(page=${currentPage - 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                 th:href="@{/admin/coupons(page=${currentPage - 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:if="${currentPage > 0}">
                 <iconify-icon icon="ep:d-arrow-left" class="text-xl"></iconify-icon>
               </a>
@@ -291,7 +312,7 @@
             <!-- First page -->
             <li class="page-item" th:if="${showFirstPage}">
               <a class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
-                 th:href="@{/admin/users(page=0, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}">1</a>
+                 th:href="@{/admin/coupons(page=0, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}">1</a>
             </li>
             <li class="page-item" th:if="${showFirstEllipsis}">
               <span class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px">...</span>
@@ -303,7 +324,7 @@
                 th:classappend="${pageNum == currentPage ? 'active' : ''}">
               <a class="page-link fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
                  th:class="${pageNum == currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'}"
-                 th:href="@{/admin/users(page=${pageNum}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                 th:href="@{/admin/coupons(page=${pageNum}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:text="${pageNum + 1}">1</a>
             </li>
             
@@ -313,14 +334,14 @@
             </li>
             <li class="page-item" th:if="${showLastPage}">
               <a class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
-                 th:href="@{/admin/users(page=${totalPages - 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                 th:href="@{/admin/coupons(page=${totalPages - 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:text="${totalPages}">1</a>
             </li>
             
             <!-- Next button -->
             <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
               <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
-                 th:href="@{/admin/users(page=${currentPage + 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                 th:href="@{/admin/coupons(page=${currentPage + 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:if="${currentPage < totalPages - 1}">
                 <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
               </a>
@@ -361,3 +382,4 @@
 </body>
 
 </html>
+

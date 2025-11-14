@@ -1,18 +1,32 @@
 (function ($) {
   "use strict";
 
-  // sidebar submenu collapsible js
-  $(".sidebar-menu .dropdown").on("click", function () {
-    var item = $(this);
-    item.siblings(".dropdown").children(".sidebar-submenu").slideUp();
+  // Wait for DOM to be ready
+  $(document).ready(function() {
+    // sidebar submenu collapsible js
+    // Use event delegation to handle dynamically loaded content
+    $(document).off("click", ".sidebar-menu .dropdown > a").on("click", ".sidebar-menu .dropdown > a", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var item = $(this).parent(".dropdown");
+      
+      // Close other dropdowns
+      item.siblings(".dropdown").children(".sidebar-submenu").slideUp(200);
+      item.siblings(".dropdown").removeClass("dropdown-open");
+      item.siblings(".dropdown").removeClass("open");
 
-    item.siblings(".dropdown").removeClass("dropdown-open");
-
-    item.siblings(".dropdown").removeClass("open");
-
-    item.children(".sidebar-submenu").slideToggle();
-
-    item.toggleClass("dropdown-open");
+      // Toggle current dropdown
+      var submenu = item.children(".sidebar-submenu");
+      if (submenu.is(":visible")) {
+        submenu.slideUp(200);
+        item.removeClass("dropdown-open");
+        item.removeClass("open");
+      } else {
+        submenu.slideDown(200);
+        item.addClass("dropdown-open");
+        item.addClass("open");
+      }
+    });
   });
 
   $(".sidebar-toggle").on("click", function () {

@@ -81,9 +81,9 @@ public class OrderSummaryService {
             summaries.add(new UserOrderSummary(user, orderCount, totalAmount));
         }
         
-        // Sort summaries (default: userId ASC)
-        String finalSortBy = (sortBy != null && !sortBy.isEmpty()) ? sortBy : "userId";
-        String finalSortDir = (sortDir != null && !sortDir.isEmpty()) ? sortDir : "asc";
+        // Sort summaries (default: userId ASC) - force ascending if not specified
+        String finalSortBy = (sortBy != null && !sortBy.trim().isEmpty()) ? sortBy.trim() : "userId";
+        String finalSortDir = (sortDir != null && !sortDir.trim().isEmpty()) ? sortDir.trim() : "asc";
         boolean ascending = "asc".equalsIgnoreCase(finalSortDir);
         
         switch (finalSortBy) {

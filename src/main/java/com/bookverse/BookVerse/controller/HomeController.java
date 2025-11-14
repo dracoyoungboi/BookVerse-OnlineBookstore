@@ -2,8 +2,11 @@ package com.bookverse.BookVerse.controller;
 
 import com.bookverse.BookVerse.dto.ContactFormDTO;
 import com.bookverse.BookVerse.entity.Category;
+import com.bookverse.BookVerse.entity.User;
 import com.bookverse.BookVerse.service.BookService;
 import com.bookverse.BookVerse.service.EmailService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +39,30 @@ public class HomeController {
     }
     
     @GetMapping("/")
-    public String homePage(Model model) {
+    public String homePage(Model model, Authentication authentication, HttpSession session) {
+        // Block admin from accessing user pages
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> {
+                        String auth = authority.getAuthority().toUpperCase();
+                        return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                    });
+            
+            // Also check role from session/database as fallback
+            if (!isAdmin) {
+                User currentUser = (User) session.getAttribute("currentUser");
+                if (currentUser != null && currentUser.getRole() != null) {
+                    String roleName = currentUser.getRole().getName();
+                    if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                        isAdmin = true;
+                    }
+                }
+            }
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            }
+        }
         // Lấy best seller books (6 sách)
         var bestSellerBooks = bookService.getBestSellerBooks(6);
         
@@ -89,7 +115,29 @@ public class HomeController {
     }
     
     @GetMapping("/about")
-    public String aboutPage(Model model) {
+    public String aboutPage(Model model, Authentication authentication, HttpSession session) {
+        // Block admin from accessing user pages
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> {
+                        String auth = authority.getAuthority().toUpperCase();
+                        return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                    });
+            
+            if (!isAdmin) {
+                User currentUser = (User) session.getAttribute("currentUser");
+                if (currentUser != null && currentUser.getRole() != null) {
+                    String roleName = currentUser.getRole().getName();
+                    if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                        isAdmin = true;
+                    }
+                }
+            }
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            }
+        }
         // Lấy categories để hiển thị trong header
         List<Category> categories = bookService.getAllCategories();
         model.addAttribute("categories", categories);
@@ -97,7 +145,29 @@ public class HomeController {
     }
     
     @GetMapping("/contact")
-    public String contactPage(Model model) {
+    public String contactPage(Model model, Authentication authentication, HttpSession session) {
+        // Block admin from accessing user pages
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> {
+                        String auth = authority.getAuthority().toUpperCase();
+                        return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                    });
+            
+            if (!isAdmin) {
+                User currentUser = (User) session.getAttribute("currentUser");
+                if (currentUser != null && currentUser.getRole() != null) {
+                    String roleName = currentUser.getRole().getName();
+                    if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                        isAdmin = true;
+                    }
+                }
+            }
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            }
+        }
         // Lấy categories để hiển thị trong header
         List<Category> categories = bookService.getAllCategories();
         model.addAttribute("categories", categories);
