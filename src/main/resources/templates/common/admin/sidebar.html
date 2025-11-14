@@ -435,16 +435,18 @@
                 </a>
                 <ul class="sidebar-submenu">
                     <li>
-                        <a href="blog.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Blog</a>
+                        <a th:href="@{/admin/blogs}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Blog</a>
                     </li>
                     <li>
-                        <a href="blog-details.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Blog
-                            Details</a>
-                    </li>
-                    <li>
-                        <a href="add-blog.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Blog</a>
+                        <a th:href="@{/admin/blogs/add}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Blog</a>
                     </li>
                 </ul>
+            </li>
+            <li>
+                <a th:href="@{/admin/reviews}">
+                    <i class="ri-chat-3-line text-xl me-14 d-flex w-auto"></i>
+                    <span>Reviews</span>
+                </a>
             </li>
             <li>
                 <a href="testimonials.html">

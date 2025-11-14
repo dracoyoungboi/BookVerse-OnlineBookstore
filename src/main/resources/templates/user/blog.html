@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog | BookVerse</title>
+  <div th:replace="common/user/css :: css"></div>
+  <style>
+    /* Blog-specific tweaks (keep inline per requirement) */
+    .blog-list .single-post{display:flex;gap:16px;padding:16px;border-bottom:1px solid #f3f4f6;background:#fff}
+    .blog-list .single-post:last-child{border-bottom:none}
+    .blog-list .thumb{flex:0 0 240px;height:160px;border-radius:8px;object-fit:cover;background:#eef2ff}
+    .blog-list .meta{font-size:12px;color:#6b7280;margin-bottom:6px}
+    .blog-list .title{margin:0 0 8px;font-size:18px}
+    .blog-list .title a{text-decoration:none}
+    .blog-empty{padding:24px;text-align:center}
+    .sidebar-card{padding:16px;background:#fff}
+  </style>
+</head>
+<body>
+  <!-- header-area-start -->
+  <div th:replace="common/user/header :: header"></div>
+  <!-- header-area-end -->
+
+  <!-- breadcrumbs-area-start -->
+  <div class="breadcrumbs-area mb-70">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="breadcrumbs-menu">
+            <ul>
+              <li><a th:href="@{/}">Home</a></li>
+              <li><a href="#" class="active">Blog</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- breadcrumbs-area-end -->
+
+  <!-- blog-area-start -->
+  <div class="blog-area mb-70">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-9 col-md-12 col-12">
+          <div class="blog-list" th:if="${blogs != null and !#lists.isEmpty(blogs)}">
+            <div class="single-post" th:each="b : ${blogs}">
+              <img class="thumb" th:if="${b.thumbnail != null and !#strings.isEmpty(b.thumbnail)}" th:src="${b.thumbnail}" alt="thumbnail"/>
+              <div>
+                <div class="meta">
+                  <span th:text="${#temporals.format(b.createdAt, 'dd/MM/yyyy HH:mm')}">date</span>
+                  • by <strong th:text="${b.author}">author</strong>
+                </div>
+                <h3 class="title"><a th:href="@{/blog/{id}(id=${b.blogId})}" th:text="${b.title}">Title</a></h3>
+                <div th:if="${b.blogDetails != null and !#lists.isEmpty(b.blogDetails)}" class="text-secondary">
+                  <span th:text="${#strings.length(b.blogDetails.get(0).content) > 200 ? #strings.substring(b.blogDetails.get(0).content, 0, 200) : b.blogDetails.get(0).content}"></span>
+                  <span th:if="${#strings.length(b.blogDetails.get(0).content) > 200}">...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="blog-empty single-post" th:if="${blogs == null or #lists.isEmpty(blogs)}">Chưa có bài viết nào.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- blog-area-end -->
+
+  <!-- footer-area-start -->
+  <div th:replace="common/user/footer :: footer"></div>
+  <!-- footer-area-end -->
+
+  <div th:replace="common/user/js :: js"></div>
+</body>
+</html>

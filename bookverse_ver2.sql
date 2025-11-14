@@ -23,13 +23,13 @@ DROP TABLE IF EXISTS `blog_details`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `blog_details` (
-  `detail_id` bigint NOT NULL AUTO_INCREMENT,
-  `content` varchar(255) DEFAULT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
-  `blog_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`detail_id`),
-  KEY `FK6jchr32lulbu2iv7wcfg3vgyu` (`blog_id`),
-  CONSTRAINT `FK6jchr32lulbu2iv7wcfg3vgyu` FOREIGN KEY (`blog_id`) REFERENCES `blogs` (`blog_id`)
+                                `detail_id` bigint NOT NULL AUTO_INCREMENT,
+                                `content` varchar(255) DEFAULT NULL,
+                                `created_at` datetime(6) DEFAULT NULL,
+                                `blog_id` bigint DEFAULT NULL,
+                                PRIMARY KEY (`detail_id`),
+                                KEY `FK6jchr32lulbu2iv7wcfg3vgyu` (`blog_id`),
+                                CONSTRAINT `FK6jchr32lulbu2iv7wcfg3vgyu` FOREIGN KEY (`blog_id`) REFERENCES `blogs` (`blog_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -50,12 +50,12 @@ DROP TABLE IF EXISTS `blogs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `blogs` (
-  `blog_id` bigint NOT NULL AUTO_INCREMENT,
-  `author` varchar(255) DEFAULT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
-  `thumbnail` varchar(255) DEFAULT NULL,
-  `title` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`blog_id`)
+                         `blog_id` bigint NOT NULL AUTO_INCREMENT,
+                         `author` varchar(255) DEFAULT NULL,
+                         `created_at` datetime(6) DEFAULT NULL,
+                         `thumbnail` varchar(255) DEFAULT NULL,
+                         `title` varchar(255) DEFAULT NULL,
+                         PRIMARY KEY (`blog_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -76,21 +76,21 @@ DROP TABLE IF EXISTS `books`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `books` (
-  `book_id` bigint NOT NULL AUTO_INCREMENT,
-  `author` varchar(255) DEFAULT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `image_url` varchar(255) DEFAULT NULL,
-  `price` double DEFAULT NULL,
-  `stock` int NOT NULL,
-  `title` varchar(255) DEFAULT NULL,
-  `category_id` bigint DEFAULT NULL,
-  `discount_end` datetime(6) DEFAULT NULL,
-  `discount_percent` double DEFAULT NULL,
-  `discount_start` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`book_id`),
-  KEY `FKleqa3hhc0uhfvurq6mil47xk0` (`category_id`),
-  CONSTRAINT `FKleqa3hhc0uhfvurq6mil47xk0` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
+                         `book_id` bigint NOT NULL AUTO_INCREMENT,
+                         `author` varchar(255) DEFAULT NULL,
+                         `created_at` datetime(6) DEFAULT NULL,
+                         `description` varchar(255) DEFAULT NULL,
+                         `image_url` varchar(255) DEFAULT NULL,
+                         `price` double DEFAULT NULL,
+                         `stock` int NOT NULL,
+                         `title` varchar(255) DEFAULT NULL,
+                         `category_id` bigint DEFAULT NULL,
+                         `discount_end` datetime(6) DEFAULT NULL,
+                         `discount_percent` double DEFAULT NULL,
+                         `discount_start` datetime(6) DEFAULT NULL,
+                         PRIMARY KEY (`book_id`),
+                         KEY `FKleqa3hhc0uhfvurq6mil47xk0` (`category_id`),
+                         CONSTRAINT `FKleqa3hhc0uhfvurq6mil47xk0` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -112,10 +112,10 @@ DROP TABLE IF EXISTS `categories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `categories` (
-  `category_id` bigint NOT NULL AUTO_INCREMENT,
-  `description` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`category_id`)
+                              `category_id` bigint NOT NULL AUTO_INCREMENT,
+                              `description` varchar(255) DEFAULT NULL,
+                              `name` varchar(255) DEFAULT NULL,
+                              PRIMARY KEY (`category_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -137,16 +137,16 @@ DROP TABLE IF EXISTS `order_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `order_items` (
-  `item_id` bigint NOT NULL AUTO_INCREMENT,
-  `price` double DEFAULT NULL,
-  `quantity` int NOT NULL,
-  `book_id` bigint DEFAULT NULL,
-  `order_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`item_id`),
-  KEY `FKi4ptndslo2pyfp9r1x0eulh9g` (`book_id`),
-  KEY `FKbioxgbv59vetrxe0ejfubep1w` (`order_id`),
-  CONSTRAINT `FKbioxgbv59vetrxe0ejfubep1w` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`),
-  CONSTRAINT `FKi4ptndslo2pyfp9r1x0eulh9g` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`)
+                               `item_id` bigint NOT NULL AUTO_INCREMENT,
+                               `price` double DEFAULT NULL,
+                               `quantity` int NOT NULL,
+                               `book_id` bigint DEFAULT NULL,
+                               `order_id` bigint DEFAULT NULL,
+                               PRIMARY KEY (`item_id`),
+                               KEY `FKi4ptndslo2pyfp9r1x0eulh9g` (`book_id`),
+                               KEY `FKbioxgbv59vetrxe0ejfubep1w` (`order_id`),
+                               CONSTRAINT `FKbioxgbv59vetrxe0ejfubep1w` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`),
+                               CONSTRAINT `FKi4ptndslo2pyfp9r1x0eulh9g` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -167,16 +167,16 @@ DROP TABLE IF EXISTS `orders`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `orders` (
-  `order_id` bigint NOT NULL AUTO_INCREMENT,
-  `address` varchar(255) DEFAULT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
-  `note` varchar(255) DEFAULT NULL,
-  `status` varchar(255) DEFAULT NULL,
-  `total_amount` double DEFAULT NULL,
-  `user_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`order_id`),
-  KEY `FK32ql8ubntj5uh44ph9659tiih` (`user_id`),
-  CONSTRAINT `FK32ql8ubntj5uh44ph9659tiih` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+                          `order_id` bigint NOT NULL AUTO_INCREMENT,
+                          `address` varchar(255) DEFAULT NULL,
+                          `created_at` datetime(6) DEFAULT NULL,
+                          `note` varchar(255) DEFAULT NULL,
+                          `status` varchar(255) DEFAULT NULL,
+                          `total_amount` double DEFAULT NULL,
+                          `user_id` bigint DEFAULT NULL,
+                          PRIMARY KEY (`order_id`),
+                          KEY `FK32ql8ubntj5uh44ph9659tiih` (`user_id`),
+                          CONSTRAINT `FK32ql8ubntj5uh44ph9659tiih` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -197,17 +197,17 @@ DROP TABLE IF EXISTS `reviews`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reviews` (
-  `review_id` bigint NOT NULL AUTO_INCREMENT,
-  `comment` varchar(255) DEFAULT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
-  `rating` int NOT NULL,
-  `book_id` bigint DEFAULT NULL,
-  `user_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`review_id`),
-  KEY `FK6a9k6xvev80se5rreqvuqr7f9` (`book_id`),
-  KEY `FKcgy7qjc1r99dp117y9en6lxye` (`user_id`),
-  CONSTRAINT `FK6a9k6xvev80se5rreqvuqr7f9` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
-  CONSTRAINT `FKcgy7qjc1r99dp117y9en6lxye` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+                           `review_id` bigint NOT NULL AUTO_INCREMENT,
+                           `comment` varchar(255) DEFAULT NULL,
+                           `created_at` datetime(6) DEFAULT NULL,
+                           `rating` int NOT NULL,
+                           `book_id` bigint DEFAULT NULL,
+                           `user_id` bigint DEFAULT NULL,
+                           PRIMARY KEY (`review_id`),
+                           KEY `FK6a9k6xvev80se5rreqvuqr7f9` (`book_id`),
+                           KEY `FKcgy7qjc1r99dp117y9en6lxye` (`user_id`),
+                           CONSTRAINT `FK6a9k6xvev80se5rreqvuqr7f9` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
+                           CONSTRAINT `FKcgy7qjc1r99dp117y9en6lxye` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -228,9 +228,9 @@ DROP TABLE IF EXISTS `roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `roles` (
-  `role_id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`role_id`)
+                         `role_id` bigint NOT NULL AUTO_INCREMENT,
+                         `name` varchar(255) DEFAULT NULL,
+                         PRIMARY KEY (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -251,18 +251,18 @@ DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
-  `user_id` bigint NOT NULL AUTO_INCREMENT,
-  `address` varchar(255) DEFAULT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `full_name` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `phone` varchar(255) DEFAULT NULL,
-  `username` varchar(255) DEFAULT NULL,
-  `role_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`user_id`),
-  KEY `FKp56c1712k691lhsyewcssf40f` (`role_id`),
-  CONSTRAINT `FKp56c1712k691lhsyewcssf40f` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`)
+                         `user_id` bigint NOT NULL AUTO_INCREMENT,
+                         `address` varchar(255) DEFAULT NULL,
+                         `created_at` datetime(6) DEFAULT NULL,
+                         `email` varchar(255) DEFAULT NULL,
+                         `full_name` varchar(255) DEFAULT NULL,
+                         `password` varchar(255) DEFAULT NULL,
+                         `phone` varchar(255) DEFAULT NULL,
+                         `username` varchar(255) DEFAULT NULL,
+                         `role_id` bigint DEFAULT NULL,
+                         PRIMARY KEY (`user_id`),
+                         KEY `FKp56c1712k691lhsyewcssf40f` (`role_id`),
+                         CONSTRAINT `FKp56c1712k691lhsyewcssf40f` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -283,15 +283,15 @@ DROP TABLE IF EXISTS `wishlist`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `wishlist` (
-  `wishlist_id` bigint NOT NULL AUTO_INCREMENT,
-  `added_at` datetime(6) DEFAULT NULL,
-  `book_id` bigint DEFAULT NULL,
-  `user_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`wishlist_id`),
-  KEY `FKm5enjhac8nch6sen9m1th9gkw` (`book_id`),
-  KEY `FKtrd6335blsefl2gxpb8lr0gr7` (`user_id`),
-  CONSTRAINT `FKm5enjhac8nch6sen9m1th9gkw` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
-  CONSTRAINT `FKtrd6335blsefl2gxpb8lr0gr7` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+                            `wishlist_id` bigint NOT NULL AUTO_INCREMENT,
+                            `added_at` datetime(6) DEFAULT NULL,
+                            `book_id` bigint DEFAULT NULL,
+                            `user_id` bigint DEFAULT NULL,
+                            PRIMARY KEY (`wishlist_id`),
+                            KEY `FKm5enjhac8nch6sen9m1th9gkw` (`book_id`),
+                            KEY `FKtrd6335blsefl2gxpb8lr0gr7` (`user_id`),
+                            CONSTRAINT `FKm5enjhac8nch6sen9m1th9gkw` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
+                            CONSTRAINT `FKtrd6335blsefl2gxpb8lr0gr7` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

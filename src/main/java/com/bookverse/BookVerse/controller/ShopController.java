@@ -6,6 +6,7 @@ import com.bookverse.BookVerse.entity.User;
 import com.bookverse.BookVerse.entity.Wishlist;
 import com.bookverse.BookVerse.service.BookService;
 import com.bookverse.BookVerse.service.WishlistService;
+import com.bookverse.BookVerse.repository.ReviewRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
@@ -16,24 +17,30 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/shop")
 public class ShopController {
-    
+
     private final BookService bookService;
     private final WishlistService wishlistService;
-    
-    public ShopController(BookService bookService, WishlistService wishlistService) {
+    private final ReviewRepository reviewRepository;
+
+    public ShopController(BookService bookService, WishlistService wishlistService, ReviewRepository reviewRepository) {
         this.bookService = bookService;
         this.wishlistService = wishlistService;
+        this.reviewRepository = reviewRepository;
     }
-    
+
     @GetMapping
     public String shopPage(
             @RequestParam(defaultValue = "0") int page,
@@ -49,9 +56,9 @@ public class ShopController {
             Model model,
             HttpSession session,
             Authentication authentication) {
-        
+
         Page<Book> books;
-        
+
         // Lọc theo category
         if (categoryId != null) {
             books = bookService.getBooksByCategory(categoryId, page, size, sortBy, sortDir);
@@ -72,22 +79,22 @@ public class ShopController {
         else {
             books = bookService.getAllBooks(page, size, sortBy, sortDir);
         }
-        
+
         // Lấy categories và tính số lượng sách
         var categories = bookService.getAllCategories();
-        
+
         // Tìm category được chọn (nếu có)
         com.bookverse.BookVerse.entity.Category selectedCategoryObj = null;
         if (categoryId != null) {
             selectedCategoryObj = categories.stream()
-                .filter(c -> c.getCategoryId().equals(categoryId))
-                .findFirst()
-                .orElse(null);
+                    .filter(c -> c.getCategoryId().equals(categoryId))
+                    .findFirst()
+                    .orElse(null);
         }
-        
+
         // Lấy sách ngẫu nhiên cho sidebar (6 sách)
         var randomBooks = bookService.getRandomBooks(6);
-        
+
         // Lấy wishlist items và chia thành các nhóm 3 items cho carousel
         List<List<Book>> wishlistBooksGroups = new java.util.ArrayList<>();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -96,9 +103,9 @@ public class ShopController {
                 List<Wishlist> allWishlistItems = wishlistService.getUserWishlist(currentUser.getUserId());
                 // Lấy tất cả books từ wishlist
                 List<Book> allWishlistBooks = allWishlistItems.stream()
-                    .map(Wishlist::getBook)
-                    .collect(Collectors.toList());
-                
+                        .map(Wishlist::getBook)
+                        .collect(Collectors.toList());
+
                 // Chia thành các nhóm 3 items
                 int itemsPerSlide = 3;
                 for (int i = 0; i < allWishlistBooks.size(); i += itemsPerSlide) {
@@ -108,7 +115,7 @@ public class ShopController {
                 }
             }
         }
-        
+
         // Thêm dữ liệu vào model
         model.addAttribute("books", books);
         model.addAttribute("categories", categories);
@@ -124,49 +131,50 @@ public class ShopController {
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("viewType", view);
         model.addAttribute("saleOnly", saleOnly);
-        
+
         return "user/shop";
     }
-    
+
     @GetMapping("/product/{id}")
     public String productDetails(
-            @PathVariable Long id, 
-            Model model, 
-            HttpSession session, 
+            @PathVariable Long id,
+            Model model,
+            HttpSession session,
             Authentication authentication) {
         Optional<Book> bookOpt = bookService.getBookByIdWithDetails(id);
-        
+
         if (bookOpt.isEmpty()) {
             return "redirect:/shop";
         }
-        
+
         Book book = bookOpt.get();
-        
+
         // Lấy related books (cùng category, tối đa 4 sách)
         List<Book> relatedBooks = Collections.emptyList();
         if (book.getCategory() != null) {
             relatedBooks = bookService.getRelatedBooks(book.getBookId(), book.getCategory().getCategoryId(), 4);
         }
-        
+
         // Nếu không đủ related books, lấy thêm sách ngẫu nhiên
         if (relatedBooks.size() < 4) {
             List<Book> randomBooks = bookService.getRandomBooks(4 - relatedBooks.size());
             // Loại trừ sách hiện tại
             randomBooks = randomBooks.stream()
-                .filter(b -> !b.getBookId().equals(book.getBookId()))
-                .collect(java.util.stream.Collectors.toList());
+                    .filter(b -> !b.getBookId().equals(book.getBookId()))
+                    .collect(java.util.stream.Collectors.toList());
             relatedBooks.addAll(randomBooks);
         }
-        
-        // Tính rating trung bình từ reviews
+
+        // Lấy reviews hiển thị từ DB và tính rating trung bình
+        List<Review> visibleReviews = reviewRepository.findByBookBookIdAndVisibleTrueOrderByCreatedAtDesc(book.getBookId());
         double avgRating = 0.0;
-        if (book.getReviews() != null && !book.getReviews().isEmpty()) {
-            avgRating = book.getReviews().stream()
-                .mapToInt(Review::getRating)
-                .average()
-                .orElse(0.0);
+        if (visibleReviews != null && !visibleReviews.isEmpty()) {
+            avgRating = visibleReviews.stream()
+                    .mapToInt(Review::getRating)
+                    .average()
+                    .orElse(0.0);
         }
-        
+
         // Lấy tất cả wishlist items và chia thành các nhóm 3 items cho carousel
         List<List<Book>> wishlistBooksGroups = new java.util.ArrayList<>();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -175,10 +183,10 @@ public class ShopController {
                 List<Wishlist> allWishlistItems = wishlistService.getUserWishlist(currentUser.getUserId());
                 // Loại trừ sách hiện tại khỏi wishlist
                 List<Book> allWishlistBooks = allWishlistItems.stream()
-                    .map(Wishlist::getBook)
-                    .filter(b -> !b.getBookId().equals(book.getBookId())) // Loại trừ sách hiện tại
-                    .collect(Collectors.toList());
-                
+                        .map(Wishlist::getBook)
+                        .filter(b -> !b.getBookId().equals(book.getBookId())) // Loại trừ sách hiện tại
+                        .collect(Collectors.toList());
+
                 // Chia thành các nhóm 3 items
                 int itemsPerSlide = 3;
                 for (int i = 0; i < allWishlistBooks.size(); i += itemsPerSlide) {
@@ -188,14 +196,48 @@ public class ShopController {
                 }
             }
         }
-        
+
         model.addAttribute("book", book);
         model.addAttribute("relatedBooks", relatedBooks);
         model.addAttribute("wishlistBooksGroups", wishlistBooksGroups);
         model.addAttribute("avgRating", avgRating);
+        model.addAttribute("visibleReviews", visibleReviews);
+        model.addAttribute("visibleReviewCount", visibleReviews.size());
         model.addAttribute("categories", bookService.getAllCategories());
- 
+
         return "user/product-details";
+    }
+
+    @PostMapping("/product/{id}/reviews")
+    public String submitReview(
+            @PathVariable("id") Long bookId,
+            @RequestParam("rating") int rating,
+            @RequestParam(value = "comment", required = false) String comment,
+            HttpSession session) {
+        // Validate rating bounds
+        if (rating < 1) rating = 1;
+        if (rating > 5) rating = 5;
+
+        Optional<Book> bookOpt = bookService.getBookById(bookId);
+        if (bookOpt.isEmpty()) {
+            return "redirect:/shop";
+        }
+
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        Review review = new Review();
+        review.setBook(bookOpt.get());
+        review.setUser(currentUser);
+        review.setRating(rating);
+        review.setComment(comment);
+        review.setCreatedAt(LocalDateTime.now());
+        review.setVisible(true);
+        reviewRepository.save(review);
+
+        return "redirect:/shop/product/" + bookId + "#Reviews";
     }
 }
 

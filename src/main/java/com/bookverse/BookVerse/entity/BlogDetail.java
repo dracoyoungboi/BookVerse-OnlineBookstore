@@ -10,7 +10,9 @@ public class BlogDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long detailId;
 
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
+
     private LocalDateTime createdAt;
 
     @ManyToOne
@@ -18,6 +20,7 @@ public class BlogDetail {
     private Blog blog;
 
     public BlogDetail() {}
+
 
     public Long getDetailId() {
         return detailId;

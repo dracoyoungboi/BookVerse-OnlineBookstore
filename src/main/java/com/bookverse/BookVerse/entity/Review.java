@@ -13,6 +13,7 @@ public class Review {
     private int rating;
     private String comment;
     private LocalDateTime createdAt;
+    private Boolean visible = true;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -54,6 +55,14 @@ public class Review {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Boolean getVisible() {
+        return visible != null ? visible : true;
+    }
+
+    public void setVisible(Boolean visible) {
+        this.visible = visible != null ? visible : true;
     }
 
     public User getUser() {

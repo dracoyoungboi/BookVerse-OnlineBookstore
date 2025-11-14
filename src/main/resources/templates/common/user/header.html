@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <div class="col-lg-9 col-md-8 col-12">
-                    <div class="my-cart" style="text-align: right; float: right;">
+                    <div class="my-cart" style="text-align: right; float: right;" th:if="${username != null or session.username != null}">
                         <ul>
                             <li><a th:href="@{/cart}"><i class="fa fa-shopping-cart"></i>My Cart</a>
                                 <span th:text="${cartItemCount != null ? cartItemCount : 0}">0</span>
@@ -89,7 +89,7 @@
                                     </div>
                                 </li>
                                 <li class=""><a th:href="@{/wishlist}">Wishlist</a></li>
-                                <li class=""><a href="/">Blog</a></li>
+                                <li class=""><a th:href="@{/blog}">Blog</a></li>
                                 <li class=""><a th:href="@{/contact}">Contact</a></li>
                                 <li class=""><a th:href="@{/about}">About Us</a></li>
                             </ul>
@@ -162,20 +162,13 @@
                                         <li><a href="shop.html">Ankle boots</a></li>
                                     </ul>
                                 </li>
-                                <li><a href="#">blog</a>
-                                    <ul>
-                                        <li><a href="blog.html">Blog</a></li>
-                                        <li><a href="blog-details.html">blog-details</a></li>
-                                    </ul>
-                                </li>
+                                <li><a th:href="@{/blog}">Blog</a></li>
                                 <li><a href="product-details.html">Page</a>
                                     <ul>
                                         <li><a href="shop.html">shop</a></li>
                                         <li><a href="shop-list.html">shop list view</a></li>
                                         <li><a href="product-details.html">product-details</a></li>
                                         <li><a href="product-details-affiliate.html">product-affiliate</a></li>
-                                        <li><a href="blog.html">blog</a></li>
-                                        <li><a href="blog-details.html">blog-details</a></li>
                                         <li><a th:href="@{/contact}">contact</a></li>
                                         <li><a th:href="@{/about}">about</a></li>
                                         <li><a href="login.html">login</a></li>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="${blog != null ? blog.title : 'Blog Detail'}">Blog Detail</title>
+  <div th:replace="common/user/css :: css"></div>
+  <style>
+    .blog-hero{background:#fff;padding:16px;border:1px solid #f3f4f6;border-radius:12px}
+    .blog-hero .thumb{width:100%;max-height:420px;object-fit:cover;border-radius:12px;background:#eef2ff}
+    .blog-meta{font-size:14px;color:#6b7280;margin-top:8px}
+    .blog-title{margin:12px 0 8px}
+    .blog-content{background:#fff;border:1px solid #f3f4f6;border-radius:12px;padding:20px}
+  </style>
+</head>
+<body>
+  <div th:replace="common/user/header :: header"></div>
+
+  <div class="breadcrumbs-area mb-70">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="breadcrumbs-menu">
+            <ul>
+              <li><a th:href="@{/}">Home</a></li>
+              <li><a th:href="@{/blog}">Blog</a></li>
+              <li><a href="#" class="active" th:text="${blog.title}">Detail</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="blog-area mb-70">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="blog-hero mb-20">
+            <img class="thumb" th:if="${blog.thumbnail != null and !#strings.isEmpty(blog.thumbnail)}" th:src="${blog.thumbnail}" alt="thumbnail" />
+            <h2 class="blog-title" th:text="${blog.title}">Title</h2>
+            <div class="blog-meta">
+              <span th:text="${#temporals.format(blog.createdAt, 'dd/MM/yyyy HH:mm')}">date</span>
+              • by <strong th:text="${blog.author}">author</strong>
+            </div>
+          </div>
+          <div class="blog-content">
+            <div th:if="${blog.blogDetails != null and !#lists.isEmpty(blog.blogDetails)}" th:utext="${blog.blogDetails.get(0).content}"></div>
+            <p th:if="${blog.blogDetails == null or #lists.isEmpty(blog.blogDetails)}" class="text-secondary">No content.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:replace="common/user/footer :: footer"></div>
+  <div th:replace="common/user/js :: js"></div>
+</body>
+</html>
