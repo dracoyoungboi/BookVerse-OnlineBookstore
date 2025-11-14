@@ -249,9 +249,13 @@
 
                 <div class="dropdown">
                     <button
-                            class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"
+                            class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center position-relative"
                             type="button" data-bs-toggle="dropdown">
                         <iconify-icon icon="iconoir:bell" class="text-primary-light text-xl"></iconify-icon>
+                        <span th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}" 
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                              style="font-size: 10px; padding: 2px 5px; min-width: 18px;"
+                              th:text="${unreadNotificationCount}">0</span>
                     </button>
                     <div class="dropdown-menu to-top dropdown-menu-lg p-0">
                         <div
@@ -259,92 +263,53 @@
                             <div>
                                 <h6 class="text-lg text-primary-light fw-semibold mb-0">Notifications</h6>
                             </div>
-                            <span
-                                    class="text-primary-600 fw-semibold text-lg w-40-px h-40-px rounded-circle bg-base d-flex justify-content-center align-items-center">05</span>
+                            <span th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}"
+                                  class="text-primary-600 fw-semibold text-lg w-40-px h-40-px rounded-circle bg-base d-flex justify-content-center align-items-center"
+                                  th:text="${unreadNotificationCount}">0</span>
+                            <span th:if="${unreadNotificationCount == null or unreadNotificationCount == 0}"
+                                  class="text-primary-600 fw-semibold text-lg w-40-px h-40-px rounded-circle bg-base d-flex justify-content-center align-items-center">0</span>
                         </div>
 
                         <div class="max-h-400-px overflow-y-auto scroll-sm pe-4">
-                            <a href="javascript:void(0)"
-                               class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between">
+                            <div th:if="${notifications == null or #lists.isEmpty(notifications)}" class="px-24 py-12 text-center">
+                                <p class="text-secondary-light mb-0">No notifications</p>
+                            </div>
+                            
+                            <a th:each="notification : ${notifications}" 
+                               th:href="@{/admin/orders/view/{id}(id=${notification.orderId})}"
+                               th:data-notification-id="${notification.id}"
+                               th:classappend="${notification.read ? 'bg-neutral-50' : ''}"
+                               class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between notification-item"
+                               style="text-decoration: none; color: inherit; display: block;"
+                               onclick="event.preventDefault(); const notifId = this.getAttribute('data-notification-id'); if(notifId && !this.classList.contains('read')) { fetch('/admin/notifications/' + notifId + '/read', {method: 'POST', headers: {'X-Requested-With': 'XMLHttpRequest'}}).then(() => { window.location.href = this.href; }).catch(() => { window.location.href = this.href; }); } else { window.location.href = this.href; }">
                                 <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                  <span
-                          class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                    <iconify-icon icon="bitcoin-icons:verify-outline" class="icon text-xxl"></iconify-icon>
-                  </span>
+                                    <span th:classappend="${notification.type == 'payment' ? 'bg-warning-subtle text-warning-main' : 'bg-primary-subtle text-primary-main'}"
+                                          class="w-44-px h-44-px rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
+                                        <iconify-icon th:if="${notification.type == 'payment'}" icon="mdi:cash" class="icon text-xxl"></iconify-icon>
+                                        <iconify-icon th:if="${notification.type != 'payment'}" icon="mdi:package-variant" class="icon text-xxl"></iconify-icon>
+                                    </span>
                                     <div>
-                                        <h6 class="text-md fw-semibold mb-4">Congratulations</h6>
-                                        <p class="mb-0 text-sm text-secondary-light text-w-200-px">Your profile has been Verified. Your
-                                            profile has been Verified</p>
+                                        <h6 class="text-md fw-semibold mb-4" th:text="${notification.title}">Notification</h6>
+                                        <p class="mb-0 text-sm text-secondary-light text-w-200-px" th:text="${notification.message}">Message</p>
                                     </div>
                                 </div>
-                                <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
+                                <div class="d-flex flex-column align-items-end">
+                                    <span class="text-sm text-secondary-light flex-shrink-0" 
+                                          th:if="${notification.createdAt != null}"
+                                          th:text="${#temporals.format(notification.createdAt, 'HH:mm')}">Time</span>
+                                    <span th:if="${!notification.read}" 
+                                          class="mt-4 text-xs text-base w-16-px h-16-px d-flex justify-content-center align-items-center bg-primary-main rounded-circle" 
+                                          style="color: white; font-size: 10px;">!</span>
+                                </div>
                             </a>
 
-                            <a href="javascript:void(0)"
-                               class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between bg-neutral-50">
-                                <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                  <span
-                          class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                    <img th:src="@{/admin/images/notification/profile-1.png}" alt="Image">
-                  </span>
-                                    <div>
-                                        <h6 class="text-md fw-semibold mb-4">Ronald Richards</h6>
-                                        <p class="mb-0 text-sm text-secondary-light text-w-200-px">You can stitch between artboards</p>
-                                    </div>
-                                </div>
-                                <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                            </a>
-
-                            <a href="javascript:void(0)"
-                               class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between">
-                                <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                  <span
-                          class="w-44-px h-44-px bg-info-subtle text-info-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                    AM
-                  </span>
-                                    <div>
-                                        <h6 class="text-md fw-semibold mb-4">Arlene McCoy</h6>
-                                        <p class="mb-0 text-sm text-secondary-light text-w-200-px">Invite you to prototyping</p>
-                                    </div>
-                                </div>
-                                <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                            </a>
-
-                            <a href="javascript:void(0)"
-                               class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between bg-neutral-50">
-                                <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                  <span
-                          class="w-44-px h-44-px bg-success-subtle text-success-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                    <img th:src="@{/admin/images/notification/profile-2.png}" alt="Image">
-                  </span>
-                                    <div>
-                                        <h6 class="text-md fw-semibold mb-4">Robiul Hasan</h6>
-                                        <p class="mb-0 text-sm text-secondary-light text-w-200-px">Invite you to prototyping</p>
-                                    </div>
-                                </div>
-                                <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                            </a>
-
-                            <a href="javascript:void(0)"
-                               class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between">
-                                <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
-                  <span
-                          class="w-44-px h-44-px bg-info-subtle text-info-main rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                    DR
-                  </span>
-                                    <div>
-                                        <h6 class="text-md fw-semibold mb-4">Darlene Robertson</h6>
-                                        <p class="mb-0 text-sm text-secondary-light text-w-200-px">Invite you to prototyping</p>
-                                    </div>
-                                </div>
-                                <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>
-                            </a>
                         </div>
-
                         <div class="text-center py-12 px-16">
-                            <a href="javascript:void(0)" class="text-primary-600 fw-semibold text-md">See All Notification</a>
+                            <form th:action="@{/admin/notifications/read-all}" method="post" style="display: inline;">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="text-primary-600 fw-semibold text-md border-0 bg-transparent" style="cursor: pointer;">Mark All as Read</button>
+                            </form>
                         </div>
-
                     </div>
                 </div><!-- Notification dropdown end -->
 

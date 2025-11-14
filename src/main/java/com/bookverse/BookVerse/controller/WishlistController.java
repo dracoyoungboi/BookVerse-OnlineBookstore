@@ -62,6 +62,26 @@ public class WishlistController {
             redirectAttributes.addFlashAttribute("error", "User not found");
             return "redirect:/login";
         }
+
+        // Check if user is admin - block admin from accessing user pages
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> {
+                    String auth = authority.getAuthority().toUpperCase();
+                    return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                });
+        
+        // Also check role from session/database as fallback
+        if (!isAdmin && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        
+        if (isAdmin) {
+            redirectAttributes.addFlashAttribute("error", "Admin cannot access user pages!");
+            return "redirect:/demo/admin";
+        }
         
         // Lấy wishlist items với phân trang (mặc định sort theo addedAt desc)
         Page<Wishlist> wishlistPage = wishlistService.getUserWishlistPaged(

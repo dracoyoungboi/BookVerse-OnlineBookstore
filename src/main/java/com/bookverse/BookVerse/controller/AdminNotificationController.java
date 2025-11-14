@@ -61,12 +61,9 @@ public class AdminNotificationController {
      * Mark all notifications as read
      */
     @PostMapping("/read-all")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> markAllAsRead(HttpSession session) {
+    public String markAllAsRead(HttpSession session) {
         notificationService.markAllAsRead(session);
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        return ResponseEntity.ok(response);
+        return "redirect:/admin/orders";
     }
 }
 

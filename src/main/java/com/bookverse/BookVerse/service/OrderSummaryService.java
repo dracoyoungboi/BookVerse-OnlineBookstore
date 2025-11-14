@@ -81,42 +81,49 @@ public class OrderSummaryService {
             summaries.add(new UserOrderSummary(user, orderCount, totalAmount));
         }
         
-        // Sort summaries
-        if (sortBy != null && !sortBy.isEmpty()) {
-            boolean ascending = "asc".equalsIgnoreCase(sortDir);
-            switch (sortBy) {
-                case "userId":
-                    summaries.sort((a, b) -> {
-                        int compare = Long.compare(
-                            a.getUser().getUserId() != null ? a.getUser().getUserId() : 0,
-                            b.getUser().getUserId() != null ? b.getUser().getUserId() : 0
-                        );
-                        return ascending ? compare : -compare;
-                    });
-                    break;
-                case "orderCount":
-                    summaries.sort((a, b) -> {
-                        int compare = Long.compare(
-                            a.getOrderCount() != null ? a.getOrderCount() : 0,
-                            b.getOrderCount() != null ? b.getOrderCount() : 0
-                        );
-                        return ascending ? compare : -compare;
-                    });
-                    break;
-                case "totalAmount":
-                default:
-                    summaries.sort((a, b) -> {
-                        int compare = Double.compare(
-                            a.getTotalAmount() != null ? a.getTotalAmount() : 0.0,
-                            b.getTotalAmount() != null ? b.getTotalAmount() : 0.0
-                        );
-                        return ascending ? compare : -compare;
-                    });
-                    break;
-            }
-        } else {
-            // Default sort by total amount descending
-            summaries.sort((a, b) -> Double.compare(b.getTotalAmount(), a.getTotalAmount()));
+        // Sort summaries (default: userId ASC)
+        String finalSortBy = (sortBy != null && !sortBy.isEmpty()) ? sortBy : "userId";
+        String finalSortDir = (sortDir != null && !sortDir.isEmpty()) ? sortDir : "asc";
+        boolean ascending = "asc".equalsIgnoreCase(finalSortDir);
+        
+        switch (finalSortBy) {
+            case "userId":
+                summaries.sort((a, b) -> {
+                    int compare = Long.compare(
+                        a.getUser().getUserId() != null ? a.getUser().getUserId() : 0,
+                        b.getUser().getUserId() != null ? b.getUser().getUserId() : 0
+                    );
+                    return ascending ? compare : -compare;
+                });
+                break;
+            case "orderCount":
+                summaries.sort((a, b) -> {
+                    int compare = Long.compare(
+                        a.getOrderCount() != null ? a.getOrderCount() : 0,
+                        b.getOrderCount() != null ? b.getOrderCount() : 0
+                    );
+                    return ascending ? compare : -compare;
+                });
+                break;
+            case "totalAmount":
+                summaries.sort((a, b) -> {
+                    int compare = Double.compare(
+                        a.getTotalAmount() != null ? a.getTotalAmount() : 0.0,
+                        b.getTotalAmount() != null ? b.getTotalAmount() : 0.0
+                    );
+                    return ascending ? compare : -compare;
+                });
+                break;
+            default:
+                // Default sort by userId ascending
+                summaries.sort((a, b) -> {
+                    int compare = Long.compare(
+                        a.getUser().getUserId() != null ? a.getUser().getUserId() : 0,
+                        b.getUser().getUserId() != null ? b.getUser().getUserId() : 0
+                    );
+                    return compare;
+                });
+                break;
         }
         
         return summaries;

@@ -52,7 +52,7 @@ public class AdminBookController {
                            @RequestParam(defaultValue = "0") int page,
                            @RequestParam(defaultValue = "6") int size,
                            @RequestParam(defaultValue = "bookId") String sortBy,
-                           @RequestParam(defaultValue = "desc") String sortDir) {
+                           @RequestParam(defaultValue = "asc") String sortDir) {
         // Check if user is authenticated and has ADMIN role
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";

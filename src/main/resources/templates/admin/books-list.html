@@ -212,15 +212,13 @@
                 <th scope="col">Price</th>
                 <th scope="col">Discount</th>
                 <th scope="col">Stock</th>
-                <th scope="col">Description</th>
                 <th scope="col">Status</th>
-                <th scope="col">Created At</th>
                 <th scope="col">Action</th>
               </tr>
             </thead>
             <tbody>
               <tr th:if="${#lists.isEmpty(books)}">
-                <td colspan="12" class="text-center py-24">
+                <td colspan="10" class="text-center py-24">
                   <p class="text-secondary-light mb-0">No books found.</p>
                 </td>
               </tr>
@@ -251,12 +249,6 @@
                         th:classappend="${book.stock > 0 ? 'bg-success' : 'bg-danger'}"
                         th:text="${book.stock}">0</span>
                 </td>
-                <td style="max-width: 200px;">
-                  <p class="text-sm mb-0 text-truncate" 
-                     th:text="${book.description != null && !book.description.isEmpty() ? book.description : 'N/A'}"
-                     th:title="${book.description != null ? book.description : ''}"
-                     style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Description</p>
-                </td>
                 <td>
                   <span class="badge" 
                         th:classappend="${(book.deleted == null || !book.deleted) ? 'bg-success' : 'bg-danger'}"
@@ -264,7 +256,6 @@
                     Active
                   </span>
                 </td>
-                <td th:text="${book.createdAt != null ? #temporals.format(book.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}">2024-01-01</td>
                 <td>
                   <div class="d-flex align-items-center gap-2">
                     <a th:href="@{/admin/books/view/{id}(id=${book.bookId})}" 

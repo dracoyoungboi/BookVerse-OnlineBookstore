@@ -8,19 +8,22 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 @Service
 public class NotificationService {
 
-    private static final String NOTIFICATIONS_KEY = "adminNotifications";
+    // Application-level storage for notifications (shared across all sessions)
+    private static final CopyOnWriteArrayList<Notification> applicationNotifications = new CopyOnWriteArrayList<>();
+    // Session-level storage for read status (per admin user)
+    private static final ConcurrentHashMap<String, List<Long>> readNotificationsBySession = new ConcurrentHashMap<>();
 
     /**
-     * Thêm notification khi có order mới
+     * Thêm notification khi có order mới (lưu vào application-level storage)
      */
     public void addNewOrderNotification(Order order, HttpSession session) {
-        List<Notification> notifications = getNotifications(session);
-        
         Notification notification = new Notification();
         notification.setId(System.currentTimeMillis());
         notification.setType("order");
@@ -32,65 +35,121 @@ public class NotificationService {
         notification.setCreatedAt(LocalDateTime.now());
         notification.setRead(false);
         
-        notifications.add(0, notification); // Add to beginning
+        // Add to application-level storage (beginning of list)
+        applicationNotifications.add(0, notification);
         
-        // Keep only last 50 notifications
-        if (notifications.size() > 50) {
-            notifications = notifications.subList(0, 50);
+        // Keep only last 100 notifications
+        if (applicationNotifications.size() > 100) {
+            List<Notification> toRemove = new ArrayList<>();
+            for (int i = 100; i < applicationNotifications.size(); i++) {
+                toRemove.add(applicationNotifications.get(i));
+            }
+            applicationNotifications.removeAll(toRemove);
         }
-        
-        session.setAttribute(NOTIFICATIONS_KEY, notifications);
     }
 
     /**
-     * Lấy tất cả notifications
+     * Thêm notification khi user gửi payment request (lưu vào application-level storage)
      */
-    @SuppressWarnings("unchecked")
-    public List<Notification> getNotifications(HttpSession session) {
-        Object notificationsObj = session.getAttribute(NOTIFICATIONS_KEY);
-        if (notificationsObj == null) {
-            return new ArrayList<>();
+    public void addPaymentRequestNotification(Order order, String message, HttpSession session) {
+        Notification notification = new Notification();
+        notification.setId(System.currentTimeMillis());
+        notification.setType("payment");
+        notification.setTitle("Payment Request");
+        String userInfo = order.getUser() != null ? order.getUser().getFullName() : "Unknown";
+        String notificationMessage = "User " + userInfo + " has sent a payment request for order #" + order.getOrderId();
+        if (message != null && !message.trim().isEmpty()) {
+            notificationMessage += ": " + message.trim();
         }
-        return (List<Notification>) notificationsObj;
+        notification.setMessage(notificationMessage);
+        notification.setOrderId(order.getOrderId());
+        notification.setUserId(order.getUser() != null ? order.getUser().getUserId() : null);
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setRead(false);
+        
+        // Add to application-level storage (beginning of list)
+        applicationNotifications.add(0, notification);
+        
+        // Keep only last 100 notifications
+        if (applicationNotifications.size() > 100) {
+            List<Notification> toRemove = new ArrayList<>();
+            for (int i = 100; i < applicationNotifications.size(); i++) {
+                toRemove.add(applicationNotifications.get(i));
+            }
+            applicationNotifications.removeAll(toRemove);
+        }
+    }
+
+    /**
+     * Lấy tất cả notifications (from application-level storage)
+     */
+    public List<Notification> getNotifications(HttpSession session) {
+        String sessionId = session.getId();
+        List<Long> readIds = readNotificationsBySession.getOrDefault(sessionId, new ArrayList<>());
+        
+        // Return all notifications with read status based on session
+        return applicationNotifications.stream()
+                .map(n -> {
+                    Notification copy = new Notification();
+                    copy.setId(n.getId());
+                    copy.setType(n.getType());
+                    copy.setTitle(n.getTitle());
+                    copy.setMessage(n.getMessage());
+                    copy.setOrderId(n.getOrderId());
+                    copy.setUserId(n.getUserId());
+                    copy.setCreatedAt(n.getCreatedAt());
+                    copy.setRead(readIds.contains(n.getId()));
+                    return copy;
+                })
+                .collect(Collectors.toList());
     }
 
     /**
      * Lấy unread notifications count
      */
     public long getUnreadCount(HttpSession session) {
-        return getNotifications(session).stream()
-                .filter(n -> !n.isRead())
+        String sessionId = session.getId();
+        List<Long> readIds = readNotificationsBySession.getOrDefault(sessionId, new ArrayList<>());
+        
+        return applicationNotifications.stream()
+                .filter(n -> !readIds.contains(n.getId()))
                 .count();
     }
 
     /**
-     * Đánh dấu notification là đã đọc
+     * Đánh dấu notification là đã đọc (for this session)
      */
     public void markAsRead(Long notificationId, HttpSession session) {
-        List<Notification> notifications = getNotifications(session);
-        notifications.stream()
-                .filter(n -> n.getId().equals(notificationId))
-                .findFirst()
-                .ifPresent(n -> n.setRead(true));
-        session.setAttribute(NOTIFICATIONS_KEY, notifications);
+        String sessionId = session.getId();
+        List<Long> readIds = readNotificationsBySession.computeIfAbsent(sessionId, k -> new ArrayList<>());
+        
+        if (!readIds.contains(notificationId)) {
+            readIds.add(notificationId);
+        }
     }
 
     /**
-     * Đánh dấu tất cả notifications là đã đọc
+     * Đánh dấu tất cả notifications là đã đọc (for this session)
      */
     public void markAllAsRead(HttpSession session) {
-        List<Notification> notifications = getNotifications(session);
-        notifications.forEach(n -> n.setRead(true));
-        session.setAttribute(NOTIFICATIONS_KEY, notifications);
+        String sessionId = session.getId();
+        List<Long> readIds = readNotificationsBySession.computeIfAbsent(sessionId, k -> new ArrayList<>());
+        
+        // Mark all notifications as read for this session
+        applicationNotifications.forEach(n -> {
+            if (!readIds.contains(n.getId())) {
+                readIds.add(n.getId());
+            }
+        });
     }
 
     /**
-     * Xóa notification
+     * Xóa notification (from application-level storage - only for cleanup)
      */
     public void deleteNotification(Long notificationId, HttpSession session) {
-        List<Notification> notifications = getNotifications(session);
-        notifications.removeIf(n -> n.getId().equals(notificationId));
-        session.setAttribute(NOTIFICATIONS_KEY, notifications);
+        applicationNotifications.removeIf(n -> n.getId().equals(notificationId));
+        // Also remove from all session read lists
+        readNotificationsBySession.values().forEach(readIds -> readIds.remove(notificationId));
     }
 
     /**

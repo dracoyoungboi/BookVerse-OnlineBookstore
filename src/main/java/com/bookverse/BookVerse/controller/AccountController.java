@@ -100,6 +100,25 @@ public class AccountController {
         if (currentUser == null) {
             return "redirect:/login";
         }
+
+        // Check if user is admin - block admin from accessing user pages
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> {
+                    String auth = authority.getAuthority().toUpperCase();
+                    return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                });
+        
+        // Also check role from session/database as fallback
+        if (!isAdmin && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        
+        if (isAdmin) {
+            return "redirect:/demo/admin";
+        }
         
         // Prepare display values with fallbacks
         String displayUsername = currentUser.getUsername();

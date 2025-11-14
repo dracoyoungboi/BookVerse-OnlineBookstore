@@ -248,7 +248,19 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         
         System.out.println("[DEBUG] User role: " + role + ", redirecting to: " + (role.contains("ADMIN") ? "/demo/admin" : "/demo/user"));
         
-        if (role.contains("ADMIN")) {
+        // Check if user is admin
+        boolean isAdmin = role.contains("ADMIN");
+        
+        // Also check from database if not found in authorities
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (!isAdmin && currentUser != null && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        
+        if (isAdmin) {
             response.sendRedirect("/demo/admin");
         } else {
             response.sendRedirect("/demo/user");

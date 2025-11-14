@@ -54,8 +54,8 @@ public class AdminOrderController {
                             @RequestParam(required = false) String status,
                             @RequestParam(defaultValue = "0") int page,
                             @RequestParam(defaultValue = "6") int size,
-                            @RequestParam(defaultValue = "totalAmount") String sortBy,
-                            @RequestParam(defaultValue = "desc") String sortDir) {
+                            @RequestParam(defaultValue = "userId") String sortBy,
+                            @RequestParam(defaultValue = "asc") String sortDir) {
         // Check if user is authenticated and has ADMIN role
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";

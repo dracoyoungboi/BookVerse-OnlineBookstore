@@ -85,6 +85,26 @@ public class CheckoutController {
             return "redirect:/login";
         }
 
+        // Check if user is admin - block admin from accessing user pages
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> {
+                    String auth = authority.getAuthority().toUpperCase();
+                    return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                });
+        
+        // Also check role from session/database as fallback
+        if (!isAdmin && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        
+        if (isAdmin) {
+            redirectAttributes.addFlashAttribute("error", "Admin cannot access user checkout!");
+            return "redirect:/demo/admin";
+        }
+
         // Check if cart is empty
         List<CartItem> cartItems = cartService.getCartItems(session);
         if (cartItems == null || cartItems.isEmpty()) {
@@ -139,6 +159,26 @@ public class CheckoutController {
         if (currentUser == null) {
             redirectAttributes.addFlashAttribute("error", "User not found!");
             return "redirect:/login";
+        }
+
+        // Check if user is admin - block admin from accessing user pages
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> {
+                    String auth = authority.getAuthority().toUpperCase();
+                    return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                });
+        
+        // Also check role from session/database as fallback
+        if (!isAdmin && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        
+        if (isAdmin) {
+            redirectAttributes.addFlashAttribute("error", "Admin cannot access user checkout!");
+            return "redirect:/demo/admin";
         }
 
         // Validate address
@@ -201,7 +241,7 @@ public class CheckoutController {
             orderItemRepository.save(orderItem);
         }
 
-        // Add notification for admin
+        // Add notification for admin (no need for session parameter, but kept for compatibility)
         notificationService.addNewOrderNotification(order, session);
 
         // Clear cart after order is created
@@ -238,7 +278,33 @@ public class CheckoutController {
 
         // Check if order belongs to current user
         User currentUser = (User) session.getAttribute("currentUser");
-        if (currentUser == null || !order.getUser().getUserId().equals(currentUser.getUserId())) {
+        if (currentUser == null) {
+            redirectAttributes.addFlashAttribute("error", "Please login!");
+            return "redirect:/login";
+        }
+
+        // Check if user is admin - block admin from accessing user pages
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> {
+                    String auth = authority.getAuthority().toUpperCase();
+                    return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                });
+        
+        // Also check role from session/database as fallback
+        if (!isAdmin && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        
+        if (isAdmin) {
+            redirectAttributes.addFlashAttribute("error", "Admin cannot access user pages!");
+            return "redirect:/demo/admin";
+        }
+
+        // Check if order belongs to current user
+        if (!order.getUser().getUserId().equals(currentUser.getUserId())) {
             redirectAttributes.addFlashAttribute("error", "You don't have permission to view this order!");
             return "redirect:/my-orders";
         }
@@ -268,6 +334,33 @@ public class CheckoutController {
             return "redirect:/login";
         }
 
+        // Get current user
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            redirectAttributes.addFlashAttribute("error", "Please login!");
+            return "redirect:/login";
+        }
+
+        // Check if user is admin - block admin from accessing user pages
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> {
+                    String auth = authority.getAuthority().toUpperCase();
+                    return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                });
+        
+        // Also check role from session/database as fallback
+        if (!isAdmin && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        
+        if (isAdmin) {
+            redirectAttributes.addFlashAttribute("error", "Admin cannot access user pages!");
+            return "redirect:/demo/admin";
+        }
+
         // Get order
         Optional<Order> orderOpt = orderRepository.findById(orderId);
         if (orderOpt.isEmpty()) {
@@ -278,8 +371,7 @@ public class CheckoutController {
         Order order = orderOpt.get();
 
         // Check if order belongs to current user
-        User currentUser = (User) session.getAttribute("currentUser");
-        if (currentUser == null || !order.getUser().getUserId().equals(currentUser.getUserId())) {
+        if (!order.getUser().getUserId().equals(currentUser.getUserId())) {
             redirectAttributes.addFlashAttribute("error", "You don't have permission!");
             return "redirect:/my-orders";
         }
@@ -291,11 +383,7 @@ public class CheckoutController {
         }
 
         // Add notification for admin about payment request
-        String notificationMessage = String.format("User %s has sent a payment request for Order #%d. Amount: %.2f USD. Message: %s",
-                currentUser.getFullName() != null ? currentUser.getFullName() : currentUser.getUsername(),
-                orderId, order.getTotalAmount(), message != null ? message : "No message");
-
-        notificationService.addNewOrderNotification(order, session);
+        notificationService.addPaymentRequestNotification(order, message, session);
 
         redirectAttributes.addFlashAttribute("success", 
             "Payment request sent to admin successfully! Admin will process your order soon.");
