@@ -6,6 +6,8 @@ import com.bookverse.BookVerse.entity.User;
 import com.bookverse.BookVerse.repository.OrderRepository;
 import com.bookverse.BookVerse.repository.UserRepository;
 import com.bookverse.BookVerse.service.OrderSummaryService;
+import com.bookverse.BookVerse.service.QRCodeService;
+import com.bookverse.BookVerse.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,6 +38,12 @@ public class AdminOrderController {
     @Autowired
     private OrderSummaryService orderSummaryService;
 
+    @Autowired
+    private QRCodeService qrCodeService;
+
+    @Autowired
+    private OrderService orderService;
+
     // List all orders
     @GetMapping
     public String listOrders(Model model,
@@ -45,7 +53,9 @@ public class AdminOrderController {
                             @RequestParam(required = false) String search,
                             @RequestParam(required = false) String status,
                             @RequestParam(defaultValue = "0") int page,
-                            @RequestParam(defaultValue = "6") int size) {
+                            @RequestParam(defaultValue = "6") int size,
+                            @RequestParam(defaultValue = "totalAmount") String sortBy,
+                            @RequestParam(defaultValue = "desc") String sortDir) {
         // Check if user is authenticated and has ADMIN role
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
@@ -80,7 +90,7 @@ public class AdminOrderController {
         String statusFilter = (status != null && !status.trim().isEmpty()) ? status.trim() : null;
         String searchFilter = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
         
-        List<UserOrderSummary> summaries = orderSummaryService.getOrderSummariesByUser(searchFilter, statusFilter);
+        List<UserOrderSummary> summaries = orderSummaryService.getOrderSummariesByUser(searchFilter, statusFilter, sortBy, sortDir);
         
         // Manual pagination for summaries
         int totalItems = summaries.size();
@@ -105,6 +115,8 @@ public class AdminOrderController {
         model.addAttribute("pageSize", size);
         model.addAttribute("search", search != null ? search : "");
         model.addAttribute("selectedStatus", status != null ? status : "");
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         model.addAttribute("showFirstPage", showFirstPage);
@@ -160,7 +172,12 @@ public class AdminOrderController {
         }
 
         Order order = orderOpt.get();
+        
+        // Generate QR code for order
+        String qrCodeBase64 = qrCodeService.generateOrderQRCode(order.getOrderId(), order.getTotalAmount());
+        
         model.addAttribute("order", order);
+        model.addAttribute("qrCode", qrCodeBase64);
         return "admin/order-view";
     }
 
@@ -218,6 +235,60 @@ public class AdminOrderController {
         orderRepository.save(order);
 
         redirectAttributes.addFlashAttribute("success", "Order status updated successfully!");
+        if (redirect.equals("view")) {
+            return "redirect:/admin/orders/" + id;
+        }
+        return "redirect:/admin/orders";
+    }
+
+    // Process payment for pending order
+    @PostMapping("/{id}/process-payment")
+    public String processPayment(@PathVariable("id") Long id,
+                                 @RequestParam(value = "redirect", defaultValue = "list") String redirect,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        // Check if user is authenticated and has ADMIN role
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")
+                        || authority.getAuthority().contains("ADMIN"));
+
+        if (!isAdmin) {
+            return "redirect:/demo/user";
+        }
+
+        // Find order
+        Optional<Order> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Order not found!");
+            if (redirect.equals("view")) {
+                return "redirect:/admin/orders/" + id;
+            }
+            return "redirect:/admin/orders";
+        }
+
+        Order order = orderOpt.get();
+
+        // Check if order is pending
+        if (!"pending".equals(order.getStatus())) {
+            redirectAttributes.addFlashAttribute("error", "Only pending orders can be processed!");
+            if (redirect.equals("view")) {
+                return "redirect:/admin/orders/" + id;
+            }
+            return "redirect:/admin/orders";
+        }
+
+        // Process payment (deduct stock, change status to processing)
+        boolean success = orderService.processPayment(id);
+        if (success) {
+            redirectAttributes.addFlashAttribute("success", "Payment processed successfully! Order status changed to processing.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Failed to process payment. Please check stock availability.");
+        }
+
         if (redirect.equals("view")) {
             return "redirect:/admin/orders/" + id;
         }
@@ -311,4 +382,3 @@ public class AdminOrderController {
         return "admin/user-orders";
     }
 }
-

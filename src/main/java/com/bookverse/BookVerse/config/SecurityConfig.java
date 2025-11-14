@@ -104,9 +104,10 @@ public class SecurityConfig {
                                 "/orders/**"
                         ).authenticated()
                         
-                        // 4.1. My Account route - require authentication
+                        // 4.1. My Account and Orders routes - require authentication
                         .requestMatchers(
-                                "/my-account"
+                                "/my-account",
+                                "/my-orders/**"
                         ).authenticated()
                         
                         // 4.2. Wishlist routes - allow API endpoints to handle auth in controller
@@ -125,15 +126,21 @@ public class SecurityConfig {
                                 "/cart/**"
                         ).permitAll()
                         
-                        // 6. Public pages - allow all (home, shop, about, contact, user page, etc.)
+                        // 6. Public pages - allow all (home, shop, about, contact, etc.)
+                        // Note: /demo/user is NOT included here - admins should not access user pages
                         .requestMatchers(
                                 "/",
                                 "/index",
                                 "/shop/**",
                                 "/about",
-                                "/contact",
-                                "/demo/user"
+                                "/contact"
                         ).permitAll()
+                        
+                        // 6.1. User pages - authenticated users only (but NOT admins)
+                        // This will be handled in CustomAuthenticationSuccessHandler
+                        .requestMatchers(
+                                "/demo/user"
+                        ).authenticated()
                         
                         // 7. All other requests - permit all by default (for future pages)
                         // Change to .authenticated() if you want to protect all other routes
@@ -206,4 +213,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
