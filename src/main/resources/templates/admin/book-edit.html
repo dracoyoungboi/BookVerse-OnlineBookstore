@@ -272,6 +272,21 @@
             </div>
             
             <div class="col-12">
+              <label class="form-label">Status</label>
+              <div class="form-check form-switch">
+                <input type="hidden" name="deleted" value="false" id="deletedHidden">
+                <input class="form-check-input" type="checkbox" id="deletedStatus" role="switch" th:checked="${book.deleted != null && book.deleted}" onchange="updateDeletedValue(this)">
+                <label class="form-check-label" for="deletedStatus">
+                  <span id="statusLabel">Active</span>
+                </label>
+              </div>
+              <small class="form-text text-muted d-block mt-1">
+                <i class="ri-information-line"></i> 
+                <strong>Note:</strong> You can only set a book to inactive if it has no orders or all its orders are in "pending" status.
+              </small>
+            </div>
+            
+            <div class="col-12">
               <label class="form-label">Description</label>
               <textarea class="form-control" th:field="*{description}" rows="6" placeholder="Enter book description..."></textarea>
               <small class="form-text text-muted">Provide a detailed description of the book.</small>
@@ -348,6 +363,47 @@
         document.getElementById('deleteOldImage').value = 'false';
       }
     }
+    
+    function updateDeletedValue(checkbox) {
+      const hiddenInput = document.getElementById('deletedHidden');
+      if (checkbox.checked) {
+        hiddenInput.value = 'true';
+      } else {
+        hiddenInput.value = 'false';
+      }
+      
+      // Update label
+      const statusLabel = document.getElementById('statusLabel');
+      if (statusLabel) {
+        if (checkbox.checked) {
+          statusLabel.textContent = 'Inactive (Deleted)';
+        } else {
+          statusLabel.textContent = 'Active';
+        }
+      }
+      
+      console.log('DEBUG: Checkbox changed, deleted value:', hiddenInput.value);
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const checkbox = document.getElementById('deletedStatus');
+      const hiddenInput = document.getElementById('deletedHidden');
+      const statusLabel = document.getElementById('statusLabel');
+      
+      if (checkbox && hiddenInput && statusLabel) {
+        // Set initial value
+        if (checkbox.checked) {
+          hiddenInput.value = 'true';
+          statusLabel.textContent = 'Inactive (Deleted)';
+        } else {
+          hiddenInput.value = 'false';
+          statusLabel.textContent = 'Active';
+        }
+        
+        console.log('DEBUG: Initial deleted value:', hiddenInput.value);
+      }
+    });
   </script>
 </body>
 

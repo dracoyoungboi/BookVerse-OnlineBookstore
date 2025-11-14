@@ -94,5 +94,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     
     // Find all orders by user ID
     java.util.List<Order> findByUserUserId(Long userId);
+    
+    // Find pending orders older than specified days with order items
+    @Query("SELECT o FROM Order o LEFT JOIN FETCH o.orderItems WHERE o.status = 'pending' AND o.createdAt < :cutoffDate")
+    java.util.List<Order> findPendingOrdersOlderThan(@Param("cutoffDate") java.time.LocalDateTime cutoffDate);
 }
 

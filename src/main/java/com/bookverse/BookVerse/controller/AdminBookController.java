@@ -5,8 +5,12 @@ import com.bookverse.BookVerse.entity.Category;
 import com.bookverse.BookVerse.entity.User;
 import com.bookverse.BookVerse.repository.BookRepository;
 import com.bookverse.BookVerse.repository.CategoryRepository;
+import com.bookverse.BookVerse.repository.OrderItemRepository;
+import com.bookverse.BookVerse.repository.OrderRepository;
 import com.bookverse.BookVerse.repository.UserRepository;
 import com.bookverse.BookVerse.service.FileUploadService;
+import com.bookverse.BookVerse.entity.OrderItem;
+import com.bookverse.BookVerse.entity.Order;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -19,12 +23,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import jakarta.transaction.Transactional;
 
 @Controller
 @RequestMapping("/admin/books")
@@ -41,6 +48,12 @@ public class AdminBookController {
 
     @Autowired
     private FileUploadService fileUploadService;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     // List all books
     @GetMapping
@@ -377,6 +390,7 @@ public class AdminBookController {
 
     // Process edit book
     @PostMapping("/edit/{id}")
+    @Transactional
     public String updateBook(@PathVariable("id") Long id,
                             @ModelAttribute("book") Book book,
                             @RequestParam("categoryId") Long categoryId,
@@ -385,6 +399,7 @@ public class AdminBookController {
                             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                             @RequestParam(value = "imageUrl", required = false) String imageUrl,
                             @RequestParam(value = "deleteOldImage", required = false) String deleteOldImage,
+                            @RequestParam(value = "deleted", required = false) String deletedParam,
                             RedirectAttributes redirectAttributes,
                             Authentication authentication) {
         // Check if user is authenticated and has ADMIN role
@@ -408,6 +423,103 @@ public class AdminBookController {
             }
 
             Book existingBook = bookOpt.get();
+            
+            // Check deleted status from form
+            Boolean newDeletedStatus = false;
+            if (deletedParam != null && !deletedParam.trim().isEmpty()) {
+                newDeletedStatus = "true".equalsIgnoreCase(deletedParam.trim());
+            }
+            
+            // If trying to set book to inactive (deleted = true)
+            if (newDeletedStatus) {
+                // Get all orders containing this book
+                List<OrderItem> orderItems = orderItemRepository.findByBookBookIdWithOrder(id);
+                
+                if (orderItems != null && !orderItems.isEmpty()) {
+                    // Collect unique orders and check their status
+                    Set<Long> pendingOrderIds = new HashSet<>();
+                    Set<Long> processingOrderIds = new HashSet<>();
+                    Set<Long> shippedOrderIds = new HashSet<>();
+                    Set<Long> otherOrderIds = new HashSet<>();
+                    
+                    for (OrderItem item : orderItems) {
+                        if (item.getOrder() != null) {
+                            Order order = item.getOrder();
+                            String status = order.getStatus();
+                            
+                            if (status != null) {
+                                String statusLower = status.trim().toLowerCase();
+                                if ("pending".equals(statusLower)) {
+                                    pendingOrderIds.add(order.getOrderId());
+                                } else if ("processing".equals(statusLower)) {
+                                    processingOrderIds.add(order.getOrderId());
+                                } else if ("shipped".equals(statusLower)) {
+                                    shippedOrderIds.add(order.getOrderId());
+                                } else {
+                                    otherOrderIds.add(order.getOrderId());
+                                }
+                            } else {
+                                otherOrderIds.add(order.getOrderId());
+                            }
+                        }
+                    }
+                    
+                    // Priority check: Processing orders → BLOCK (highest priority)
+                    if (!processingOrderIds.isEmpty()) {
+                        redirectAttributes.addFlashAttribute("error", 
+                            "Cannot set book to inactive! This book is in " + processingOrderIds.size() + 
+                            " processing order(s): " + processingOrderIds.toString() + 
+                            ". Please wait until these orders are shipped or cancelled.");
+                        return "redirect:/admin/books/edit/" + id;
+                    }
+                    
+                    // Check: Shipped orders → BLOCK
+                    if (!shippedOrderIds.isEmpty()) {
+                        redirectAttributes.addFlashAttribute("error", 
+                            "Cannot set book to inactive! This book is in " + shippedOrderIds.size() + 
+                            " shipped order(s): " + shippedOrderIds.toString() + 
+                            ". Shipped orders cannot be modified.");
+                        return "redirect:/admin/books/edit/" + id;
+                    }
+                    
+                    // Check: Other status orders → BLOCK
+                    if (!otherOrderIds.isEmpty()) {
+                        redirectAttributes.addFlashAttribute("error", 
+                            "Cannot set book to inactive! This book is in " + otherOrderIds.size() + 
+                            " order(s) with other status: " + otherOrderIds.toString());
+                        return "redirect:/admin/books/edit/" + id;
+                    }
+                    
+                    // If only has pending orders → DELETE those orders
+                    if (!pendingOrderIds.isEmpty()) {
+                        for (Long orderId : pendingOrderIds) {
+                            try {
+                                // Find order with items
+                                Optional<Order> orderOpt = orderRepository.findByIdWithUserAndItems(orderId);
+                                if (orderOpt.isPresent()) {
+                                    Order order = orderOpt.get();
+                                    // Delete order items first to avoid TransientObjectException
+                                    if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
+                                        orderItemRepository.deleteAll(order.getOrderItems());
+                                        orderItemRepository.flush();
+                                    }
+                                    // Delete order after order items are deleted
+                                    orderRepository.delete(order);
+                                    orderRepository.flush();
+                                } else {
+                                    // If order not found, try to delete by ID anyway
+                                    orderRepository.deleteById(orderId);
+                                }
+                            } catch (Exception e) {
+                                // Log error but continue with other orders
+                                System.err.println("Failed to delete pending order #" + orderId + ": " + e.getMessage());
+                            }
+                        }
+                        redirectAttributes.addFlashAttribute("success", 
+                            "Book set to inactive. Deleted " + pendingOrderIds.size() + " pending order(s).");
+                    }
+                }
+            }
 
             // Validate title
             if (book.getTitle() == null || book.getTitle().trim().isEmpty()) {
@@ -509,10 +621,16 @@ public class AdminBookController {
                 return "redirect:/admin/books/edit/" + id;
             }
 
+            // Update deleted status (already validated above)
+            existingBook.setDeleted(newDeletedStatus);
+
             // Save updated book
             bookRepository.save(existingBook);
 
-            redirectAttributes.addFlashAttribute("success", "Book updated successfully!");
+            // Only show success message if not already set (e.g., from deleting pending orders)
+            if (!redirectAttributes.getFlashAttributes().containsKey("success")) {
+                redirectAttributes.addFlashAttribute("success", "Book updated successfully!");
+            }
             return "redirect:/admin/books";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error updating book: " + e.getMessage());
