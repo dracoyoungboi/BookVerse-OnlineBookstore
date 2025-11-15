@@ -191,11 +191,7 @@ public class AdminOrderController {
 
         Order order = orderOpt.get();
         
-        // Generate QR code for order
-        String qrCodeBase64 = qrCodeService.generateOrderQRCode(order.getOrderId(), order.getTotalAmount());
-        
         model.addAttribute("order", order);
-        model.addAttribute("qrCode", qrCodeBase64);
         return "admin/order-view";
     }
 
@@ -460,6 +456,26 @@ public class AdminOrderController {
                     }
                 }
             }
+            
+            // If pending order, send email with payment issue reason
+            if (orderStatus.equalsIgnoreCase("pending")) {
+                // Send email to user about payment issue
+                if (order.getUser() != null && order.getUser().getEmail() != null) {
+                    try {
+                        String userName = order.getUser().getFullName() != null ? order.getUser().getFullName() : order.getUser().getUsername();
+                        String paymentIssueReason = "Chưa thanh toán hoặc lỗi thanh toán. Quý khách hàng nên check lại.";
+                        emailService.sendOrderCancellationEmail(
+                            order.getUser().getEmail(),
+                            userName,
+                            order.getOrderId(),
+                            paymentIssueReason
+                        );
+                    } catch (Exception e) {
+                        // Log error but continue with deletion
+                        System.err.println("Failed to send payment issue email: " + e.getMessage());
+                    }
+                }
+            }
 
             // Delete order items first to avoid TransientObjectException
             if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
@@ -473,6 +489,8 @@ public class AdminOrderController {
 
             if (orderStatus.equalsIgnoreCase("processing")) {
                 redirectAttributes.addFlashAttribute("success", "Order deleted successfully! Cancellation email sent to customer.");
+            } else if (orderStatus.equalsIgnoreCase("pending")) {
+                redirectAttributes.addFlashAttribute("success", "Order deleted successfully! Payment issue email sent to customer.");
             } else {
                 redirectAttributes.addFlashAttribute("success", "Order deleted successfully!");
             }

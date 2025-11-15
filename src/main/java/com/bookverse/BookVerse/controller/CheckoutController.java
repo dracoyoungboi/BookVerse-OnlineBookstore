@@ -309,12 +309,17 @@ public class CheckoutController {
             return "redirect:/my-orders";
         }
 
-        // Generate QR code
+        // Generate QR code (bank QR code)
         String qrCodeBase64 = qrCodeService.generateOrderQRCode(order.getOrderId(), order.getTotalAmount());
 
+        // Add bank account information
         model.addAttribute("order", order);
         model.addAttribute("qrCode", qrCodeBase64);
         model.addAttribute("user", currentUser);
+        model.addAttribute("bankAccountNumber", qrCodeService.getBankAccountNumber());
+        model.addAttribute("bankAccountHolder", qrCodeService.getBankAccountHolder());
+        model.addAttribute("bankName", qrCodeService.getBankName());
+        model.addAttribute("bankBranch", qrCodeService.getBankBranch());
 
         return "user/order-confirmation";
     }
