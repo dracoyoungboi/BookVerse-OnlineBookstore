@@ -34,5 +34,8 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
            "AND (c.expiryDate IS NULL OR c.expiryDate > :now) " +
            "AND (c.usageLimit IS NULL OR c.usedCount < c.usageLimit)")
     Optional<Coupon> findValidCouponByCode(@Param("code") String code, @Param("now") LocalDateTime now);
+    
+    // Tìm coupon theo code (case-insensitive, for search)
+    org.springframework.data.domain.Page<Coupon> findByCodeContainingIgnoreCase(String code, org.springframework.data.domain.Pageable pageable);
 }
 

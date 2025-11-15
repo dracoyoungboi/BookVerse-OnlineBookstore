@@ -2,11 +2,13 @@ package com.bookverse.BookVerse.controller;
 
 import com.bookverse.BookVerse.dto.CartItem;
 import com.bookverse.BookVerse.entity.Category;
+import com.bookverse.BookVerse.entity.User;
 import com.bookverse.BookVerse.service.BookService;
 import com.bookverse.BookVerse.service.CartService;
 import com.bookverse.BookVerse.service.CouponService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,7 +35,29 @@ public class CartController {
      * Hiển thị trang cart
      */
     @GetMapping
-    public String cartPage(Model model, HttpSession session) {
+    public String cartPage(Model model, HttpSession session, Authentication authentication) {
+        // Block admin from accessing user pages
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> {
+                        String auth = authority.getAuthority().toUpperCase();
+                        return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                    });
+            
+            if (!isAdmin) {
+                User currentUser = (User) session.getAttribute("currentUser");
+                if (currentUser != null && currentUser.getRole() != null) {
+                    String roleName = currentUser.getRole().getName();
+                    if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                        isAdmin = true;
+                    }
+                }
+            }
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            }
+        }
         // Lấy cart items
         List<CartItem> cartItems = cartService.getCartItems(session);
         

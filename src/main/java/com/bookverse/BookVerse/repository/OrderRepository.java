@@ -14,16 +14,18 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     
     // Find all orders with user and pagination
-    @Query(value = "SELECT o FROM Order o LEFT JOIN o.user ORDER BY o.orderId DESC",
+    // Note: Sorting is handled by Pageable, not hardcoded in query
+    @Query(value = "SELECT o FROM Order o LEFT JOIN o.user",
            countQuery = "SELECT COUNT(o) FROM Order o")
     Page<Order> findAllWithUserPaged(Pageable pageable);
     
     // Search orders by order ID, user username, email, or full name with pagination
+    // Note: Sorting is handled by Pageable, not hardcoded in query
     @Query(value = "SELECT DISTINCT o FROM Order o LEFT JOIN o.user WHERE " +
            "CAST(o.orderId AS string) LIKE CONCAT('%', :search, '%') OR " +
            "LOWER(o.user.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(o.user.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(o.user.fullName) LIKE LOWER(CONCAT('%', :search, '%')) ORDER BY o.orderId DESC",
+           "LOWER(o.user.fullName) LIKE LOWER(CONCAT('%', :search, '%'))",
            countQuery = "SELECT COUNT(DISTINCT o) FROM Order o LEFT JOIN o.user WHERE " +
            "CAST(o.orderId AS string) LIKE CONCAT('%', :search, '%') OR " +
            "LOWER(o.user.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -36,19 +38,21 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByIdWithUserAndItems(@Param("id") Long id);
     
     // Find all orders with user and status filter with pagination
+    // Note: Sorting is handled by Pageable, not hardcoded in query
     @Query(value = "SELECT o FROM Order o LEFT JOIN o.user WHERE " +
-           "(COALESCE(:status, '') = '' OR o.status = :status) ORDER BY o.orderId DESC",
+           "(COALESCE(:status, '') = '' OR o.status = :status)",
            countQuery = "SELECT COUNT(o) FROM Order o WHERE " +
            "(COALESCE(:status, '') = '' OR o.status = :status)")
     Page<Order> findAllWithUserAndStatusPaged(@Param("status") String status, Pageable pageable);
     
     // Search orders with status filter
+    // Note: Sorting is handled by Pageable, not hardcoded in query
     @Query(value = "SELECT DISTINCT o FROM Order o LEFT JOIN o.user WHERE " +
            "(COALESCE(:status, '') = '' OR o.status = :status) AND (" +
            "CAST(o.orderId AS string) LIKE CONCAT('%', :search, '%') OR " +
            "LOWER(o.user.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(o.user.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(o.user.fullName) LIKE LOWER(CONCAT('%', :search, '%'))) ORDER BY o.orderId DESC",
+           "LOWER(o.user.fullName) LIKE LOWER(CONCAT('%', :search, '%')))",
            countQuery = "SELECT COUNT(DISTINCT o) FROM Order o LEFT JOIN o.user WHERE " +
            "(COALESCE(:status, '') = '' OR o.status = :status) AND (" +
            "CAST(o.orderId AS string) LIKE CONCAT('%', :search, '%') OR " +
@@ -60,12 +64,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                               Pageable pageable);
     
     // Find orders by user ID with pagination
-    @Query(value = "SELECT o FROM Order o WHERE o.user.userId = :userId ORDER BY o.orderId DESC",
+    // Note: Sorting is handled by Pageable, not hardcoded in query
+    @Query(value = "SELECT o FROM Order o WHERE o.user.userId = :userId",
            countQuery = "SELECT COUNT(o) FROM Order o WHERE o.user.userId = :userId")
     Page<Order> findByUserUserId(@Param("userId") Long userId, Pageable pageable);
     
     // Find orders by user ID and status with pagination
-    @Query(value = "SELECT o FROM Order o WHERE o.user.userId = :userId AND o.status = :status ORDER BY o.orderId DESC",
+    // Note: Sorting is handled by Pageable, not hardcoded in query
+    @Query(value = "SELECT o FROM Order o WHERE o.user.userId = :userId AND o.status = :status",
            countQuery = "SELECT COUNT(o) FROM Order o WHERE o.user.userId = :userId AND o.status = :status")
     Page<Order> findByUserUserIdAndStatus(@Param("userId") Long userId, @Param("status") String status, Pageable pageable);
     
@@ -88,5 +94,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     
     // Find all orders by user ID
     java.util.List<Order> findByUserUserId(Long userId);
+    
+    // Find pending orders older than specified days with order items
+    @Query("SELECT o FROM Order o LEFT JOIN FETCH o.orderItems WHERE o.status = 'pending' AND o.createdAt < :cutoffDate")
+    java.util.List<Order> findPendingOrdersOlderThan(@Param("cutoffDate") java.time.LocalDateTime cutoffDate);
 }
 

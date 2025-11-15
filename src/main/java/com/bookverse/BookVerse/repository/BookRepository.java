@@ -59,14 +59,16 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     // Find books with category and pagination (for admin panel) - including both active and inactive
     // Using LEFT JOIN instead of JOIN FETCH to avoid pagination issues
     // Category will be fetched automatically when accessed (ManyToOne relationship)
-    @Query(value = "SELECT b FROM Book b LEFT JOIN b.category ORDER BY b.bookId DESC",
+    // Note: Sorting is handled by Pageable, not hardcoded in query
+    @Query(value = "SELECT b FROM Book b LEFT JOIN b.category",
            countQuery = "SELECT COUNT(b) FROM Book b")
     Page<Book> findAllWithCategoryPaged(Pageable pageable);
     
     // Search books by title or author with pagination - including both active and inactive
+    // Note: Sorting is handled by Pageable, not hardcoded in query
     @Query(value = "SELECT DISTINCT b FROM Book b LEFT JOIN b.category WHERE " +
            "LOWER(b.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%')) ORDER BY b.bookId DESC",
+           "LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%'))",
            countQuery = "SELECT COUNT(DISTINCT b) FROM Book b WHERE " +
            "LOWER(b.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%'))")

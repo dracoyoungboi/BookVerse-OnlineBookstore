@@ -145,12 +145,12 @@
 </div>
 
     <!-- Success/Error Messages -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-      <span th:text="${success}">Success message</span>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show mb-3" role="alert" style="margin-top: 20px;">
+      <strong><i class="ri-checkbox-circle-line"></i> Success:</strong> <span th:text="${success}">Success message</span>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-      <span th:text="${error}">Error message</span>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mb-3" role="alert" style="margin-top: 20px;">
+      <strong><i class="ri-error-warning-line"></i> Error:</strong> <span th:text="${error}">Error message</span>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
@@ -169,6 +169,8 @@
           <form th:action="@{/admin/books}" method="get" class="d-flex align-items-center gap-2">
             <input type="hidden" name="page" value="0" />
             <input type="hidden" name="size" th:value="${pageSize}" />
+            <input type="hidden" name="sortBy" th:value="${sortBy != null ? sortBy : 'bookId'}" />
+            <input type="hidden" name="sortDir" th:value="${sortDir != null ? sortDir : 'asc'}" />
             <div class="icon-field">
               <input type="text" name="search" th:value="${search}" class="form-control form-control-sm w-auto" placeholder="Search by title or author">
               <span class="icon">
@@ -176,7 +178,7 @@
               </span>
             </div>
             <button type="submit" class="btn btn-sm btn-primary-600">Search</button>
-            <a th:href="@{/admin/books}" class="btn btn-sm btn-secondary">Clear</a>
+            <a th:href="@{/admin/books(page=0, size=${pageSize}, sortBy='bookId', sortDir='asc')}" class="btn btn-sm btn-secondary">Clear</a>
           </form>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-3">
@@ -188,7 +190,23 @@
           <table class="table bordered-table mb-0">
             <thead>
               <tr>
-                <th scope="col">ID</th>
+                <th scope="col">
+                  ID
+                  <div class="d-inline-flex flex-column ms-2" style="font-size: 10px;">
+                    <a th:href="@{/admin/books(page=${currentPage}, size=${pageSize}, search=${search}, sortBy='bookId', sortDir='asc')}" 
+                       class="text-decoration-none"
+                       th:classappend="${sortBy == 'bookId' and sortDir == 'asc' ? 'text-primary-600' : 'text-secondary-light'}"
+                       title="Sort Ascending">
+                      <iconify-icon icon="mdi:chevron-up"></iconify-icon>
+                    </a>
+                    <a th:href="@{/admin/books(page=${currentPage}, size=${pageSize}, search=${search}, sortBy='bookId', sortDir='desc')}" 
+                       class="text-decoration-none"
+                       th:classappend="${sortBy == 'bookId' and sortDir == 'desc' ? 'text-primary-600' : 'text-secondary-light'}"
+                       title="Sort Descending">
+                      <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                    </a>
+                  </div>
+                </th>
                 <th scope="col">Image</th>
                 <th scope="col">Title</th>
                 <th scope="col">Author</th>
@@ -196,15 +214,13 @@
                 <th scope="col">Price</th>
                 <th scope="col">Discount</th>
                 <th scope="col">Stock</th>
-                <th scope="col">Description</th>
                 <th scope="col">Status</th>
-                <th scope="col">Created At</th>
                 <th scope="col">Action</th>
               </tr>
             </thead>
             <tbody>
               <tr th:if="${#lists.isEmpty(books)}">
-                <td colspan="12" class="text-center py-24">
+                <td colspan="10" class="text-center py-24">
                   <p class="text-secondary-light mb-0">No books found.</p>
                 </td>
               </tr>
@@ -235,12 +251,6 @@
                         th:classappend="${book.stock > 0 ? 'bg-success' : 'bg-danger'}"
                         th:text="${book.stock}">0</span>
                 </td>
-                <td style="max-width: 200px;">
-                  <p class="text-sm mb-0 text-truncate" 
-                     th:text="${book.description != null && !book.description.isEmpty() ? book.description : 'N/A'}"
-                     th:title="${book.description != null ? book.description : ''}"
-                     style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Description</p>
-                </td>
                 <td>
                   <span class="badge" 
                         th:classappend="${(book.deleted == null || !book.deleted) ? 'bg-success' : 'bg-danger'}"
@@ -248,7 +258,6 @@
                     Active
                   </span>
                 </td>
-                <td th:text="${book.createdAt != null ? #temporals.format(book.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}">2024-01-01</td>
                 <td>
                   <div class="d-flex align-items-center gap-2">
                     <a th:href="@{/admin/books/view/{id}(id=${book.bookId})}" 
@@ -287,7 +296,7 @@
             <!-- Previous button -->
             <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
               <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
-                 th:href="@{/admin/books(page=${currentPage - 1}, size=${pageSize}, search=${search})}"
+                 th:href="@{/admin/books(page=${currentPage - 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:if="${currentPage > 0}">
                 <iconify-icon icon="ep:d-arrow-left" class="text-xl"></iconify-icon>
               </a>
@@ -300,7 +309,7 @@
             <!-- First page -->
             <li class="page-item" th:if="${showFirstPage}">
               <a class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
-                 th:href="@{/admin/books(page=0, size=${pageSize}, search=${search})}">1</a>
+                 th:href="@{/admin/books(page=0, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}">1</a>
             </li>
             <li class="page-item" th:if="${showFirstEllipsis}">
               <span class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px">...</span>
@@ -312,7 +321,7 @@
                 th:classappend="${pageNum == currentPage ? 'active' : ''}">
               <a class="page-link fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
                  th:class="${pageNum == currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'}"
-                 th:href="@{/admin/books(page=${pageNum}, size=${pageSize}, search=${search})}"
+                 th:href="@{/admin/books(page=${pageNum}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:text="${pageNum + 1}">1</a>
             </li>
             
@@ -322,14 +331,14 @@
             </li>
             <li class="page-item" th:if="${showLastPage}">
               <a class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
-                 th:href="@{/admin/books(page=${totalPages - 1}, size=${pageSize}, search=${search})}"
+                 th:href="@{/admin/books(page=${totalPages - 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:text="${totalPages}">1</a>
             </li>
             
             <!-- Next button -->
             <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
               <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
-                 th:href="@{/admin/books(page=${currentPage + 1}, size=${pageSize}, search=${search})}"
+                 th:href="@{/admin/books(page=${currentPage + 1}, size=${pageSize}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
                  th:if="${currentPage < totalPages - 1}">
                 <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
               </a>
@@ -352,6 +361,17 @@
       url.searchParams.set('page', '0');
       window.location.href = url.toString();
     }
+    
+    // Auto-dismiss alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(function(alert) {
+        setTimeout(function() {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close();
+        }, 5000); // 5 seconds
+      });
+    });
   </script>
 
   <footer class="d-footer">

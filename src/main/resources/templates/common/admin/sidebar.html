@@ -326,7 +326,7 @@
                 </a>
                 <ul class="sidebar-submenu">
                     <li>
-                        <a th:href="@{/admin/users}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Users List</a>
+                        <a th:href="@{/admin/users(page=0, size=6, sortBy='userId', sortDir='asc')}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Users List</a>
                     </li>
                     <li>
                         <a th:href="@{/admin/users/add}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add User</a>
@@ -340,7 +340,7 @@
                 </a>
                 <ul class="sidebar-submenu">
                     <li>
-                        <a th:href="@{/admin/books}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Books List</a>
+                        <a th:href="@{/admin/books(page=0, size=6, sortBy='bookId', sortDir='asc')}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Books List</a>
                     </li>
                     <li>
                         <a th:href="@{/admin/books/add}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Book</a>
@@ -354,7 +354,21 @@
                 </a>
                 <ul class="sidebar-submenu">
                     <li>
-                        <a th:href="@{/admin/orders}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Orders List</a>
+                        <a th:href="@{/admin/orders(page=0, size=6, sortBy='userId', sortDir='asc')}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Orders List</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="javascript:void(0)">
+                    <iconify-icon icon="solar:ticket-outline" class="menu-icon"></iconify-icon>
+                    <span>Vouchers</span>
+                </a>
+                <ul class="sidebar-submenu">
+                    <li>
+                        <a th:href="@{/admin/coupons(page=0, size=6, sortBy='couponId', sortDir='asc')}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Vouchers List</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/coupons/add}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Add Voucher</a>
                     </li>
                 </ul>
             </li>

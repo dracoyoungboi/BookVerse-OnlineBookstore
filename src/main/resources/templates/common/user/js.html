@@ -75,6 +75,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const addedToCart = urlParams.get('addedToCart');
         const removedFromCart = urlParams.get('removedFromCart');
+        const removedFromWishlist = urlParams.get('removedFromWishlist');
         
         if (addedToCart === 'true') {
             // Show toast after a short delay to ensure page is loaded
@@ -97,6 +98,19 @@
             
             // Remove parameter from URL without reload
             urlParams.delete('removedFromCart');
+            const newSearch = urlParams.toString();
+            const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+        
+        if (removedFromWishlist === 'true') {
+            // Show toast after a short delay to ensure page is loaded
+            setTimeout(function() {
+                showToast('Book removed from wishlist successfully!', 'success');
+            }, 200);
+            
+            // Remove parameter from URL without reload
+            urlParams.delete('removedFromWishlist');
             const newSearch = urlParams.toString();
             const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
             window.history.replaceState({}, document.title, newUrl);

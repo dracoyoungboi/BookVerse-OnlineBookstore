@@ -1,0 +1,171 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Checkout - BookVerse</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png">
+
+    <!-- common css import -->
+    <div th:replace="common/user/css :: css"></div>
+</head>
+<body class="checkout">
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<!-- header-area-start -->
+<div th:replace="common/user/header :: header"></div>
+<!-- header-area-end -->
+
+<!-- breadcrumbs-area-start -->
+<div class="breadcrumbs-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumbs-menu">
+                    <ul>
+                        <li><a th:href="@{/}">Home</a></li>
+                        <li><a th:href="@{/cart}">Cart</a></li>
+                        <li><a href="#" class="active">Checkout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- breadcrumbs-area-end -->
+
+<!-- entry-header-area-start -->
+<div class="entry-header-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="entry-header-title">
+                    <h2>Checkout</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- entry-header-area-end -->
+
+<!-- checkout-area-start -->
+<div class="checkout-area mb-70">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- Error/Success messages -->
+                <div th:if="${error}" class="alert alert-danger" style="padding: 15px; margin-bottom: 20px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px;" th:text="${error}"></div>
+                <div th:if="${success}" class="alert alert-success" style="padding: 15px; margin-bottom: 20px; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px;" th:text="${success}"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="checkbox-form">
+                    <h3>Billing Details</h3>
+                    <form th:action="@{/checkout/place-order}" method="post">
+                        <div class="checkout-form-list">
+                            <label>Full Name <span class="required">*</span></label>
+                            <input type="text" th:value="${user.fullName}" readonly style="background: #f5f5f5;">
+                        </div>
+                        <div class="checkout-form-list">
+                            <label>Email Address <span class="required">*</span></label>
+                            <input type="email" th:value="${user.email}" readonly style="background: #f5f5f5;">
+                        </div>
+                        <div class="checkout-form-list">
+                            <label>Phone</label>
+                            <input type="text" th:value="${user.phone != null ? user.phone : ''}" readonly style="background: #f5f5f5;">
+                        </div>
+                        <div class="checkout-form-list">
+                            <label>Address <span class="required">*</span></label>
+                            <input type="text" name="address" th:value="${user.address != null ? user.address : ''}" placeholder="Enter your delivery address" required>
+                        </div>
+                        <div class="order-notes">
+                            <label>Order Notes</label>
+                            <textarea name="note" placeholder="Notes about your order, e.g. special notes for delivery." rows="4"></textarea>
+                        </div>
+                    <div class="wc-proceed-to-checkout" style="margin-top: 30px;">
+                            <button type="submit" style="background: #d4af37; color: #fff; border: none; padding: 15px 40px; font-size: 16px; font-weight: 700; text-transform: uppercase; cursor: pointer; width: 100%;">
+                                Place Order
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="your-order">
+                    <h3>Your Order</h3>
+                    <div class="your-order-table table-responsive">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th class="product-name">Product</th>
+                                <th class="product-total">Total</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item : ${cartItems}">
+                                <td class="product-name">
+                                    <span th:text="${item.book.title}">Book Title</span>
+                                    <strong class="product-quantity"> × <span th:text="${item.quantity}">1</span></strong>
+                                </td>
+                                <td class="product-total">
+                                    <span class="amount" th:text="|$${#numbers.formatDecimal(item.subtotal, 1, 2)}|">$0.00</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                            <tfoot>
+                            <tr class="cart-subtotal">
+                                <th>Cart Subtotal</th>
+                                <td>
+                                    <span class="amount" th:text="|$${#numbers.formatDecimal(cartTotal, 1, 2)}|">$0.00</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${couponDiscount != null && couponDiscount > 0}" class="cart-discount">
+                                <th>Coupon Discount</th>
+                                <td>
+                                    <span class="amount" style="color: #28a745;" th:text="|-$#numbers.formatDecimal(couponDiscount, 1, 2)|">-$0.00</span>
+                                </td>
+                            </tr>
+                            <tr class="order-total">
+                                <th>Order Total</th>
+                                <td>
+                                    <strong>
+                                        <span class="amount" th:text="|$${#numbers.formatDecimal(cartTotalAfterCoupon, 1, 2)}|">$0.00</span>
+                                    </strong>
+                                </td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="payment-method" style="margin-top: 20px;">
+                        <p style="font-size: 14px; color: #666;">
+                            <strong>Payment Method:</strong> Local Checkout (QR Code)
+                        </p>
+                        <p style="font-size: 12px; color: #999; margin-top: 10px;">
+                            After placing your order, you will receive a QR code. You can send a payment request to admin for processing.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- checkout-area-end -->
+
+<!-- footer-area-start -->
+<div th:replace="common/user/footer :: footer"></div>
+<!-- footer-area-end -->
+
+<!-- all js here -->
+<div th:replace="common/user/js :: js"></div>
+
+</body>
+</html>
+

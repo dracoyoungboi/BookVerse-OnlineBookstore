@@ -198,53 +198,54 @@
 <div th:replace="common/user/js :: js"></div>
     <script>
     function removeFromWishlist(bookId, currentPage) {
-        if (confirm('Are you sure you want to remove this book from your wishlist?')) {
-            fetch('/wishlist/remove', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                credentials: 'same-origin',
-                body: 'bookId=' + bookId + '&redirect=false'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+        fetch('/wishlist/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            credentials: 'same-origin',
+            body: 'bookId=' + bookId + '&redirect=false'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Get current URL parameters to maintain pagination state
+                const urlParams = new URLSearchParams(window.location.search);
+                const page = urlParams.get('page') || currentPage || 0;
+                
+                // Calculate new page: if current page becomes empty, go to previous page
+                // Default size is 5
+                const size = 5;
+                const itemsOnCurrentPage = data.wishlistCount - (page * size);
+                let newPage = page;
+                
+                // If we deleted the last item on the current page and page > 0, go to previous page
+                if (itemsOnCurrentPage <= 0 && page > 0) {
+                    newPage = parseInt(page) - 1;
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Get current URL parameters to maintain pagination state
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const page = urlParams.get('page') || currentPage || 0;
-                    
-                    // Calculate new page: if current page becomes empty, go to previous page
-                    // Default size is 5
-                    const size = 5;
-                    const itemsOnCurrentPage = data.wishlistCount - (page * size);
-                    let newPage = page;
-                    
-                    // If we deleted the last item on the current page and page > 0, go to previous page
-                    if (itemsOnCurrentPage <= 0 && page > 0) {
-                        newPage = parseInt(page) - 1;
-                    }
-                    
-                    // Reload page with updated page number only
-                    if (newPage > 0) {
-                        window.location.href = '/wishlist?page=' + newPage;
-                    } else {
-                        window.location.href = '/wishlist';
-                    }
-                } else {
-                    alert(data.message || 'Failed to remove book from wishlist');
+                
+                // Build URL with removedFromWishlist parameter to show toast after reload
+                const url = new URL(window.location.origin + '/wishlist');
+                if (newPage > 0) {
+                    url.searchParams.set('page', newPage);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-            });
-        }
+                url.searchParams.set('removedFromWishlist', 'true');
+                
+                // Reload page with parameter
+                window.location.href = url.toString();
+            } else {
+                showToast(data.message || 'Failed to remove book from wishlist', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('An error occurred. Please try again.', 'error');
+        });
     }
 </script>
 </body>

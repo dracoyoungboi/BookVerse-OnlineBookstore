@@ -272,6 +272,43 @@
             text-align: right !important;
             padding-left: 20px !important;
         }
+        
+        /* ============================================
+           NAVBAR STYLING - Normal scroll behavior
+           ============================================ */
+        
+        /* Navbar will scroll normally with the page content */
+        /* Remove any fixed/sticky positioning */
+        header {
+            position: relative !important;
+        }
+        
+        .header-top-area {
+            position: relative !important;
+        }
+        
+        .header-mid-area {
+            position: relative !important;
+        }
+        
+        .main-menu-area {
+            position: relative !important;
+        }
+        
+        /* Remove body padding-top since header is not fixed */
+        body {
+            padding-top: 0 !important;
+        }
+        
+        /* Ensure mega menu dropdown appears above other content */
+        .mega-menu {
+            z-index: 10000 !important;
+        }
+        
+        /* Ensure toast notification appears above navbar */
+        .toast-notification {
+            z-index: 10001 !important;
+        }
     </style>
 </head>
 </html>

@@ -41,15 +41,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByIdWithRole(@Param("userId") Long userId);
     
     // Find all users with pagination (for admin panel) - using EntityGraph or default fetch
-    @Query(value = "SELECT u FROM User u LEFT JOIN u.role ORDER BY u.userId DESC",
+    // Note: Sorting is handled by Pageable, not hardcoded in query
+    @Query(value = "SELECT u FROM User u LEFT JOIN u.role",
            countQuery = "SELECT COUNT(u) FROM User u")
     Page<User> findAllUsersWithRolePaged(Pageable pageable);
     
     // Search users by username, email, or fullName with pagination
+    // Note: Sorting is handled by Pageable, not hardcoded in query
     @Query(value = "SELECT DISTINCT u FROM User u LEFT JOIN u.role WHERE " +
            "LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%')) ORDER BY u.userId DESC",
+           "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%'))",
            countQuery = "SELECT COUNT(DISTINCT u) FROM User u WHERE " +
            "LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +

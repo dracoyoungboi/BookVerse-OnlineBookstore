@@ -70,8 +70,28 @@ public class UserOrderController {
         model.addAttribute("username", currentUser.getUsername());
         model.addAttribute("fullName", currentUser.getFullName());
 
-        // Create pageable with sorting
-        Pageable pageable = PageRequest.of(page, size, Sort.by("orderId").descending());
+        // Check if user is admin - block admin from accessing user pages
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> {
+                    String auth = authority.getAuthority().toUpperCase();
+                    return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                });
+        
+        // Also check role from session/database as fallback
+        if (!isAdmin && currentUser != null && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        
+        if (isAdmin) {
+            redirectAttributes.addFlashAttribute("error", "Admin cannot access user pages!");
+            return "redirect:/demo/admin";
+        }
+        
+        // Create pageable with sorting (ASC by orderId)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("orderId").ascending());
         
         // Get user's orders with pagination and status filter
         Page<Order> orderPage;
@@ -137,6 +157,26 @@ public class UserOrderController {
             return "redirect:/login";
         }
 
+        // Check if user is admin - block admin from accessing user pages
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> {
+                    String auth = authority.getAuthority().toUpperCase();
+                    return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                });
+        
+        // Also check role from session/database as fallback
+        if (!isAdmin && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        
+        if (isAdmin) {
+            redirectAttributes.addFlashAttribute("error", "Admin cannot access user pages!");
+            return "redirect:/demo/admin";
+        }
+
         model.addAttribute("username", currentUser.getUsername());
         model.addAttribute("fullName", currentUser.getFullName());
 
@@ -188,6 +228,26 @@ public class UserOrderController {
             return "redirect:/login";
         }
 
+        // Check if user is admin - block admin from accessing user pages
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> {
+                    String auth = authority.getAuthority().toUpperCase();
+                    return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                });
+        
+        // Also check role from session/database as fallback
+        if (!isAdmin && currentUser.getRole() != null) {
+            String roleName = currentUser.getRole().getName();
+            if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        
+        if (isAdmin) {
+            redirectAttributes.addFlashAttribute("error", "Admin cannot access user pages!");
+            return "redirect:/demo/admin";
+        }
+
         // Find order with user and items
         Optional<Order> orderOpt = orderRepository.findByIdWithUserAndItems(id);
         if (orderOpt.isEmpty()) {
@@ -212,26 +272,5 @@ public class UserOrderController {
         return "user/invoice";
     }
 
-    // Process payment: Change order from pending to processing
-    @PostMapping("/{id}/process-payment")
-    public String processPayment(@PathVariable("id") Long id,
-                                Authentication authentication,
-                                RedirectAttributes redirectAttributes) {
-        // Check if user is authenticated
-        if (authentication == null || !authentication.isAuthenticated()) {
-            redirectAttributes.addFlashAttribute("error", "Please login to process payment!");
-            return "redirect:/login";
-        }
-
-        // Process payment
-        boolean success = orderService.processPayment(id);
-        if (success) {
-            redirectAttributes.addFlashAttribute("success", "Payment processed successfully! Your order is now being processed.");
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Failed to process payment. Please check if the order is pending and has sufficient stock.");
-        }
-
-        return "redirect:/my-orders/" + id;
-    }
 }
 

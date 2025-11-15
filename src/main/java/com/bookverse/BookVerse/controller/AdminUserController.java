@@ -44,7 +44,10 @@ public class AdminUserController {
                            Authentication authentication,
                            @RequestParam(required = false) String search,
                            @RequestParam(defaultValue = "0") int page,
-                           @RequestParam(defaultValue = "6") int size) {
+                           @RequestParam(defaultValue = "6") int size,
+                           @RequestParam(required = false) String sortBy,
+                           @RequestParam(required = false) String sortDir,
+                           jakarta.servlet.http.HttpServletRequest request) {
         // Check if user is authenticated and has ADMIN role
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
@@ -75,8 +78,39 @@ public class AdminUserController {
             model.addAttribute("fullName", currentUser.getFullName());
         }
 
+        // Ensure default sort direction is ascending
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            sortBy = "userId";
+        }
+        
+        // Force ascending if sortDir is not specified (default behavior)
+        String queryString = request.getQueryString();
+        boolean hasSortDirInUrl = queryString != null && queryString.contains("sortDir=");
+        
+        if (!hasSortDirInUrl) {
+            // If sortDir is not in URL, default to asc and redirect
+            sortDir = "asc";
+            StringBuilder redirectUrl = new StringBuilder("/admin/users?");
+            redirectUrl.append("page=").append(page);
+            redirectUrl.append("&size=").append(size);
+            redirectUrl.append("&sortBy=").append(sortBy);
+            redirectUrl.append("&sortDir=asc");
+            if (search != null && !search.trim().isEmpty()) {
+                redirectUrl.append("&search=").append(java.net.URLEncoder.encode(search.trim(), java.nio.charset.StandardCharsets.UTF_8));
+            }
+            return "redirect:" + redirectUrl.toString();
+        } else {
+            // If sortDir is in URL, use it
+            if (sortDir == null || sortDir.trim().isEmpty()) {
+                sortDir = "asc";
+            }
+        }
+        
         // Create pageable with sorting
-        Pageable pageable = PageRequest.of(page, size, Sort.by("userId").descending());
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? 
+                   Sort.by(sortBy).ascending() : 
+                   Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
         
         // Get users with pagination
         Page<User> userPage;
@@ -100,6 +134,8 @@ public class AdminUserController {
         model.addAttribute("totalItems", userPage.getTotalElements());
         model.addAttribute("pageSize", size);
         model.addAttribute("search", search != null ? search : "");
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
         model.addAttribute("showFirstPage", showFirstPage);

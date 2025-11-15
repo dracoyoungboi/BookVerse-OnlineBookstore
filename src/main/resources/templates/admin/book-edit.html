@@ -202,7 +202,7 @@
               <input type="datetime-local" 
                      class="form-control" 
                      name="discountStart"
-                     th:value="${book.discountStart != null ? #temporals.format(book.discountStart, 'yyyy-MM-dd\'T\'HH:mm') : ''}">
+                     th:value="${discountStartFormatted}">
             </div>
             
             <div class="col-md-6">
@@ -210,44 +210,80 @@
               <input type="datetime-local" 
                      class="form-control" 
                      name="discountEnd"
-                     th:value="${book.discountEnd != null ? #temporals.format(book.discountEnd, 'yyyy-MM-dd\'T\'HH:mm') : ''}">
+                     th:value="${discountEndFormatted}">
             </div>
             
             <div class="col-12">
-              <label class="form-label">Book Image</label>
+              <label class="form-label">Book Image <span class="text-secondary-light">(Optional)</span></label>
               
               <!-- Current Image Preview -->
-              <div th:if="${book.imageUrl != null and !book.imageUrl.isEmpty()}" class="mb-3">
+              <div th:if="${book.imageUrl != null and book.imageUrl != ''}" class="mb-3">
                 <label class="form-label text-sm text-secondary-light">Current Image:</label>
                 <div class="d-flex align-items-center gap-3">
                   <img th:src="${book.imageUrl}" alt="Current book image" 
-                       style="max-width: 200px; max-height: 200px; border-radius: 4px; border: 1px solid #ddd;">
+                       style="max-width: 200px; max-height: 200px; border-radius: 4px; border: 1px solid #ddd; object-fit: cover;">
                   <div>
                     <button type="button" class="btn btn-sm btn-danger" onclick="deleteCurrentImage(this)">
                       <i class="ri-delete-bin-line"></i> Remove Current Image
                     </button>
                     <input type="hidden" name="deleteOldImage" id="deleteOldImage" value="false">
+                    <p class="text-sm text-secondary-light mt-2 mb-0">Click "Remove" to delete the current image</p>
                   </div>
                 </div>
               </div>
               
               <!-- Upload New Image -->
               <div class="mb-3">
-                <label class="form-label">Upload New Image</label>
+                <label class="form-label">Upload New Image File</label>
                 <input type="file" class="form-control" name="imageFile" id="imageFile" accept="image/*" onchange="previewNewImage(this)">
-                <small class="form-text text-muted">Upload an image file (JPG, PNG, GIF, etc.) to replace the current image.</small>
+                <small class="form-text text-muted d-block mt-1">
+                  <i class="ri-information-line"></i> Upload an image file (JPG, PNG, GIF, WebP) to replace the current image. 
+                  <strong>If you upload a new image, it will replace the current one.</strong>
+                </small>
               </div>
               <div id="imagePreview" class="mb-3" style="display: none;">
                 <label class="form-label text-sm text-secondary-light">New Image Preview:</label>
-                <img id="previewImg" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 4px; border: 1px solid #ddd;">
+                <div>
+                  <img id="previewImg" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 4px; border: 1px solid #ddd; object-fit: cover;">
+                  <p class="text-sm text-success mt-2 mb-0">
+                    <i class="ri-checkbox-circle-line"></i> New image ready to upload
+                  </p>
+                </div>
               </div>
               
               <!-- Or Enter Image URL -->
               <div class="mb-3">
-                <label class="form-label">Or enter image URL</label>
-                <input type="url" class="form-control" name="imageUrl" th:value="${book.imageUrl}" placeholder="https://example.com/image.jpg">
-                <small class="form-text text-muted">Alternatively, you can provide an image URL instead of uploading a file.</small>
+                <label class="form-label">Or Enter Image URL</label>
+                <input type="url" class="form-control" name="imageUrl" id="imageUrl" th:value="${book.imageUrl != null ? book.imageUrl : ''}" placeholder="https://example.com/image.jpg" onchange="clearFileInput()">
+                <small class="form-text text-muted d-block mt-1">
+                  <i class="ri-information-line"></i> Alternatively, you can provide an image URL instead of uploading a file. 
+                  <strong>If you enter a URL, it will replace the current image.</strong>
+                </small>
               </div>
+              
+              <div class="alert alert-info" role="alert">
+                <i class="ri-lightbulb-line"></i> <strong>Note:</strong> 
+                <ul class="mb-0 mt-2 ps-3">
+                  <li>To keep the current image, leave both fields empty</li>
+                  <li>To replace the image, either upload a new file or enter a new URL</li>
+                  <li>To remove the image, click "Remove Current Image" button above</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <label class="form-label">Status</label>
+              <div class="form-check form-switch">
+                <input type="hidden" name="deleted" value="false" id="deletedHidden">
+                <input class="form-check-input" type="checkbox" id="deletedStatus" role="switch" th:checked="${book.deleted != null && book.deleted}" onchange="updateDeletedValue(this)">
+                <label class="form-check-label" for="deletedStatus">
+                  <span id="statusLabel">Active</span>
+                </label>
+              </div>
+              <small class="form-text text-muted d-block mt-1">
+                <i class="ri-information-line"></i> 
+                <strong>Note:</strong> You can only set a book to inactive if it has no orders or all its orders are in "pending" status.
+              </small>
             </div>
             
             <div class="col-12">
@@ -290,6 +326,8 @@
           document.getElementById('imagePreview').style.display = 'block';
           // Reset delete flag when uploading new image
           document.getElementById('deleteOldImage').value = 'false';
+          // Clear URL input if file is selected
+          document.getElementById('imageUrl').value = '';
         };
         reader.readAsDataURL(input.files[0]);
       } else {
@@ -297,9 +335,23 @@
       }
     }
     
+    function clearFileInput() {
+      // Clear file input when URL is entered
+      const fileInput = document.getElementById('imageFile');
+      if (fileInput) {
+        fileInput.value = '';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('deleteOldImage').value = 'false';
+      }
+    }
+    
     function deleteCurrentImage(button) {
-      if (confirm('Are you sure you want to remove the current image?')) {
+      if (confirm('Are you sure you want to remove the current image? This action cannot be undone.')) {
         document.getElementById('deleteOldImage').value = 'true';
+        // Clear file input and URL input
+        document.getElementById('imageFile').value = '';
+        document.getElementById('imageUrl').value = '';
+        document.getElementById('imagePreview').style.display = 'none';
         // Hide current image container by finding the parent div of the button
         if (button) {
           const imageContainer = button.closest('.mb-3');
@@ -307,8 +359,51 @@
             imageContainer.style.display = 'none';
           }
         }
+      } else {
+        document.getElementById('deleteOldImage').value = 'false';
       }
     }
+    
+    function updateDeletedValue(checkbox) {
+      const hiddenInput = document.getElementById('deletedHidden');
+      if (checkbox.checked) {
+        hiddenInput.value = 'true';
+      } else {
+        hiddenInput.value = 'false';
+      }
+      
+      // Update label
+      const statusLabel = document.getElementById('statusLabel');
+      if (statusLabel) {
+        if (checkbox.checked) {
+          statusLabel.textContent = 'Inactive (Deleted)';
+        } else {
+          statusLabel.textContent = 'Active';
+        }
+      }
+      
+      console.log('DEBUG: Checkbox changed, deleted value:', hiddenInput.value);
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const checkbox = document.getElementById('deletedStatus');
+      const hiddenInput = document.getElementById('deletedHidden');
+      const statusLabel = document.getElementById('statusLabel');
+      
+      if (checkbox && hiddenInput && statusLabel) {
+        // Set initial value
+        if (checkbox.checked) {
+          hiddenInput.value = 'true';
+          statusLabel.textContent = 'Inactive (Deleted)';
+        } else {
+          hiddenInput.value = 'false';
+          statusLabel.textContent = 'Active';
+        }
+        
+        console.log('DEBUG: Initial deleted value:', hiddenInput.value);
+      }
+    });
   </script>
 </body>
 

@@ -101,5 +101,40 @@ public class EmailService {
             userName != null ? userName : "User", resetLink
         );
     }
+    
+    public void sendOrderCancellationEmail(String email, String userName, Long orderId, String cancellationReason) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(email);
+            message.setSubject("Order #" + orderId + " Cancelled - BookVerse");
+            message.setText(buildOrderCancellationEmailContent(userName, orderId, cancellationReason));
+            
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send order cancellation email: " + e.getMessage(), e);
+        }
+    }
+    
+    private String buildOrderCancellationEmailContent(String userName, Long orderId, String cancellationReason) {
+        return String.format(
+            "Dear %s,\n\n" +
+            "We regret to inform you that your order #%d has been cancelled.\n\n" +
+            "Cancellation Reason:\n%s\n\n" +
+            "If you have already made a payment for this order, please contact our support team for a refund.\n\n" +
+            "If you have any questions or concerns, please feel free to contact us:\n" +
+            "Email: %s\n" +
+            "Phone: (800) 123-4567\n\n" +
+            "We apologize for any inconvenience this may cause.\n\n" +
+            "Best regards,\n" +
+            "The BookVerse Team\n\n" +
+            "---\n" +
+            "This is an automated email. Please do not reply to this message.",
+            userName != null ? userName : "Customer",
+            orderId,
+            cancellationReason != null ? cancellationReason : "No reason provided",
+            contactEmail
+        );
+    }
 }
 

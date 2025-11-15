@@ -56,7 +56,34 @@ public class ShopController {
             Model model,
             HttpSession session,
             Authentication authentication) {
+<<<<<<< HEAD
 
+=======
+        
+        // Block admin from accessing user pages
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> {
+                        String auth = authority.getAuthority().toUpperCase();
+                        return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                    });
+            
+            if (!isAdmin) {
+                User currentUser = (User) session.getAttribute("currentUser");
+                if (currentUser != null && currentUser.getRole() != null) {
+                    String roleName = currentUser.getRole().getName();
+                    if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                        isAdmin = true;
+                    }
+                }
+            }
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            }
+        }
+        
+>>>>>>> develop
         Page<Book> books;
 
         // Lọc theo category
@@ -141,6 +168,29 @@ public class ShopController {
             Model model,
             HttpSession session,
             Authentication authentication) {
+        
+        // Block admin from accessing user pages
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> {
+                        String auth = authority.getAuthority().toUpperCase();
+                        return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
+                    });
+            
+            if (!isAdmin) {
+                User currentUser = (User) session.getAttribute("currentUser");
+                if (currentUser != null && currentUser.getRole() != null) {
+                    String roleName = currentUser.getRole().getName();
+                    if (roleName != null && roleName.trim().toUpperCase().equals("ADMIN")) {
+                        isAdmin = true;
+                    }
+                }
+            }
+            
+            if (isAdmin) {
+                return "redirect:/demo/admin";
+            }
+        }
         Optional<Book> bookOpt = bookService.getBookByIdWithDetails(id);
 
         if (bookOpt.isEmpty()) {

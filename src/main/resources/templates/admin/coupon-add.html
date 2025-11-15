@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>View Book - Admin | BookVerse</title>
+  <title>Add Voucher - Admin | BookVerse</title>
   <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
   <!-- common css import -->
   <div th:replace="common/admin/css :: css"></div>
@@ -131,7 +131,7 @@
   <div class="dashboard-main-body">
 
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-  <h6 class="fw-semibold mb-0">Book Details</h6>
+  <h6 class="fw-semibold mb-0">Add Voucher</h6>
   <ul class="d-flex align-items-center gap-2">
     <li class="fw-medium">
       <a th:href="@{/demo/admin}" class="d-flex align-items-center gap-1 hover-text-primary">
@@ -141,167 +141,94 @@
     </li>
     <li>-</li>
     <li class="fw-medium">
-      <a th:href="@{/admin/books}" class="d-flex align-items-center gap-1 hover-text-primary">Books</a>
+      <a th:href="@{/admin/coupons}" class="d-flex align-items-center gap-1 hover-text-primary">Vouchers</a>
     </li>
     <li>-</li>
-    <li class="fw-medium">Book Details</li>
+    <li class="fw-medium">Add Voucher</li>
   </ul>
 </div>
 
-    <!-- Success/Error Messages -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show mb-3" role="alert" style="margin-top: 20px;">
-      <strong><i class="ri-checkbox-circle-line"></i> Success:</strong> <span th:text="${success}">Success message</span>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mb-3" role="alert" style="margin-top: 20px;">
-      <strong><i class="ri-error-warning-line"></i> Error:</strong> <span th:text="${error}">Error message</span>
+    <!-- Error Messages -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <span th:text="${error}">Error message</span>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
     <div class="card">
       <div class="card-body">
-        
-        <!-- Book Overview -->
-        <div class="mb-40">
-          <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Book Overview</h5>
-          <div class="row g-3">
-            <div class="col-md-3">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Book ID</label>
-                <p class="text-lg fw-semibold mb-0" th:text="${book.bookId}">-</p>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Category</label>
-                <p class="text-lg fw-semibold mb-0 text-primary-600" th:text="${book.category != null ? book.category.name : 'N/A'}">Category</p>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Price</label>
-                <p class="text-lg fw-semibold mb-0" th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 2, 'POINT')} + ' $'">$0.00</p>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Stock</label>
-                <span class="badge" 
-                      th:classappend="${book.stock > 0 ? 'bg-success' : 'bg-danger'}"
-                      th:text="${book.stock}">0</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Book Information -->
-        <div class="mb-40">
-          <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Book Information</h5>
+        <form th:action="@{/admin/coupons/add}" th:object="${coupon}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          
           <div class="row g-3">
             <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Title</label>
-                <p class="text-md mb-0" th:text="${book.title}">-</p>
-              </div>
+              <label class="form-label">Coupon Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" th:field="*{code}" required maxlength="50" placeholder="e.g., SAVE10">
+              <small class="text-secondary-light">Code will be automatically converted to uppercase</small>
             </div>
+            
             <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Author</label>
-                <p class="text-md mb-0" th:text="${book.author}">-</p>
-              </div>
+              <label class="form-label">Discount Type <span class="text-danger">*</span></label>
+              <select class="form-select" th:field="*{discountType}" required>
+                <option value="">Select Type</option>
+                <option value="PERCENTAGE">Percentage (%)</option>
+                <option value="FIXED_AMOUNT">Fixed Amount ($)</option>
+              </select>
             </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Discount Value <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" th:field="*{discountValue}" step="0.01" min="0" required>
+              <small class="text-secondary-light">Enter percentage (0-100) for PERCENTAGE or amount for FIXED_AMOUNT</small>
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Minimum Purchase Amount <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" th:field="*{minPurchaseAmount}" step="0.01" min="0" value="0" required>
+              <small class="text-secondary-light">Minimum cart total required to use this voucher</small>
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Maximum Discount Amount</label>
+              <input type="number" class="form-control" th:field="*{maxDiscountAmount}" step="0.01" min="0">
+              <small class="text-secondary-light">Only for PERCENTAGE type. Leave empty for unlimited.</small>
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Usage Limit</label>
+              <input type="number" class="form-control" th:field="*{usageLimit}" min="1">
+              <small class="text-secondary-light">Maximum number of times this voucher can be used. Leave empty for unlimited.</small>
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Expiry Date <span class="text-danger">*</span></label>
+              <input type="datetime-local" class="form-control" name="expiryDateStr" required>
+              <small class="text-secondary-light">Date and time when this voucher expires</small>
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Status</label>
+              <select class="form-select" th:field="*{active}">
+                <option th:value="true" selected>Active</option>
+                <option th:value="false">Inactive</option>
+              </select>
+            </div>
+            
             <div class="col-12">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Description</label>
-                <p class="text-md mb-0" th:text="${book.description != null ? book.description : 'N/A'}">Not provided</p>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Image URL</label>
-                <p class="text-md mb-0" th:text="${book.imageUrl != null ? book.imageUrl : 'N/A'}">Not provided</p>
-                <img th:if="${book.imageUrl != null and !book.imageUrl.isEmpty()}" 
-                     th:src="${book.imageUrl}" 
-                     alt="Book image" 
-                     style="max-width: 200px; max-height: 200px; margin-top: 10px; border-radius: 4px;">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Discount Percent</label>
-                <p class="text-md mb-0" th:text="${book.discountPercent != null and book.discountPercent > 0 ? book.discountPercent + '%' : 'No discount'}">0%</p>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Discount Start</label>
-                <p class="text-md mb-0" th:text="${book.discountStart != null ? #temporals.format(book.discountStart, 'yyyy-MM-dd HH:mm:ss') : 'N/A'}">-</p>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Discount End</label>
-                <p class="text-md mb-0" th:text="${book.discountEnd != null ? #temporals.format(book.discountEnd, 'yyyy-MM-dd HH:mm:ss') : 'N/A'}">-</p>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Created At</label>
-                <p class="text-md mb-0" th:text="${book.createdAt != null ? #temporals.format(book.createdAt, 'yyyy-MM-dd HH:mm:ss') : 'N/A'}">-</p>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Discount Price</label>
-                <p class="text-md mb-0 text-success fw-semibold" th:text="${book.discountPrice != null ? #numbers.formatDecimal(book.discountPrice, 0, 'COMMA', 2, 'POINT') + ' $' : 'N/A'}">$0.00</p>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Status</label>
-                <span class="badge" 
-                      th:classappend="${isActive ? 'bg-success' : 'bg-danger'}"
-                      th:text="${status}">Active</span>
-              </div>
+              <label class="form-label">Description</label>
+              <textarea class="form-control" th:field="*{description}" rows="4" placeholder="Enter voucher description..."></textarea>
+              <small class="form-text text-muted">Optional description for this voucher.</small>
             </div>
           </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="d-flex flex-wrap gap-3 justify-content-end pt-24 border-top">
-          <a th:href="@{/admin/books}" class="btn btn-secondary">Back to Books</a>
-          <a th:href="@{/admin/books/edit/{id}(id=${book.bookId})}" class="btn btn-primary-600">Edit Book</a>
-          <form th:action="@{/admin/books/toggle-status/{id}(id=${book.bookId}, redirect='view')}" 
-                method="post" 
-                style="display: inline;"
-                onsubmit="return confirm('Are you sure you want to change this book status?');">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <button type="submit" 
-                    class="btn"
-                    th:classappend="${isActive ? 'btn-warning' : 'btn-success'}"
-                    th:text="${isActive ? 'Set to Inactive' : 'Set to Active'}">
-              Toggle Status
-            </button>
-          </form>
-        </div>
-
+          
+          <div class="d-flex flex-wrap gap-3 justify-content-end mt-24 pt-24 border-top">
+            <a th:href="@{/admin/coupons}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary-600">Add Voucher</button>
+          </div>
+        </form>
       </div>
     </div>
     
   </div>
-
-  <script>
-    // Auto-dismiss alerts after 5 seconds
-    document.addEventListener('DOMContentLoaded', function() {
-      const alerts = document.querySelectorAll('.alert');
-      alerts.forEach(function(alert) {
-        setTimeout(function() {
-          const bsAlert = new bootstrap.Alert(alert);
-          bsAlert.close();
-        }, 5000); // 5 seconds
-      });
-    });
-  </script>
 
   <footer class="d-footer">
   <div class="row align-items-center justify-content-between">
