@@ -56,9 +56,6 @@ public class ShopController {
             Model model,
             HttpSession session,
             Authentication authentication) {
-<<<<<<< HEAD
-
-=======
         
         // Block admin from accessing user pages
         if (authentication != null && authentication.isAuthenticated()) {
@@ -82,8 +79,6 @@ public class ShopController {
                 return "redirect:/demo/admin";
             }
         }
-        
->>>>>>> develop
         Page<Book> books;
 
         // Lọc theo category
