@@ -1,0 +1,133 @@
+<!-- meta tags and other links -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Stock - Admin | BookVerse</title>
+    <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
+    <!-- common css import -->
+    <div th:replace="common/admin/css :: css"></div>
+</head>
+
+<body>
+
+<!-- Theme Customization Structure Start -->
+<div class="body-overlay"></div>
+<button type="button"
+        class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
+    <i class="ri-settings-3-line animate-spin"></i>
+</button>
+<!-- Theme Customization Structure End -->
+
+<div th:replace="common/admin/sidebar :: sidebar"></div>
+
+<main class="dashboard-main">
+    <div th:replace="common/admin/header :: header"></div>
+
+    <div class="dashboard-main-body">
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+            <h6 class="fw-semibold mb-0">Import Stock</h6>
+            <ul class="d-flex align-items-center gap-2">
+                <li class="fw-medium">
+                    <a th:href="@{/demo/admin}" class="d-flex align-items-center gap-1 hover-text-primary">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        Dashboard
+                    </a>
+                </li>
+                <li>-</li>
+                <li class="fw-medium">
+                    <a th:href="@{/admin/inventory}" class="d-flex align-items-center gap-1 hover-text-primary">Inventory</a>
+                </li>
+                <li>-</li>
+                <li class="fw-medium">Import Stock</li>
+            </ul>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            <strong><i class="ri-checkbox-circle-line"></i> Success:</strong> <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <strong><i class="ri-error-warning-line"></i> Error:</strong> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h6 class="fw-semibold mb-0">Import Stock Information</h6>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/admin/inventory/import}" method="post">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="bookId" class="form-label">Book <span class="text-danger">*</span></label>
+                            <select class="form-select" id="bookId" name="bookId" required>
+                                <option value="">-- Select Book --</option>
+                                <option th:each="book : ${books}"
+                                        th:value="${book.bookId}"
+                                        th:text="${book.title + ' (Stock: ' + book.stock + ')'}"></option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label for="quantity" class="form-label">Quantity <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                            <small class="form-text text-secondary-light">Enter the quantity to import (must be greater
+                                than
+                                0)</small>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label for="reason" class="form-label">Reason</label>
+                            <select class="form-select" id="reason" name="reason">
+                                <option value="">-- Select Reason --</option>
+                                <option value="New Purchase">New Purchase</option>
+                                <option value="Restock">Restock</option>
+                                <option value="Return from Supplier">Return from Supplier</option>
+                                <option value="Adjustment">Adjustment</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label for="note" class="form-label">Note</label>
+                            <textarea class="form-control" id="note" name="note" rows="3"
+                                      placeholder="Additional notes (optional)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary-600">
+                            <i class="ri-save-line"></i> Import Stock
+                        </button>
+                        <a th:href="@{/admin/inventory}" class="btn btn-secondary">
+                            <i class="ri-close-line"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="d-footer">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-auto">
+                <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+            </div>
+            <div class="col-auto">
+                <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+            </div>
+        </div>
+    </footer>
+</main>
+
+<div th:replace="common/admin/js :: js"></div>
+</body>
+
+</html>
+
