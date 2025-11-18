@@ -11,14 +11,6 @@
             <div class="d-flex flex-wrap align-items-center gap-3">
                 <button type="button" data-theme-toggle
                         class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
-                <div class="dropdown d-none d-sm-inline-block">
-                    <button
-                            class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"
-                            type="button" data-bs-toggle="dropdown">
-                        <img th:src="@{/admin/images/lang-flag.png}" alt="image" class="w-24 h-24 object-fit-cover rounded-circle">
-                    </button>
-                </div><!-- Language dropdown end -->
-
                 <div class="dropdown">
                     <button
                             class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"
@@ -33,7 +25,8 @@
                             </div>
                         </div>
                         <div class="text-center py-12 px-16">
-                            <a href="javascript:void(0)" class="text-primary-600 fw-semibold text-md">See All Message</a>
+                            <a href="javascript:void(0)" class="text-primary-600 fw-semibold text-md">See All
+                                Message</a>
                         </div>
                     </div>
                 </div><!-- Message dropdown end -->
@@ -43,8 +36,8 @@
                             class="has-indicator w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center position-relative"
                             type="button" data-bs-toggle="dropdown">
                         <iconify-icon icon="iconoir:bell" class="text-primary-light text-xl"></iconify-icon>
-                        <span th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}" 
-                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                        <span th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                               style="font-size: 10px; padding: 2px 5px; min-width: 18px;"
                               th:text="${unreadNotificationCount}">0</span>
                     </button>
@@ -62,11 +55,12 @@
                         </div>
 
                         <div class="max-h-400-px overflow-y-auto scroll-sm pe-4">
-                            <div th:if="${notifications == null or #lists.isEmpty(notifications)}" class="px-24 py-12 text-center">
+                            <div th:if="${notifications == null or #lists.isEmpty(notifications)}"
+                                 class="px-24 py-12 text-center">
                                 <p class="text-secondary-light mb-0">No notifications</p>
                             </div>
-                            
-                            <a th:each="notification : ${notifications}" 
+
+                            <a th:each="notification : ${notifications}"
                                th:href="@{/admin/orders/view/{id}(id=${notification.orderId})}"
                                th:data-notification-id="${notification.id}"
                                th:classappend="${notification.read ? 'bg-neutral-50' : ''}"
@@ -76,20 +70,24 @@
                                 <div class="text-black hover-bg-transparent hover-text-primary d-flex align-items-center gap-3">
                                     <span th:classappend="${notification.type == 'payment' ? 'bg-warning-subtle text-warning-main' : 'bg-primary-subtle text-primary-main'}"
                                           class="w-44-px h-44-px rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
-                                        <iconify-icon th:if="${notification.type == 'payment'}" icon="mdi:cash" class="icon text-xxl"></iconify-icon>
-                                        <iconify-icon th:if="${notification.type != 'payment'}" icon="mdi:package-variant" class="icon text-xxl"></iconify-icon>
+                                        <iconify-icon th:if="${notification.type == 'payment'}" icon="mdi:cash"
+                                                      class="icon text-xxl"></iconify-icon>
+                                        <iconify-icon th:if="${notification.type != 'payment'}"
+                                                      icon="mdi:package-variant" class="icon text-xxl"></iconify-icon>
                                     </span>
                                     <div>
-                                        <h6 class="text-md fw-semibold mb-4" th:text="${notification.title}">Notification</h6>
-                                        <p class="mb-0 text-sm text-secondary-light text-w-200-px" th:text="${notification.message}">Message</p>
+                                        <h6 class="text-md fw-semibold mb-4" th:text="${notification.title}">
+                                            Notification</h6>
+                                        <p class="mb-0 text-sm text-secondary-light text-w-200-px"
+                                           th:text="${notification.message}">Message</p>
                                     </div>
                                 </div>
                                 <div class="d-flex flex-column align-items-end">
-                                    <span class="text-sm text-secondary-light flex-shrink-0" 
+                                    <span class="text-sm text-secondary-light flex-shrink-0"
                                           th:if="${notification.createdAt != null}"
                                           th:text="${#temporals.format(notification.createdAt, 'HH:mm')}">Time</span>
-                                    <span th:if="${!notification.read}" 
-                                          class="mt-4 text-xs text-base w-16-px h-16-px d-flex justify-content-center align-items-center bg-primary-main rounded-circle" 
+                                    <span th:if="${!notification.read}"
+                                          class="mt-4 text-xs text-base w-16-px h-16-px d-flex justify-content-center align-items-center bg-primary-main rounded-circle"
                                           style="color: white; font-size: 10px;">!</span>
                                 </div>
                             </a>
@@ -97,8 +95,11 @@
                         </div>
                         <div class="text-center py-12 px-16">
                             <form th:action="@{/admin/notifications/read-all}" method="post" style="display: inline;">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                <button type="submit" class="text-primary-600 fw-semibold text-md border-0 bg-transparent" style="cursor: pointer;">Mark All as Read</button>
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit"
+                                        class="text-primary-600 fw-semibold text-md border-0 bg-transparent"
+                                        style="cursor: pointer;">Mark All as Read
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -107,13 +108,16 @@
                 <div class="dropdown">
                     <button class="d-flex justify-content-center align-items-center rounded-circle" type="button"
                             data-bs-toggle="dropdown">
-                        <img th:src="@{/admin/images/user.png}" alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
+                        <img th:src="@{/admin/images/user.png}" alt="image"
+                             class="w-40-px h-40-px object-fit-cover rounded-circle">
                     </button>
                     <div class="dropdown-menu to-top dropdown-menu-sm">
                         <div
                                 class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
                             <div>
-                                <h6 class="text-lg text-primary-light fw-semibold mb-2" th:text="${fullName != null ? fullName : (username != null ? username : 'Admin')}">Admin</h6>
+                                <h6 class="text-lg text-primary-light fw-semibold mb-2"
+                                    th:text="${fullName != null ? fullName : (username != null ? username : 'Admin')}">
+                                    Admin</h6>
                                 <span class="text-secondary-light fw-medium text-sm">Admin</span>
                             </div>
                             <button type="button" class="hover-text-danger">
@@ -124,13 +128,18 @@
                             <li>
                                 <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3"
                                    th:href="@{/demo/admin/my-account}">
-                                    <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon> My Account</a>
+                                    <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon>
+                                    My Account</a>
                             </li>
                             <li>
-                                <form th:action="@{/logout}" method="post" style="display: inline; margin: 0; padding: 0;">
-                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                    <button type="submit" class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger w-100 text-start border-0 bg-transparent d-flex align-items-center gap-3" style="cursor: pointer;">
-                                        <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Log Out
+                                <form th:action="@{/logout}" method="post"
+                                      style="display: inline; margin: 0; padding: 0;">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <button type="submit"
+                                            class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger w-100 text-start border-0 bg-transparent d-flex align-items-center gap-3"
+                                            style="cursor: pointer;">
+                                        <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon>
+                                        Log Out
                                     </button>
                                 </form>
                             </li>
