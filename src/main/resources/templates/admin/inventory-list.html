@@ -1,0 +1,448 @@
+<!-- meta tags and other links -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - Admin | BookVerse</title>
+    <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
+    <!-- common css import -->
+    <div th:replace="common/admin/css :: css"></div>
+</head>
+
+<body>
+
+<!-- Theme Customization Structure Start -->
+<div class="body-overlay"></div>
+
+<button type="button"
+        class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
+    <i class="ri-settings-3-line animate-spin"></i>
+</button>
+<div class="theme-customization-sidebar w-100 bg-base h-100vh overflow-y-auto position-fixed end-0 top-0 shadow-lg">
+    <div class="d-flex align-items-center gap-3 py-16 px-24 justify-content-between border-bottom">
+        <div>
+            <h6 class="text-sm dark:text-white">Theme Settings</h6>
+            <p class="text-xs mb-0 text-neutral-500 dark:text-neutral-200">Customize and preview instantly</p>
+        </div>
+        <button data-slot="button"
+                class="theme-customization-sidebar__close text-neutral-900 bg-transparent text-hover-primary-600 d-flex text-xl">
+            <i class="ri-close-fill"></i>
+        </button>
+    </div>
+
+    <div class="d-flex flex-column gap-48 p-24 overflow-y-auto flex-grow-1">
+        <!-- Theme settings content (same as other pages) -->
+        <div class="theme-setting-item">
+            <h6 class="fw-medium text-primary-light text-md mb-3">Theme Mode</h6>
+            <div class="d-grid grid-cols-3 gap-3 dark-light-mode">
+                <button type="button"
+                        class="theme-btn theme-setting-item__btn d-flex align-items-center justify-content-center h-64-px rounded-3 text-xl active"
+                        data-theme="light">
+                    <i class="ri-sun-line"></i>
+                </button>
+                <button type="button"
+                        class="theme-btn theme-setting-item__btn d-flex align-items-center justify-content-center h-64-px rounded-3 text-xl"
+                        data-theme="dark">
+                    <i class="ri-moon-line"></i>
+                </button>
+                <button type="button"
+                        class="theme-btn theme-setting-item__btn d-flex align-items-center justify-content-center h-64-px rounded-3 text-xl"
+                        data-theme="system">
+                    <i class="ri-computer-line"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Theme Customization Structure End -->
+
+<div th:replace="common/admin/sidebar :: sidebar"></div>
+
+<main class="dashboard-main">
+    <div th:replace="common/admin/header :: header"></div>
+
+    <div class="dashboard-main-body">
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+            <h6 class="fw-semibold mb-0">Inventory History</h6>
+            <ul class="d-flex align-items-center gap-2">
+                <li class="fw-medium">
+                    <a th:href="@{/demo/admin}" class="d-flex align-items-center gap-1 hover-text-primary">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        Dashboard
+                    </a>
+                </li>
+                <li>-</li>
+                <li class="fw-medium">Inventory Management</li>
+            </ul>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            <strong><i class="ri-checkbox-circle-line"></i> Success:</strong> <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <strong><i class="ri-error-warning-line"></i> Error:</strong> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span>Show</span>
+                        <select class="form-select form-select-sm w-auto" id="pageSizeSelect"
+                                onchange="changePageSize(this.value)">
+                            <option value="10" th:selected="${pageSize == 10}">10</option>
+                            <option value="15" th:selected="${pageSize == 15}">15</option>
+                            <option value="20" th:selected="${pageSize == 20}">20</option>
+                            <option value="30" th:selected="${pageSize == 30}">30</option>
+                        </select>
+                    </div>
+                    <form th:action="@{/admin/inventory}" method="get"
+                          class="d-flex flex-wrap align-items-center gap-2">
+                        <input type="hidden" name="page" value="0"/>
+                        <input type="hidden" name="size" th:value="${pageSize}" id="sizeInput"/>
+
+                        <select name="bookId" class="form-select form-select-sm w-auto">
+                            <option value="">All Books</option>
+                            <option th:each="book : ${books}"
+                                    th:value="${book.bookId}"
+                                    th:text="${book.title}"
+                                    th:selected="${selectedBookId != null && selectedBookId == book.bookId}"></option>
+                        </select>
+
+                        <select name="transactionType" class="form-select form-select-sm w-auto">
+                            <option value="">All Types</option>
+                            <option value="IMPORT" th:selected="${selectedTransactionType == 'IMPORT'}">Import</option>
+                            <option value="EXPORT" th:selected="${selectedTransactionType == 'EXPORT'}">Export</option>
+                            <option value="ADJUSTMENT" th:selected="${selectedTransactionType == 'ADJUSTMENT'}">
+                                Adjustment
+                            </option>
+                        </select>
+
+                        <input type="date" name="startDate" th:value="${startDate}"
+                               class="form-control form-control-sm w-auto" placeholder="Start Date">
+                        <input type="date" name="endDate" th:value="${endDate}"
+                               class="form-control form-control-sm w-auto" placeholder="End Date">
+
+                        <button type="submit" class="btn btn-sm btn-primary-600">Filter</button>
+                        <a th:href="@{/admin/inventory(page=0, size=${pageSize})}" class="btn btn-sm btn-secondary">Clear</a>
+                    </form>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <a th:href="@{/admin/inventory/import}" class="btn btn-sm btn-success"><i class="ri-add-line"></i>
+                        Import Stock</a>
+                    <a th:href="@{/admin/inventory/export}" class="btn btn-sm btn-warning"><i
+                            class="ri-subtract-line"></i> Export Stock</a>
+                    <a th:href="@{/admin/inventory/adjust}" class="btn btn-sm btn-primary-600"><i
+                            class="ri-edit-line"></i> Adjust Stock</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table bordered-table mb-0">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Book</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Stock Before</th>
+                            <th scope="col">Stock After</th>
+                            <th scope="col">Reason</th>
+                            <th scope="col">Created By</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Reference</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${transactions.isEmpty()}">
+                            <td colspan="11" class="text-center py-4">
+                                <p class="text-white mb-0">No inventory transactions found.</p>
+                            </td>
+                        </tr>
+                        <tr th:each="transaction, iterStat : ${transactions}">
+                            <td th:text="${transaction.transactionId}">1</td>
+                            <td style="max-width: 200px;">
+                                <div class="d-flex align-items-center">
+                                    <h6 class="text-md mb-0 fw-medium text-truncate"
+                                        th:text="${transaction.book.title}"
+                                        th:title="${transaction.book.title}"
+                                        style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        Book Title</h6>
+                                </div>
+                            </td>
+                            <td>
+                  <span th:if="${transaction.transactionType == 'IMPORT'}"
+                        class="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">Import</span>
+                                <span th:if="${transaction.transactionType == 'EXPORT'}"
+                                      class="bg-danger-focus text-danger-main px-24 py-4 rounded-pill fw-medium text-sm">Export</span>
+                                <span th:if="${transaction.transactionType == 'ADJUSTMENT'}"
+                                      class="bg-info-focus text-info-main px-24 py-4 rounded-pill fw-medium text-sm">Adjustment</span>
+                            </td>
+                            <td>
+                                <span th:if="${transaction.quantity > 0}" class="text-success-main fw-medium"
+                                      th:text="'+' + ${transaction.quantity}">+10</span>
+                                <span th:if="${transaction.quantity < 0}" class="text-danger-main fw-medium"
+                                      th:text="${transaction.quantity}">-5</span>
+                                <span th:if="${transaction.quantity == 0}" th:text="${transaction.quantity}">0</span>
+                            </td>
+                            <td th:text="${transaction.stockBefore}">100</td>
+                            <td th:text="${transaction.stockAfter}">110</td>
+                            <td>
+                                <span th:if="${transaction.reason != null}"
+                                      th:text="${transaction.reason}">Reason</span>
+                                <span th:if="${transaction.reason == null}" class="text-muted">-</span>
+                            </td>
+                            <td>
+                                <span th:if="${transaction.createdBy != null}"
+                                      th:text="${transaction.createdBy.fullName != null ? transaction.createdBy.fullName : transaction.createdBy.username}">Admin</span>
+                                <span th:if="${transaction.createdBy == null}" class="text-muted">System</span>
+                            </td>
+                            <td th:text="${#temporals.format(transaction.createdAt, 'dd MMM yyyy HH:mm')}">25 Jan 2024
+                                10:30
+                            </td>
+                            <td>
+                  <span th:if="${transaction.referenceType == 'ORDER' and transaction.referenceId != null}"
+                        class="text-primary-600">
+                    <a th:href="@{/admin/orders/{id}(id=${transaction.referenceId})}"
+                       class="text-primary-600 text-decoration-none hover-underline"
+                       title="View Order">
+                      Order #<span th:text="${transaction.referenceId}">123</span>
+                    </a>
+                  </span>
+                                <span th:if="${transaction.referenceType == 'MANUAL' or (transaction.referenceType != 'ORDER' and transaction.referenceId == null)}"
+                                      class="text-muted">
+                    <span class="badge bg-secondary">Manual</span>
+                  </span>
+                                <span th:if="${transaction.referenceType == null and transaction.referenceId == null}"
+                                      class="text-muted">-</span>
+                            </td>
+                            <td>
+                                <button type="button"
+                                        class="w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center border-0"
+                                        th:data-transaction-id="${transaction.transactionId}"
+                                        th:data-book-title="${transaction.book.title}"
+                                        th:data-book-id="${transaction.book.bookId}"
+                                        th:data-transaction-type="${transaction.transactionType}"
+                                        th:data-quantity="${transaction.quantity}"
+                                        th:data-stock-before="${transaction.stockBefore}"
+                                        th:data-stock-after="${transaction.stockAfter}"
+                                        th:data-reason="${transaction.reason != null ? transaction.reason : ''}"
+                                        th:data-note="${transaction.note != null ? transaction.note : ''}"
+                                        th:data-created-by="${transaction.createdBy != null ? (transaction.createdBy.fullName != null ? transaction.createdBy.fullName : transaction.createdBy.username) : 'System'}"
+                                        th:data-created-at="${#temporals.format(transaction.createdAt, 'dd MMM yyyy HH:mm:ss')}"
+                                        th:data-reference-type="${transaction.referenceType != null ? transaction.referenceType : ''}"
+                                        th:data-reference-id="${transaction.referenceId != null ? transaction.referenceId : ''}"
+                                        onclick="showTransactionDetails(this)"
+                                        title="View Details">
+                                    <iconify-icon icon="iconamoon:eye-light"></iconify-icon>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Transaction Details Modal -->
+                <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="transactionModalLabel">Transaction Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="transactionModalBody">
+                                <!-- Content will be loaded dynamically -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24"
+                     th:if="${totalPages > 1}">
+                    <span>Showing <span th:text="${currentPage * pageSize + 1}">1</span> to <span
+                            th:text="${(currentPage + 1) * pageSize > totalItems ? totalItems : (currentPage + 1) * pageSize}">10</span> of <span
+                            th:text="${totalItems}">100</span> entries</span>
+                    <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
+                        <li class="page-item" th:if="${currentPage > 0}">
+                            <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
+                               th:href="@{/admin/inventory(page=${currentPage - 1}, size=${pageSize}, bookId=${selectedBookId}, transactionType=${selectedTransactionType}, startDate=${startDate}, endDate=${endDate})}">
+                                <iconify-icon icon="ep:d-arrow-left" class="text-xl"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:if="${showFirstPage}">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
+                               th:href="@{/admin/inventory(page=0, size=${pageSize}, bookId=${selectedBookId}, transactionType=${selectedTransactionType}, startDate=${startDate}, endDate=${endDate})}">1</a>
+                        </li>
+                        <li class="page-item" th:if="${showFirstEllipsis}">
+                            <span class="page-link bg-transparent border-0">...</span>
+                        </li>
+
+                        <li class="page-item" th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                            <a class="page-link fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
+                               th:classappend="${i == currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'}"
+                               th:href="@{/admin/inventory(page=${i}, size=${pageSize}, bookId=${selectedBookId}, transactionType=${selectedTransactionType}, startDate=${startDate}, endDate=${endDate})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:if="${showLastEllipsis}">
+                            <span class="page-link bg-transparent border-0">...</span>
+                        </li>
+                        <li class="page-item" th:if="${showLastPage}">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
+                               th:href="@{/admin/inventory(page=${totalPages - 1}, size=${pageSize}, bookId=${selectedBookId}, transactionType=${selectedTransactionType}, startDate=${startDate}, endDate=${endDate})}"
+                               th:text="${totalPages}">10</a>
+                        </li>
+
+                        <li class="page-item" th:if="${currentPage < totalPages - 1}">
+                            <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
+                               th:href="@{/admin/inventory(page=${currentPage + 1}, size=${pageSize}, bookId=${selectedBookId}, transactionType=${selectedTransactionType}, startDate=${startDate}, endDate=${endDate})}">
+                                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="d-footer">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-auto">
+                <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+            </div>
+            <div class="col-auto">
+                <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+            </div>
+        </div>
+    </footer>
+</main>
+
+<div th:replace="common/admin/js :: js"></div>
+
+<script>
+    function changePageSize(size) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('size', size);
+        url.searchParams.set('page', '0');
+        window.location.href = url.toString();
+    }
+
+    function showTransactionDetails(button) {
+        // Get data from button data attributes
+        const transaction = {
+            id: button.getAttribute('data-transaction-id'),
+            bookTitle: button.getAttribute('data-book-title') || '',
+            bookId: button.getAttribute('data-book-id'),
+            transactionType: button.getAttribute('data-transaction-type'),
+            quantity: parseInt(button.getAttribute('data-quantity')) || 0,
+            stockBefore: parseInt(button.getAttribute('data-stock-before')) || 0,
+            stockAfter: parseInt(button.getAttribute('data-stock-after')) || 0,
+            reason: button.getAttribute('data-reason') || '',
+            note: button.getAttribute('data-note') || '',
+            createdBy: button.getAttribute('data-created-by') || 'System',
+            createdAt: button.getAttribute('data-created-at') || '',
+            referenceType: button.getAttribute('data-reference-type') || '',
+            referenceId: button.getAttribute('data-reference-id') || ''
+        };
+
+        // Build modal content
+        let html = '<div class="row g-3">';
+
+        // Transaction ID
+        html += '<div class="col-md-6"><strong>Transaction ID:</strong><br><span>' + transaction.id + '</span></div>';
+
+        // Book
+        html += '<div class="col-md-6"><strong>Book:</strong><br>';
+        html += '<a href="/admin/books/view/' + transaction.bookId + '" class="text-primary-600 text-decoration-none">' +
+            escapeHtml(transaction.bookTitle) + '</a>';
+        html += '</div>';
+
+        // Type
+        let typeBadge = '';
+        if (transaction.transactionType === 'IMPORT') {
+            typeBadge = '<span class="badge bg-success">Import</span>';
+        } else if (transaction.transactionType === 'EXPORT') {
+            typeBadge = '<span class="badge bg-danger">Export</span>';
+        } else if (transaction.transactionType === 'ADJUSTMENT') {
+            typeBadge = '<span class="badge bg-info">Adjustment</span>';
+        }
+        html += '<div class="col-md-6"><strong>Type:</strong><br>' + typeBadge + '</div>';
+
+        // Quantity
+        let quantityClass = transaction.quantity > 0 ? 'text-success' : (transaction.quantity < 0 ? 'text-danger' : '');
+        html += '<div class="col-md-6"><strong>Quantity:</strong><br><span class="' + quantityClass + ' fw-medium">' +
+            (transaction.quantity > 0 ? '+' : '') + transaction.quantity + '</span></div>';
+
+        // Stock Before
+        html += '<div class="col-md-6"><strong>Stock Before:</strong><br><span>' + transaction.stockBefore + '</span></div>';
+
+        // Stock After
+        html += '<div class="col-md-6"><strong>Stock After:</strong><br><span>' + transaction.stockAfter + '</span></div>';
+
+        // Reason
+        html += '<div class="col-md-6"><strong>Reason:</strong><br><span>' + (transaction.reason ? escapeHtml(transaction.reason) : '-') + '</span></div>';
+
+        // Created By
+        html += '<div class="col-md-6"><strong>Created By:</strong><br><span>' + escapeHtml(transaction.createdBy) + '</span></div>';
+
+        // Date
+        html += '<div class="col-md-6"><strong>Date:</strong><br><span>' + transaction.createdAt + '</span></div>';
+
+        // Reference
+        let referenceHtml = '';
+        if (transaction.referenceType === 'ORDER' && transaction.referenceId) {
+            referenceHtml = '<a href="/admin/orders/' + transaction.referenceId + '" class="text-primary-600 text-decoration-none">Order #' + transaction.referenceId + '</a>';
+        } else if (transaction.referenceType === 'MANUAL') {
+            referenceHtml = '<span class="badge bg-secondary">Manual</span>';
+        } else {
+            referenceHtml = '-';
+        }
+        html += '<div class="col-md-6"><strong>Reference:</strong><br>' + referenceHtml + '</div>';
+
+        // Note
+        if (transaction.note) {
+            html += '<div class="col-12"><strong>Note:</strong><br><span class="text-secondary-light">' + escapeHtml(transaction.note) + '</span></div>';
+        }
+
+        html += '</div>';
+
+        // Set modal content
+        document.getElementById('transactionModalBody').innerHTML = html;
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('transactionModal'));
+        modal.show();
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        if (!text) return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+</script>
+</body>
+
+</html>
+

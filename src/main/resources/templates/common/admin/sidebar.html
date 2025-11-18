@@ -88,6 +88,29 @@
                     <span>Reviews</span>
                 </a>
             </li>
+            <li class="dropdown">
+                <a href="javascript:void(0)">
+                    <iconify-icon icon="solar:box-linear" class="menu-icon"></iconify-icon>
+                    <span>Inventory</span>
+                </a>
+                <ul class="sidebar-submenu">
+                    <li>
+                        <a th:href="@{/admin/inventory/stock(page=0, size=10)}"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Stock Overview</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/inventory(page=0, size=10)}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Inventory History</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/inventory/import}"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Import Stock</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/inventory/export}"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> Export Stock</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/inventory/adjust}"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> Adjust Stock</a>
+                    </li>
+                </ul>
+            </li>
         </ul>
     </div>
 </aside>

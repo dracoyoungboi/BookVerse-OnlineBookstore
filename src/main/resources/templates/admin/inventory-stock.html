@@ -1,0 +1,345 @@
+<!-- meta tags and other links -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Overview - Admin | BookVerse</title>
+    <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
+    <!-- common css import -->
+    <div th:replace="common/admin/css :: css"></div>
+</head>
+
+<body>
+
+<!-- Theme Customization Structure Start -->
+<div class="body-overlay"></div>
+<button type="button"
+        class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
+    <i class="ri-settings-3-line animate-spin"></i>
+</button>
+<!-- Theme Customization Structure End -->
+
+<div th:replace="common/admin/sidebar :: sidebar"></div>
+
+<main class="dashboard-main">
+    <div th:replace="common/admin/header :: header"></div>
+
+    <div class="dashboard-main-body">
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+            <h6 class="fw-semibold mb-0">Stock Overview</h6>
+            <ul class="d-flex align-items-center gap-2">
+                <li class="fw-medium">
+                    <a th:href="@{/demo/admin}" class="d-flex align-items-center gap-1 hover-text-primary">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        Dashboard
+                    </a>
+                </li>
+                <li>-</li>
+                <li class="fw-medium">
+                    <a th:href="@{/admin/inventory}" class="d-flex align-items-center gap-1 hover-text-primary">Inventory</a>
+                </li>
+                <li>-</li>
+                <li class="fw-medium">Stock Overview</li>
+            </ul>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-3 mb-24">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="text-sm text-secondary-light mb-1">Total Books</p>
+                                <h4 class="fw-semibold mb-0" th:text="${totalBooks}">0</h4>
+                            </div>
+                            <div class="w-48-px h-48-px bg-primary-50 rounded-circle d-flex align-items-center justify-content-center">
+                                <iconify-icon icon="solar:book-bookmark-linear"
+                                              class="text-primary-600 text-xl"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="text-sm text-secondary-light mb-1">In Stock</p>
+                                <h4 class="fw-semibold mb-0 text-success-main" th:text="${inStockBooks}">0</h4>
+                            </div>
+                            <div class="w-48-px h-48-px bg-success-focus rounded-circle d-flex align-items-center justify-content-center">
+                                <iconify-icon icon="solar:check-circle-linear"
+                                              class="text-success-main text-xl"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="text-sm text-secondary-light mb-1">Low Stock</p>
+                                <h4 class="fw-semibold mb-0 text-warning-main" th:text="${lowStockBooks}">0</h4>
+                            </div>
+                            <div class="w-48-px h-48-px bg-warning-focus rounded-circle d-flex align-items-center justify-content-center">
+                                <iconify-icon icon="solar:danger-triangle-linear"
+                                              class="text-warning-main text-xl"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="text-sm text-secondary-light mb-1">Out of Stock</p>
+                                <h4 class="fw-semibold mb-0 text-danger-main" th:text="${outOfStockBooks}">0</h4>
+                            </div>
+                            <div class="w-48-px h-48-px bg-danger-focus rounded-circle d-flex align-items-center justify-content-center">
+                                <iconify-icon icon="solar:close-circle-linear"
+                                              class="text-danger-main text-xl"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span>Show</span>
+                        <select class="form-select form-select-sm w-auto" id="pageSizeSelect"
+                                onchange="changePageSize(this.value)">
+                            <option value="10" th:selected="${pageSize == 10}">10</option>
+                            <option value="15" th:selected="${pageSize == 15}">15</option>
+                            <option value="20" th:selected="${pageSize == 20}">20</option>
+                            <option value="30" th:selected="${pageSize == 30}">30</option>
+                        </select>
+                    </div>
+                    <form th:action="@{/admin/inventory/stock}" method="get"
+                          class="d-flex flex-wrap align-items-center gap-2">
+                        <input type="hidden" name="page" value="0"/>
+                        <input type="hidden" name="size" th:value="${pageSize}" id="sizeInput"/>
+
+                        <select name="stockFilter" class="form-select form-select-sm w-auto">
+                            <option value="all" th:selected="${selectedStockFilter == 'all'}">All Stock</option>
+                            <option value="in_stock" th:selected="${selectedStockFilter == 'in_stock'}">In Stock
+                            </option>
+                            <option value="low_stock" th:selected="${selectedStockFilter == 'low_stock'}">Low Stock (&lt;10)</option>
+                            <option value="out_of_stock" th:selected="${selectedStockFilter == 'out_of_stock'}">Out of
+                                Stock
+                            </option>
+                        </select>
+
+                        <select name="categoryId" class="form-select form-select-sm w-auto">
+                            <option value="">All Categories</option>
+                            <option th:each="category : ${categories}"
+                                    th:value="${category.categoryId}"
+                                    th:text="${category.name}"
+                                    th:selected="${selectedCategoryId != null && selectedCategoryId == category.categoryId}"></option>
+                        </select>
+
+                        <div class="icon-field">
+                            <input type="text" name="search" th:value="${search}"
+                                   class="form-control form-control-sm w-auto" placeholder="Search by title or author">
+                            <span class="icon">
+                <iconify-icon icon="ion:search-outline"></iconify-icon>
+              </span>
+                        </div>
+
+                        <button type="submit" class="btn btn-sm btn-primary-600">Filter</button>
+                        <a th:href="@{/admin/inventory/stock(page=0, size=${pageSize})}"
+                           class="btn btn-sm btn-secondary">Clear</a>
+                    </form>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <a th:href="@{/admin/inventory/import}" class="btn btn-sm btn-success"><i class="ri-add-line"></i>
+                        Import Stock</a>
+                    <a th:href="@{/admin/inventory}" class="btn btn-sm btn-primary-600"><i class="ri-history-line"></i>
+                        View History</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table bordered-table mb-0">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">
+                                Stock
+                                <div class="d-inline-flex flex-column ms-2" style="font-size: 10px;">
+                                    <a th:href="@{/admin/inventory/stock(page=${currentPage}, size=${pageSize}, stockFilter=${selectedStockFilter}, categoryId=${selectedCategoryId}, search=${search}, sortBy='stock', sortDir='asc')}"
+                                       class="text-decoration-none"
+                                       th:classappend="${sortBy == 'stock' and sortDir == 'asc' ? 'text-primary-600' : 'text-secondary-light'}"
+                                       title="Sort Ascending">
+                                        <iconify-icon icon="mdi:chevron-up"></iconify-icon>
+                                    </a>
+                                    <a th:href="@{/admin/inventory/stock(page=${currentPage}, size=${pageSize}, stockFilter=${selectedStockFilter}, categoryId=${selectedCategoryId}, search=${search}, sortBy='stock', sortDir='desc')}"
+                                       class="text-decoration-none"
+                                       th:classappend="${sortBy == 'stock' and sortDir == 'desc' ? 'text-primary-600' : 'text-secondary-light'}"
+                                       title="Sort Descending">
+                                        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+                                    </a>
+                                </div>
+                            </th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(books)}">
+                            <td colspan="6" class="text-center py-4">
+                                <p class="text-muted mb-0">No books found.</p>
+                            </td>
+                        </tr>
+                        <tr th:each="book : ${books}">
+                            <td th:text="${book.bookId}">1</td>
+                            <td>
+                                <img th:if="${book.imageUrl != null and !book.imageUrl.isEmpty()}"
+                                     th:src="${book.imageUrl}"
+                                     alt="Book image"
+                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                <span th:if="${book.imageUrl == null or book.imageUrl.isEmpty()}"
+                                      class="text-secondary-light">No image</span>
+                            </td>
+                            <td>
+                                <h6 class="text-md mb-0 fw-medium" th:text="${book.title}">Book Title</h6>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary"
+                                      th:text="${book.category != null ? book.category.name : 'N/A'}">Category</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                    <span class="badge fw-semibold"
+                          th:classappend="${book.stock == 0 ? 'bg-danger' : (book.stock < 10 ? 'bg-warning' : 'bg-success')}"
+                          th:text="${book.stock}">0</span>
+                                    <span th:if="${book.stock == 0}" class="text-danger-main text-sm">
+                      <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+                    </span>
+                                    <span th:if="${book.stock > 0 and book.stock < 10}"
+                                          class="text-warning-main text-sm">
+                      <iconify-icon icon="solar:danger-triangle-bold"></iconify-icon>
+                    </span>
+                                    <span th:if="${book.stock >= 10}" class="text-success-main text-sm">
+                      <iconify-icon icon="solar:check-circle-bold"></iconify-icon>
+                    </span>
+                                </div>
+                            </td>
+                            <td th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 2, 'POINT')} + ' $'">$0.00
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <a th:href="@{/admin/inventory(bookId=${book.bookId}, page=0, size=10)}"
+                                       class="w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                       title="View Stock History">
+                                        <iconify-icon icon="iconamoon:eye-light"></iconify-icon>
+                                    </a>
+                                    <a th:href="@{/admin/inventory/adjust(bookId=${book.bookId})}"
+                                       class="w-32-px h-32-px bg-info-focus text-info-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                       title="Adjust Stock">
+                                        <iconify-icon icon="lucide:edit"></iconify-icon>
+                                    </a>
+                                    <a th:href="@{/admin/books/view/{id}(id=${book.bookId})}"
+                                       class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                       title="View Book Details">
+                                        <iconify-icon icon="solar:book-bookmark-bold"></iconify-icon>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-24"
+                     th:if="${totalPages > 1}">
+                    <span>Showing <span th:text="${currentPage * pageSize + 1}">1</span> to <span
+                            th:text="${(currentPage + 1) * pageSize > totalItems ? totalItems : (currentPage + 1) * pageSize}">10</span> of <span
+                            th:text="${totalItems}">100</span> entries</span>
+                    <ul class="pagination d-flex flex-wrap align-items-center gap-2 justify-content-center">
+                        <li class="page-item" th:if="${currentPage > 0}">
+                            <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
+                               th:href="@{/admin/inventory/stock(page=${currentPage - 1}, size=${pageSize}, stockFilter=${selectedStockFilter}, categoryId=${selectedCategoryId}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}">
+                                <iconify-icon icon="ep:d-arrow-left" class="text-xl"></iconify-icon>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:if="${showFirstPage}">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
+                               th:href="@{/admin/inventory/stock(page=0, size=${pageSize}, stockFilter=${selectedStockFilter}, categoryId=${selectedCategoryId}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}">1</a>
+                        </li>
+                        <li class="page-item" th:if="${showFirstEllipsis}">
+                            <span class="page-link bg-transparent border-0">...</span>
+                        </li>
+
+                        <li class="page-item" th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                            <a class="page-link fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
+                               th:classappend="${i == currentPage ? 'bg-primary-600 text-white' : 'bg-primary-50 text-secondary-light'}"
+                               th:href="@{/admin/inventory/stock(page=${i}, size=${pageSize}, stockFilter=${selectedStockFilter}, categoryId=${selectedCategoryId}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <li class="page-item" th:if="${showLastEllipsis}">
+                            <span class="page-link bg-transparent border-0">...</span>
+                        </li>
+                        <li class="page-item" th:if="${showLastPage}">
+                            <a class="page-link bg-primary-50 text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px"
+                               th:href="@{/admin/inventory/stock(page=${totalPages - 1}, size=${pageSize}, stockFilter=${selectedStockFilter}, categoryId=${selectedCategoryId}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                               th:text="${totalPages}">10</a>
+                        </li>
+
+                        <li class="page-item" th:if="${currentPage < totalPages - 1}">
+                            <a class="page-link text-secondary-light fw-medium radius-4 border-0 px-10 py-10 d-flex align-items-center justify-content-center h-32-px w-32-px bg-base"
+                               th:href="@{/admin/inventory/stock(page=${currentPage + 1}, size=${pageSize}, stockFilter=${selectedStockFilter}, categoryId=${selectedCategoryId}, search=${search}, sortBy=${sortBy}, sortDir=${sortDir})}">
+                                <iconify-icon icon="ep:d-arrow-right" class="text-xl"></iconify-icon>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="d-footer">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-auto">
+                <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+            </div>
+            <div class="col-auto">
+                <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+            </div>
+        </div>
+    </footer>
+</main>
+
+<div th:replace="common/admin/js :: js"></div>
+
+<script>
+    function changePageSize(size) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('size', size);
+        url.searchParams.set('page', '0');
+        window.location.href = url.toString();
+    }
+</script>
+</body>
+
+</html>
+
