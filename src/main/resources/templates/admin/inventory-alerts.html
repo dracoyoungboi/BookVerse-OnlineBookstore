@@ -1,0 +1,191 @@
+<!-- meta tags and other links -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low Stock & Out of Stock - Admin | BookVerse</title>
+    <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
+    <!-- common css import -->
+    <div th:replace="common/admin/css :: css"></div>
+</head>
+
+<body>
+
+<!-- Theme Customization Structure Start -->
+<div class="body-overlay"></div>
+<button type="button"
+        class="theme-customization__button w-48-px h-48-px bg-primary-600 text-white rounded-circle d-flex justify-content-center align-items-center position-fixed end-0 bottom-0 mb-40 me-40 text-2xxl bg-hover-primary-700">
+    <i class="ri-settings-3-line animate-spin"></i>
+</button>
+<!-- Theme Customization Structure End -->
+
+<div th:replace="common/admin/sidebar :: sidebar"></div>
+
+<main class="dashboard-main">
+    <div th:replace="common/admin/header :: header"></div>
+
+    <div class="dashboard-main-body">
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+            <h6 class="fw-semibold mb-0">Low Stock & Out of Stock</h6>
+            <ul class="d-flex align-items-center gap-2">
+                <li class="fw-medium">
+                    <a th:href="@{/demo/admin}" class="d-flex align-items-center gap-1 hover-text-primary">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        Dashboard
+                    </a>
+                </li>
+                <li>-</li>
+                <li class="fw-medium">
+                    <a th:href="@{/admin/inventory}" class="d-flex align-items-center gap-1 hover-text-primary">Inventory</a>
+                </li>
+                <li>-</li>
+                <li class="fw-medium">Low Stock & Out of Stock</li>
+            </ul>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-3 mb-24">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="text-sm text-secondary-light mb-1">Out of Stock</p>
+                                <h4 class="fw-semibold mb-0 text-danger-main" th:text="${totalOutOfStock}">0</h4>
+                            </div>
+                            <div class="w-48-px h-48-px bg-danger-focus rounded-circle d-flex align-items-center justify-content-center">
+                                <iconify-icon icon="solar:close-circle-linear"
+                                              class="text-danger-main text-xl"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <p class="text-sm text-secondary-light mb-1">Low Stock (&lt;10)</p>
+                                <h4 class="fw-semibold mb-0 text-warning-main" th:text="${totalLowStock}">0</h4>
+                            </div>
+                            <div class="w-48-px h-48-px bg-warning-focus rounded-circle d-flex align-items-center justify-content-center">
+                                <iconify-icon icon="solar:danger-triangle-linear"
+                                              class="text-warning-main text-xl"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <h6 class="mb-0">Books Requiring Attention</h6>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <a th:href="@{/admin/inventory/import}" class="btn btn-sm btn-success"><i class="ri-add-line"></i>
+                        Import Stock</a>
+                    <a th:href="@{/admin/inventory/stock}" class="btn btn-sm btn-primary-600"><i class="ri-eye-line"></i>
+                        Stock Overview</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table bordered-table mb-0">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Stock</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(alertBooks)}">
+                            <td colspan="7" class="text-center py-4">
+                                <p class="text-muted mb-0">No stock alerts found. All books are in stock!</p>
+                            </td>
+                        </tr>
+                        <tr th:each="book : ${alertBooks}">
+                            <td th:text="${book.bookId}">1</td>
+                            <td>
+                                <img th:if="${book.imageUrl != null and !book.imageUrl.isEmpty()}"
+                                     th:src="${book.imageUrl}"
+                                     alt="Book image"
+                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                <span th:if="${book.imageUrl == null or book.imageUrl.isEmpty()}"
+                                      class="text-secondary-light">No image</span>
+                            </td>
+                            <td>
+                                <h6 class="text-md mb-0 fw-medium" th:text="${book.title}">Book Title</h6>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary"
+                                      th:text="${book.category != null ? book.category.name : 'N/A'}">Category</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge fw-semibold"
+                                          th:classappend="${book.stock == 0 ? 'bg-danger' : 'bg-warning'}"
+                                          th:text="${book.stock}">0</span>
+                                    <span th:if="${book.stock == 0}" class="text-danger-main text-sm">
+                                        <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+                                    </span>
+                                    <span th:if="${book.stock > 0 and book.stock < 10}" class="text-warning-main text-sm">
+                                        <iconify-icon icon="solar:danger-triangle-bold"></iconify-icon>
+                                    </span>
+                                </div>
+                            </td>
+                            <td th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 2, 'POINT')} + ' $'">$0.00</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <a th:href="@{/admin/inventory/adjust(bookId=${book.bookId})}"
+                                       class="w-32-px h-32-px bg-info-focus text-info-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                       title="Adjust Stock">
+                                        <iconify-icon icon="lucide:edit"></iconify-icon>
+                                    </a>
+                                    <a th:href="@{/admin/inventory/import(bookId=${book.bookId})}"
+                                       class="w-32-px h-32-px bg-success-focus text-success-main rounded-circle d-inline-flex align-items-center justify-content-center"
+                                       title="Import Stock">
+                                        <iconify-icon icon="ri-add-line"></iconify-icon>
+                                    </a>
+                                    <a th:href="@{/admin/books/view/{id}(id=${book.bookId})}"
+                                       class="w-32-px h-32-px bg-primary-light text-primary-600 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                       title="View Book Details">
+                                        <iconify-icon icon="iconamoon:eye-light"></iconify-icon>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="d-footer">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-auto">
+                <p class="mb-0">© 2025 by Group 7 CPL_Java07.</p>
+            </div>
+            <div class="col-auto">
+                <p class="mb-0">Made by <span class="text-primary-600">us</span></p>
+            </div>
+        </div>
+    </footer>
+</main>
+
+<div th:replace="common/admin/js :: js"></div>
+
+</body>
+
+</html>
+

@@ -74,12 +74,7 @@
                                         th:selected="${selectedBookId != null && selectedBookId == book.bookId}"
                                         th:text="${book.title + ' (Current Stock: ' + book.stock + ')'}"></option>
                             </select>
-                            <small class="form-text text-muted" id="stockInfo">
-                <span th:if="${selectedBook != null}" class="text-info-main">
-                  Selected: <strong th:text="${selectedBook.title}"></strong> - Current Stock: <strong
-                        th:text="${currentStock}"></strong>
-                </span>
-                            </small>
+                            
                         </div>
 
                         <div class="col-12 mb-3">

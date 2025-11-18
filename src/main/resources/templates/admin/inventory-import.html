@@ -65,11 +65,14 @@
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label for="bookId" class="form-label">Book <span class="text-danger">*</span></label>
-                            <select class="form-select" id="bookId" name="bookId" required>
+                            <select class="form-select" id="bookId" name="bookId" required
+                                    onchange="updateStockInfo(this.value)">
                                 <option value="">-- Select Book --</option>
                                 <option th:each="book : ${books}"
                                         th:value="${book.bookId}"
-                                        th:text="${book.title + ' (Stock: ' + book.stock + ')'}"></option>
+                                        th:data-stock="${book.stock}"
+                                        th:selected="${selectedBookId != null && selectedBookId == book.bookId}"
+                                        th:text="${book.title + ' (Current Stock: ' + book.stock + ')'}"></option>
                             </select>
                         </div>
 
@@ -127,6 +130,29 @@
 </main>
 
 <div th:replace="common/admin/js :: js"></div>
+
+<script>
+    function updateStockInfo(bookId) {
+        const select = document.getElementById('bookId');
+        const option = select.options[select.selectedIndex];
+        const stockInfo = document.getElementById('stockInfo');
+
+        if (bookId && option.dataset.stock !== undefined) {
+            const currentStock = parseInt(option.dataset.stock);
+            stockInfo.innerHTML = 'Selected: <strong>' + option.text.split(' (Current Stock:')[0] + '</strong> - Current Stock: <strong class="text-info-main">' + currentStock + '</strong>';
+        } else {
+            stockInfo.textContent = '';
+        }
+    }
+
+    // Initialize on page load if a book is pre-selected
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectedBookId = document.getElementById('bookId').value;
+        if (selectedBookId) {
+            updateStockInfo(selectedBookId);
+        }
+    });
+</script>
 </body>
 
 </html>

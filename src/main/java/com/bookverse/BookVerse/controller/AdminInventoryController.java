@@ -147,7 +147,8 @@ public class AdminInventoryController {
      * Form nhập kho
      */
     @GetMapping("/import")
-    public String showImportForm(Model model,
+    public String showImportForm(@RequestParam(required = false) Long bookId,
+                                 Model model,
                                  HttpSession session,
                                  @AuthenticationPrincipal UserDetails userDetails,
                                  Authentication authentication) {
@@ -185,6 +186,17 @@ public class AdminInventoryController {
                 .toList();
 
         model.addAttribute("books", books);
+
+        // If bookId is provided, pre-select the book and set current stock
+        if (bookId != null) {
+            Optional<Book> selectedBookOpt = bookRepository.findById(bookId);
+            if (selectedBookOpt.isPresent()) {
+                Book selectedBook = selectedBookOpt.get();
+                model.addAttribute("selectedBookId", bookId);
+                model.addAttribute("selectedBook", selectedBook);
+                model.addAttribute("currentStock", selectedBook.getStock());
+            }
+        }
 
         return "admin/inventory-import";
     }
@@ -613,6 +625,64 @@ public class AdminInventoryController {
         }
 
         return "redirect:/admin/inventory";
+    }
+
+    /**
+     * Trang Low Stock & Out of Stock - hiển thị sách có stock thấp và hết hàng
+     */
+    @GetMapping("/alerts")
+    public String stockAlerts(
+            Model model,
+            HttpSession session,
+            @AuthenticationPrincipal UserDetails userDetails,
+            Authentication authentication) {
+
+        // Check authentication
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")
+                        || authority.getAuthority().contains("ADMIN"));
+
+        if (!isAdmin) {
+            return "redirect:/demo/user";
+        }
+
+        // Set current user info
+        User currentUser = (User) session.getAttribute("currentUser");
+        if (currentUser == null && userDetails != null) {
+            Optional<User> userOpt = userRepository.findByUsernameWithRole(userDetails.getUsername());
+            if (userOpt.isPresent()) {
+                currentUser = userOpt.get();
+                session.setAttribute("currentUser", currentUser);
+            }
+        }
+
+        if (currentUser != null) {
+            model.addAttribute("username", currentUser.getUsername());
+            model.addAttribute("fullName", currentUser.getFullName());
+        }
+
+        // Get alert books
+        List<Book> outOfStockBooks = inventoryService.getOutOfStockBooks();
+        List<Book> lowStockBooks = inventoryService.getLowStockBooks();
+
+        // Combine all alert books
+        List<Book> alertBooks = new java.util.ArrayList<>();
+        alertBooks.addAll(outOfStockBooks);
+        alertBooks.addAll(lowStockBooks);
+
+        // Statistics
+        long totalOutOfStock = outOfStockBooks.size();
+        long totalLowStock = lowStockBooks.size();
+
+        model.addAttribute("alertBooks", alertBooks);
+        model.addAttribute("totalOutOfStock", totalOutOfStock);
+        model.addAttribute("totalLowStock", totalLowStock);
+
+        return "admin/inventory-alerts";
     }
 }
 

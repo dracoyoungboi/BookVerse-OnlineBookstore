@@ -236,5 +236,60 @@ public class InventoryService {
     public Optional<InventoryTransaction> getTransactionById(Long transactionId) {
         return inventoryTransactionRepository.findById(transactionId);
     }
+
+    /**
+     * Lấy danh sách sách hết hàng (stock = 0)
+     */
+    public List<Book> getOutOfStockBooks() {
+        return bookRepository.findAll().stream()
+                .filter(book -> (book.getDeleted() == null || !book.getDeleted()) && book.getStock() == 0)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Lấy danh sách sách có stock thấp (0 < stock < threshold)
+     * @param threshold Ngưỡng stock thấp (mặc định 10)
+     */
+    public List<Book> getLowStockBooks(int threshold) {
+        return bookRepository.findAll().stream()
+                .filter(book -> (book.getDeleted() == null || !book.getDeleted()) 
+                        && book.getStock() > 0 
+                        && book.getStock() < threshold)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * Lấy danh sách sách có stock thấp (mặc định threshold = 10)
+     */
+    public List<Book> getLowStockBooks() {
+        return getLowStockBooks(10);
+    }
+
+    /**
+     * Lấy tổng số sách hết hàng
+     */
+    public long getOutOfStockCount() {
+        return bookRepository.findAll().stream()
+                .filter(book -> (book.getDeleted() == null || !book.getDeleted()) && book.getStock() == 0)
+                .count();
+    }
+
+    /**
+     * Lấy tổng số sách có stock thấp
+     */
+    public long getLowStockCount(int threshold) {
+        return bookRepository.findAll().stream()
+                .filter(book -> (book.getDeleted() == null || !book.getDeleted()) 
+                        && book.getStock() > 0 
+                        && book.getStock() < threshold)
+                .count();
+    }
+
+    /**
+     * Lấy tổng số sách có stock thấp (mặc định threshold = 10)
+     */
+    public long getLowStockCount() {
+        return getLowStockCount(10);
+    }
 }
 
