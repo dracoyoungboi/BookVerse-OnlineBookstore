@@ -3,6 +3,7 @@ package com.bookverse.BookVerse.service;
 import com.bookverse.BookVerse.entity.Book;
 import com.bookverse.BookVerse.entity.Order;
 import com.bookverse.BookVerse.entity.OrderItem;
+import com.bookverse.BookVerse.entity.User;
 import com.bookverse.BookVerse.repository.BookRepository;
 import com.bookverse.BookVerse.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class OrderService {
 
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private InventoryService inventoryService;
 
     /**
      * Process payment: Change order status from pending to processing and deduct stock
@@ -67,7 +71,8 @@ public class OrderService {
             }
         }
 
-        // Deduct stock for all items
+        // Deduct stock for all items and record inventory transactions
+        User orderUser = order.getUser();
         for (OrderItem item : orderItems) {
             if (item.getBook() == null || item.getBook().getBookId() == null) {
                 continue; // Skip if book is null
@@ -84,6 +89,9 @@ public class OrderService {
             int currentStock = book.getStock();
             book.setStock(currentStock - requestedQuantity);
             bookRepository.save(book);
+            
+            // Record inventory transaction
+            inventoryService.recordOrderExport(book, requestedQuantity, orderId, orderUser);
         }
 
         // Update order status to processing
