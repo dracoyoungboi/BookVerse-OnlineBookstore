@@ -57,9 +57,12 @@
                     </div>
                 </div>
                 <div class="col-lg-9 col-md-8 col-12">
-                    <div class="my-cart" style="text-align: right; float: right;" th:if="${username != null or session.username != null}">
+                    <div class="my-cart" style="text-align: right; float: right;">
                         <ul>
-                            <li><a th:href="@{/cart}"><i class="fa fa-shopping-cart"></i>My Cart</a>
+                            <li>
+                                <a th:href="@{/cart}">
+                                    <i class="fa fa-shopping-cart"></i>My Cart
+                                </a>
                                 <span th:text="${cartItemCount != null ? cartItemCount : 0}">0</span>
                             </li>
                         </ul>
