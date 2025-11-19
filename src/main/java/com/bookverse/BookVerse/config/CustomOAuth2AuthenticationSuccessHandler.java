@@ -246,7 +246,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
                 .findFirst()
                 .orElse("");
         
-        System.out.println("[DEBUG] User role: " + role + ", redirecting to: " + (role.contains("ADMIN") ? "/demo/admin" : "/demo/user"));
+        System.out.println("[DEBUG] User role: " + role + ", redirecting to: " + (role.contains("ADMIN") ? "/demo/admin" : "/"));
         
         // Check if user is admin
         boolean isAdmin = role.contains("ADMIN");
@@ -263,7 +263,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         if (isAdmin) {
             response.sendRedirect("/demo/admin");
         } else {
-            response.sendRedirect("/demo/user");
+            response.sendRedirect("/");
         }
     }
 }

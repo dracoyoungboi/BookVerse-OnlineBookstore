@@ -46,7 +46,7 @@ public class LoginController {
             if (isAdmin) {
                 return "redirect:/demo/admin";
             } else {
-                return "redirect:/demo/user";
+                return "redirect:/";
             }
         }
         
@@ -76,7 +76,7 @@ public class LoginController {
             if (isAdmin) {
                 return "redirect:/demo/admin";
             } else {
-                return "redirect:/demo/user";
+                return "redirect:/";
             }
         }
         
@@ -148,7 +148,7 @@ public class LoginController {
             if (isAdmin) {
                 return "redirect:/demo/admin";
             } else {
-                return "redirect:/demo/user";
+                return "redirect:/";
             }
         }
         
@@ -221,7 +221,7 @@ public class LoginController {
             if (isAdmin) {
                 return "redirect:/demo/admin";
             } else {
-                return "redirect:/demo/user";
+                return "redirect:/";
             }
         }
         

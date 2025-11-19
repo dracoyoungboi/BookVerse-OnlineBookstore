@@ -102,8 +102,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             System.out.println("[DEBUG] =====> User is ADMIN - Redirecting to /demo/admin");
             response.sendRedirect("/demo/admin");
         } else {
-            System.out.println("[DEBUG] =====> User is NOT ADMIN - Redirecting to /demo/user");
-            response.sendRedirect("/demo/user");
+            System.out.println("[DEBUG] =====> User is NOT ADMIN - Redirecting to /");
+            response.sendRedirect("/");
         }
     }
 }
