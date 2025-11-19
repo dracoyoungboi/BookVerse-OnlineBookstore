@@ -84,7 +84,8 @@
                         </div>
                         <div class="checkout-form-list">
                             <label>Address <span class="required">*</span></label>
-                            <input type="text" name="address" th:value="${user.address != null ? user.address : ''}" placeholder="Enter your delivery address" required>
+                            <input type="text" name="address" th:value="${user.address != null ? user.address : ''}" placeholder="Enter your delivery address (fill the country)" required>
+                            <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">Please include the country name in your address (e.g., "123 Street, City, Vietnam" or "123 Street, City, USA")</small>
                         </div>
                         <div class="order-notes">
                             <label>Order Notes</label>

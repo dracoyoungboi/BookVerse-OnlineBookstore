@@ -146,259 +146,225 @@
             </ul>
         </div>
 
-        <div class="row gy-4">
-            <div class="col-xxl-9">
+        <div class="row gy-3">
+            <div class="col-xxl-12">
                 <div class="card radius-8 border-0">
                     <div class="row">
                         <div class="col-xxl-6 pe-xxl-0">
-                            <div class="card-body p-24">
-                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                                    <h6 class="mb-2 fw-bold text-lg">Revenue Report</h6>
+                            <div class="card-body" style="padding: 16px 20px;">
+                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
+                                    <h6 class="mb-0 fw-bold text-lg">Order Status Distribution</h6>
                                     <div class="">
-                                        <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
-                                            <option>Yearly</option>
-                                            <option>Monthly</option>
-                                            <option>Weekly</option>
-                                            <option>Today</option>
+                                        <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
+                                                onchange="window.location.href='/admin/dashboard?period=' + this.value">
+                                            <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
+                                            <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
+                                            <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
+                                            <option value="today" th:selected="${period == 'today'}">Today</option>
                                         </select>
                                     </div>
                                 </div>
-                                <ul class="d-flex flex-wrap align-items-center mt-3 gap-3">
-                                    <li class="d-flex align-items-center gap-2">
-                                        <span class="w-12-px h-12-px radius-2 bg-primary-600"></span>
-                                        <span class="text-secondary-light text-sm fw-semibold">Earning:
-                                        <span class="text-primary-light fw-bold">$500,00,000.00</span>
-                                    </span>
-                                    </li>
-                                    <li class="d-flex align-items-center gap-2">
-                                        <span class="w-12-px h-12-px radius-2 bg-yellow"></span>
-                                        <span class="text-secondary-light text-sm fw-semibold">Expense:
-                                        <span class="text-primary-light fw-bold">$20,000.00</span>
-                                    </span>
-                                    </li>
-                                </ul>
-                                <div class="mt-40">
-                                    <div id="paymentStatusChart" class="margin-16-minus"></div>
+                                <div style="margin-top: 10px;">
+                                    <div id="orderStatusPieChart" class="margin-16-minus"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xxl-6">
-                            <div class="row h-100 g-0">
-                                <div class="col-6 p-0 m-0">
-                                    <div class="card-body p-24 h-100 d-flex flex-column justify-content-center border border-top-0">
-                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
-                                            <div>
-                                            <span class="mb-12 w-44-px h-44-px text-primary-600 bg-primary-light border border-primary-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 h6 mb-12">
-                                                <iconify-icon icon="fa-solid:box-open" class="icon"></iconify-icon>  
-                                            </span>
-                                                <span class="mb-1 fw-medium text-secondary-light text-md">Total Products</span>
-                                                <h6 class="fw-semibold text-primary-light mb-1">300</h6>
-                                            </div>
-                                        </div>
-                                        <p class="text-sm mb-0">Increase by <span
-                                                class="bg-success-focus px-1 rounded-2 fw-medium text-success-main text-sm">+200</span>
-                                            this week</p>
+                            <div class="card-body" style="padding: 16px 20px;">
+                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
+                                    <h6 class="mb-0 fw-bold text-lg">Revenue by Category</h6>
+                                    <div class="">
+                                        <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
+                                                onchange="window.location.href='/admin/dashboard?period=' + this.value">
+                                            <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
+                                            <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
+                                            <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
+                                            <option value="today" th:selected="${period == 'today'}">Today</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="col-6 p-0 m-0">
-                                    <div class="card-body p-24 h-100 d-flex flex-column justify-content-center border border-top-0 border-start-0 border-end-0">
-                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
-                                            <div>
-                                            <span class="mb-12 w-44-px h-44-px text-yellow bg-yellow-light border border-yellow-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 h6 mb-12">
-                                                <iconify-icon icon="flowbite:users-group-solid"
-                                                              class="icon"></iconify-icon>
-                                            </span>
-                                                <span class="mb-1 fw-medium text-secondary-light text-md">Total Customer</span>
-                                                <h6 class="fw-semibold text-primary-light mb-1">50,000</h6>
-                                            </div>
-                                        </div>
-                                        <p class="text-sm mb-0">Increase by <span
-                                                class="bg-danger-focus px-1 rounded-2 fw-medium text-danger-main text-sm">-5k</span>
-                                            this week</p>
+                                <div style="margin-top: 10px;">
+                                    <div id="revenueByCategoryPieChart" class="margin-16-minus"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-12">
+                <div class="card radius-8 border-0">
+                    <div class="row h-100 g-0">
+                        <div class="col-6 p-0 m-0">
+                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0" style="padding: 12px 16px;">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-1">
+                                    <div>
+                                        <span class="w-36-px h-36-px text-primary-600 bg-primary-light border border-primary-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-1" style="display: inline-flex; margin-bottom: 6px; width: 36px; height: 36px;">
+                                            <iconify-icon icon="fa-solid:box-open" class="icon" style="font-size: 18px;"></iconify-icon>  
+                                        </span>
+                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 12px;">Total Products</span>
+                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 16px;" th:text="${totalProducts}">0</h6>
                                     </div>
                                 </div>
-                                <div class="col-6 p-0 m-0">
-                                    <div class="card-body p-24 h-100 d-flex flex-column justify-content-center border border-top-0 border-bottom-0">
-                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
-                                            <div>
-                                            <span class="mb-12 w-44-px h-44-px text-lilac bg-lilac-light border border-lilac-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 h6 mb-12">
-                                                <iconify-icon icon="majesticons:shopping-cart"
-                                                              class="icon"></iconify-icon>
-                                            </span>
-                                                <span class="mb-1 fw-medium text-secondary-light text-md">Total Orders</span>
-                                                <h6 class="fw-semibold text-primary-light mb-1">1500</h6>
-                                            </div>
-                                        </div>
-                                        <p class="text-sm mb-0">Increase by <span
-                                                class="bg-success-focus px-1 rounded-2 fw-medium text-success-main text-sm">+1k</span>
-                                            this week</p>
+                                <p class="text-sm mb-0" style="font-size: 11px; margin-top: 4px;">Increase by <span
+                                        th:classappend="${productChange >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
+                                        class="px-1 rounded-2 fw-medium"
+                                        style="font-size: 11px;"
+                                        th:text="|${productChange >= 0 ? '+' : ''}${productChange}|">+0</span>
+                                    this week</p>
+                            </div>
+                        </div>
+                        <div class="col-6 p-0 m-0">
+                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-start-0 border-end-0" style="padding: 12px 16px;">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-1">
+                                    <div>
+                                        <span class="w-36-px h-36-px text-yellow bg-yellow-light border border-yellow-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-1" style="display: inline-flex; margin-bottom: 6px; width: 36px; height: 36px;">
+                                            <iconify-icon icon="flowbite:users-group-solid" class="icon" style="font-size: 18px;"></iconify-icon>
+                                        </span>
+                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 12px;">Total Customer</span>
+                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 16px;" th:text="${totalCustomers}">0</h6>
                                     </div>
                                 </div>
-                                <div class="col-6 p-0 m-0">
-                                    <div class="card-body p-24 h-100 d-flex flex-column justify-content-center border border-top-0 border-start-0 border-end-0 border-bottom-0">
-                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-8">
-                                            <div>
-                                            <span class="mb-12 w-44-px h-44-px text-pink bg-pink-light border border-pink-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 h6 mb-12">
-                                                <iconify-icon icon="ri:discount-percent-fill"
-                                                              class="icon"></iconify-icon>
-                                            </span>
-                                                <span class="mb-1 fw-medium text-secondary-light text-md">Total Sales</span>
-                                                <h6 class="fw-semibold text-primary-light mb-1">$25,00,000.00</h6>
-                                            </div>
-                                        </div>
-                                        <p class="text-sm mb-0">Increase by <span
-                                                class="bg-success-focus px-1 rounded-2 fw-medium text-success-main text-sm">+$10k</span>
-                                            this week</p>
+                                <p class="text-sm mb-0" style="font-size: 11px; margin-top: 4px;">Increase by <span
+                                        th:classappend="${customerChange >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
+                                        class="px-1 rounded-2 fw-medium"
+                                        style="font-size: 11px;"
+                                        th:text="|${customerChange >= 0 ? '+' : ''}${customerChange}|">+0</span>
+                                    this week</p>
+                            </div>
+                        </div>
+                        <div class="col-6 p-0 m-0">
+                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-bottom-0" style="padding: 12px 16px;">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-1">
+                                    <div>
+                                        <span class="w-36-px h-36-px text-lilac bg-lilac-light border border-lilac-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-1" style="display: inline-flex; margin-bottom: 6px; width: 36px; height: 36px;">
+                                            <iconify-icon icon="majesticons:shopping-cart" class="icon" style="font-size: 18px;"></iconify-icon>
+                                        </span>
+                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 12px;">Total Orders</span>
+                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 16px;" th:text="${totalOrders}">0</h6>
                                     </div>
                                 </div>
+                                <p class="text-sm mb-0" style="font-size: 11px; margin-top: 4px;">Increase by <span
+                                        th:classappend="${orderChange >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
+                                        class="px-1 rounded-2 fw-medium"
+                                        style="font-size: 11px;"
+                                        th:text="|${orderChange >= 0 ? '+' : ''}${orderChange}|">+0</span>
+                                    this week</p>
+                            </div>
+                        </div>
+                        <div class="col-6 p-0 m-0">
+                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-start-0 border-end-0 border-bottom-0" style="padding: 12px 16px;">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-1">
+                                    <div>
+                                        <span class="w-36-px h-36-px text-pink bg-pink-light border border-pink-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-1" style="display: inline-flex; margin-bottom: 6px; width: 36px; height: 36px;">
+                                            <iconify-icon icon="ri:discount-percent-fill" class="icon" style="font-size: 18px;"></iconify-icon>
+                                        </span>
+                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 12px;">Total Sales</span>
+                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 16px;" th:text="${#numbers.formatDecimal(totalSales, 0, 'COMMA', 2, 'POINT')}">$0.00</h6>
+                                    </div>
+                                </div>
+                                <p class="text-sm mb-0" style="font-size: 11px; margin-top: 4px;">Increase by <span
+                                        th:classappend="${periodStats.salesChangePercent >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
+                                        class="px-1 rounded-2 fw-medium"
+                                        style="font-size: 11px;"
+                                        th:text="|${periodStats.salesChangePercent >= 0 ? '+' : ''}${#numbers.formatDecimal(periodStats.salesChangePercent, 1, 'POINT', 1, 'POINT')}%|">+0%</span>
+                                    this period</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-xxl-3 col-lg-6">
-                <div class="card h-100 radius-8 border-0">
-                    <div class="card-body p-24">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                            <h6 class="mb-2 fw-bold text-lg">Customers Statistics</h6>
-                            <div class="">
-                                <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
-                                    <option>Yearly</option>
-                                    <option>Monthly</option>
-                                    <option>Weekly</option>
-                                    <option>Today</option>
+                <div class="card radius-8 border-0">
+                    <div class="card-body" style="padding: 14px 18px;">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="flex-grow-1">
+                                <span class="w-36-px h-36-px text-success bg-success-light border border-success-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-1" style="display: inline-flex; margin-bottom: 6px; width: 36px; height: 36px;">
+                                    <iconify-icon icon="solar:dollar-minimalistic-bold" class="icon" style="font-size: 18px;"></iconify-icon>
+                                </span>
+                                <span class="d-block mb-1 fw-medium text-secondary-light" style="font-size: 12px;">Revenue</span>
+                                <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 16px;" id="revenueAmount" th:text="${#numbers.formatDecimal(revenueData.revenue, 0, 'COMMA', 2, 'POINT')}">$0.00</h6>
+                            </div>
+                            <div>
+                                <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
+                                        id="revenuePeriod" style="font-size: 11px; padding: 4px 8px; min-width: 80px;"
+                                        th:data-period="${period}"
+                                        onchange="var period = this.getAttribute('data-period'); window.location.href='/admin/dashboard?period=' + period + '&revenuePeriod=' + this.value;">
+                                    <option value="today" th:selected="${revenuePeriod == 'today'}">Today</option>
+                                    <option value="monthly" th:selected="${revenuePeriod == 'monthly'}">Monthly</option>
+                                    <option value="yearly" th:selected="${revenuePeriod == 'yearly'}">Yearly</option>
                                 </select>
                             </div>
                         </div>
-
-                        <div class="position-relative">
-                            <span class="w-80-px h-80-px bg-base shadow text-primary-light fw-semibold text-xl d-flex justify-content-center align-items-center rounded-circle position-absolute end-0 top-0 z-1">+30%</span>
-                            <div id="statisticsDonutChart"
-                                 class="mt-36 flex-grow-1 apexcharts-tooltip-z-none title-style circle-none"></div>
-                            <span class="w-80-px h-80-px bg-base shadow text-primary-light fw-semibold text-xl d-flex justify-content-center align-items-center rounded-circle position-absolute start-0 bottom-0 z-1">+25%</span>
-                        </div>
-
-                        <ul class="d-flex flex-wrap align-items-center justify-content-between mt-3 gap-3">
-                            <li class="d-flex align-items-center gap-2">
-                                <span class="w-12-px h-12-px radius-2 bg-primary-600"></span>
-                                <span class="text-secondary-light text-sm fw-normal">Male:
-                                <span class="text-primary-light fw-bold">20,000</span>
-                            </span>
-                            </li>
-                            <li class="d-flex align-items-center gap-2">
-                                <span class="w-12-px h-12-px radius-2 bg-yellow"></span>
-                                <span class="text-secondary-light text-sm fw-normal">Female:
-                                <span class="text-primary-light fw-bold">25,000</span>
-                            </span>
-                            </li>
-                        </ul>
-
+                        <p class="text-sm mb-0" style="font-size: 11px; margin-top: 4px;" id="revenueLabel" th:text="${revenueData.label}">Current month total</p>
                     </div>
                 </div>
             </div>
             <div class="col-xxl-9 col-lg-6">
                 <div class="card h-100">
-                    <div class="card-body p-24">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
-                            <h6 class="mb-2 fw-bold text-lg mb-0">Recent Orders</h6>
-                            <a href="javascript:void(0)"
-                               class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                    <div class="card-body" style="padding: 14px 18px;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-2">
+                            <h6 class="mb-0 fw-bold" style="font-size: 16px;">Recent Orders</h6>
+                            <a th:href="@{/admin/orders(page=0, size=6, sortBy='userId', sortDir='asc')}"
+                               class="text-primary-600 hover-text-primary d-flex align-items-center gap-1" style="font-size: 12px;">
                                 View All
                                 <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
                             </a>
                         </div>
+                        <div class="mb-2" style="margin-top: 8px;">
+                            <div id="monthlyOrdersChart" style="height: 220px;"></div>
+                        </div>
                         <div class="table-responsive scroll-sm">
-                            <table class="table bordered-table mb-0">
+                            <table class="table bordered-table mb-0" style="font-size: 13px;">
                                 <thead>
                                 <tr>
-                                    <th scope="col">Users</th>
-                                    <th scope="col">Invoice</th>
-                                    <th scope="col">Items</th>
-                                    <th scope="col">Qty</th>
-                                    <th scope="col">Amount</th>
-                                    <th scope="col" class="text-center">Status</th>
+                                    <th scope="col" style="padding: 10px 8px;">Users</th>
+                                    <th scope="col" style="padding: 10px 8px;">Invoice</th>
+                                    <th scope="col" style="padding: 10px 8px;">Items</th>
+                                    <th scope="col" style="padding: 10px 8px;">Qty</th>
+                                    <th scope="col" style="padding: 10px 8px;">Amount</th>
+                                    <th scope="col" class="text-center" style="padding: 10px 8px;">Status</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <td>
+                                <tr th:each="order : ${recentOrders}">
+                                    <td style="padding: 10px 8px;">
                                         <div class="d-flex align-items-center">
-                                            <img src="assets/images/users/user1.png" alt="Image"
-                                                 class="flex-shrink-0 me-12 radius-8">
-                                            <span class="text-lg text-secondary-light fw-semibold flex-grow-1">Dianne Russell</span>
+                                            <span class="text-secondary-light fw-semibold flex-grow-1" style="font-size: 13px;" th:text="${order.user != null ? (order.user.fullName != null ? order.user.fullName : order.user.username) : 'Guest'}">User</span>
                                         </div>
                                     </td>
-                                    <td>#6352148</td>
-                                    <td>iPhone 14 max</td>
-                                    <td>2</td>
-                                    <td>$5,000.00</td>
-                                    <td class="text-center"><span
-                                            class="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">Paid</span>
+                                    <td style="padding: 10px 8px;" th:text="|#${order.orderId}|">#0</td>
+                                    <td style="padding: 10px 8px;">
+                                        <span th:if="${order.orderItems != null and !order.orderItems.isEmpty()}" 
+                                              th:text="${order.orderItems.size() == 1 ? order.orderItems[0].book.title : (order.orderItems.size() + ' items')}">Items</span>
+                                        <span th:if="${order.orderItems == null or order.orderItems.isEmpty()}">No items</span>
+                                    </td>
+                                    <td style="padding: 10px 8px;">
+                                        <span th:if="${order.orderItems != null and !order.orderItems.isEmpty()}">
+                                            <span th:each="item, iterStat : ${order.orderItems}" th:if="${iterStat.first}">
+                                                <span th:text="${#aggregates.sum(order.orderItems.![quantity])}">0</span>
+                                            </span>
+                                        </span>
+                                        <span th:if="${order.orderItems == null or order.orderItems.isEmpty()}">0</span>
+                                    </td>
+                                    <td style="padding: 10px 8px;" th:text="${#numbers.formatDecimal(order.totalAmount != null ? order.totalAmount : 0, 0, 'COMMA', 2, 'POINT')}">$0.00</td>
+                                    <td class="text-center" style="padding: 10px 8px;">
+                                        <span th:if="${order.status != null and order.status.toLowerCase() == 'pending'}"
+                                              class="bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm">Pending</span>
+                                        <span th:if="${order.status != null and order.status.toLowerCase() == 'processing'}"
+                                              class="bg-info-focus text-info-main px-24 py-4 rounded-pill fw-medium text-sm">Processing</span>
+                                        <span th:if="${order.status != null and order.status.toLowerCase() == 'shipped'}"
+                                              class="bg-info-focus text-info-main px-24 py-4 rounded-pill fw-medium text-sm">Shipped</span>
+                                        <span th:if="${order.status != null and order.status.toLowerCase() == 'delivered'}"
+                                              class="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">Delivered</span>
+                                        <span th:if="${order.status != null and order.status.toLowerCase() == 'cancelled'}"
+                                              class="bg-danger-focus text-danger-main px-24 py-4 rounded-pill fw-medium text-sm">Cancelled</span>
+                                        <span th:if="${order.status == null or (order.status != null and order.status.toLowerCase() != 'pending' and order.status.toLowerCase() != 'processing' and order.status.toLowerCase() != 'shipped' and order.status.toLowerCase() != 'delivered' and order.status.toLowerCase() != 'cancelled')}"
+                                              class="bg-secondary-focus text-secondary-main px-24 py-4 rounded-pill fw-medium text-sm"
+                                              th:text="${order.status != null ? order.status : 'Unknown'}">Unknown</span>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="assets/images/users/user2.png" alt="Image"
-                                                 class="flex-shrink-0 me-12 radius-8">
-                                            <span class="text-lg text-secondary-light fw-semibold flex-grow-1">Wade Warren</span>
-                                        </div>
-                                    </td>
-                                    <td>#6352148</td>
-                                    <td>Laptop HPH</td>
-                                    <td>3</td>
-                                    <td>$1,000.00</td>
-                                    <td class="text-center"><span
-                                            class="bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm">Pending</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="assets/images/users/user3.png" alt="Image"
-                                                 class="flex-shrink-0 me-12 radius-8">
-                                            <span class="text-lg text-secondary-light fw-semibold flex-grow-1">Albert Flores</span>
-                                        </div>
-                                    </td>
-                                    <td>#6352148</td>
-                                    <td>Smart Watch</td>
-                                    <td>7</td>
-                                    <td>$1,000.00</td>
-                                    <td class="text-center"><span
-                                            class="bg-info-focus text-info-main px-24 py-4 rounded-pill fw-medium text-sm">Shipped</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="assets/images/users/user4.png" alt="Image"
-                                                 class="flex-shrink-0 me-12 radius-8">
-                                            <span class="text-lg text-secondary-light fw-semibold flex-grow-1">Bessie Cooper</span>
-                                        </div>
-                                    </td>
-                                    <td>#6352148</td>
-                                    <td>Nike Air Shoe</td>
-                                    <td>1</td>
-                                    <td>$3,000.00</td>
-                                    <td class="text-center"><span
-                                            class="bg-danger-focus text-danger-main px-24 py-4 rounded-pill fw-medium text-sm">Canceled</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="assets/images/users/user5.png" alt="Image"
-                                                 class="flex-shrink-0 me-12 radius-8">
-                                            <span class="text-lg text-secondary-light fw-semibold flex-grow-1">Arlene McCoy</span>
-                                        </div>
-                                    </td>
-                                    <td>#6352148</td>
-                                    <td>New Headphone</td>
-                                    <td>5</td>
-                                    <td>$4,000.00</td>
-                                    <td class="text-center"><span
-                                            class="bg-danger-focus text-danger-main px-24 py-4 rounded-pill fw-medium text-sm">Canceled</span>
-                                    </td>
+                                <tr th:if="${recentOrders == null or recentOrders.isEmpty()}">
+                                    <td colspan="6" class="text-center text-secondary-light">No recent orders</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -408,428 +374,140 @@
             </div>
             <div class="col-xxl-3">
                 <div class="card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                            <h6 class="mb-2 fw-bold text-lg">Transactions</h6>
-                            <div class="">
-                                <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
-                                    <option>This Month</option>
-                                    <option>Last Month</option>
-                                </select>
-                            </div>
+                    <div class="card-body" style="padding: 16px 20px;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
+                            <h6 class="mb-0 fw-bold text-lg">Transactions</h6>
+                            <span class="text-sm text-secondary-light">Processing Orders</span>
                         </div>
 
-                        <div class="mt-32">
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-32">
+                        <div style="margin-top: 12px;">
+                            <div class="d-flex align-items-center justify-content-between gap-2 mb-3" th:each="order : ${processingOrders}" style="padding: 8px 0;">
                                 <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/payment/payment1.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
+                                    <div class="w-40-px h-40-px radius-8 flex-shrink-0 bg-primary-light d-flex align-items-center justify-content-center">
+                                        <iconify-icon icon="solar:document-text-linear" class="text-primary-600"></iconify-icon>
+                                    </div>
                                     <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">Paytm</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">Starbucks</span>
+                                        <h6 class="text-md mb-0 fw-normal" th:text="${order.user != null ? (order.user.fullName != null ? order.user.fullName : order.user.username) : 'Guest'}">Customer</h6>
+                                        <span class="text-sm text-secondary-light fw-normal" th:text="|Order #${order.orderId}|">Order #0</span>
                                     </div>
                                 </div>
-                                <span class="text-danger text-md fw-medium">-$20</span>
+                                <span class="text-success-main text-md fw-medium" 
+                                      th:text="${#numbers.formatDecimal(order.totalAmount != null ? order.totalAmount : 0, 0, 'COMMA', 2, 'POINT')}">$0.00</span>
                             </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-32">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/payment/payment2.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">PayPal</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">Client Payment</span>
-                                    </div>
-                                </div>
-                                <span class="text-success-main text-md fw-medium">+$800</span>
+                            <div th:if="${processingOrders == null or processingOrders.isEmpty()}" class="text-center text-secondary-light py-4">
+                                No processing orders
                             </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-32">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/payment/payment3.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">Stripe</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">Ordered iPhone 14</span>
-                                    </div>
-                                </div>
-                                <span class="text-danger-main text-md fw-medium">-$300</span>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-32">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/payment/payment4.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">Razorpay</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">Refund</span>
-                                    </div>
-                                </div>
-                                <span class="text-success-main text-md fw-medium">+$500</span>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-32">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/payment/payment1.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">Paytm</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">Starbucks</span>
-                                    </div>
-                                </div>
-                                <span class="text-danger-main text-md fw-medium">-$1500</span>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/payment/payment3.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">Stripe</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">Ordered iPhone 14</span>
-                                    </div>
-                                </div>
-                                <span class="text-success-main text-md fw-medium">+$800</span>
-                            </div>
-
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-4">
-                <div class="card h-100 radius-8 border">
-                    <div class="card-body p-24">
-                        <h6 class="mb-12 fw-bold text-lg mb-0">Recent Orders</h6>
-                        <div class="d-flex align-items-center gap-2">
-                            <h6 class="fw-semibold mb-0">$27,200</h6>
-                            <p class="text-sm mb-0">
-                            <span class="bg-success-focus border border-success px-8 py-2 rounded-pill fw-semibold text-success-main text-sm d-inline-flex align-items-center gap-1">
-                                10%
-                                <iconify-icon icon="iconamoon:arrow-up-2-fill" class="icon"></iconify-icon>  
-                            </span>
-                                Increases
-                            </p>
-                        </div>
-                        <div id="recent-orders" class="mt-28"></div>
                     </div>
                 </div>
             </div>
             <div class="col-xxl-4 col-lg-6">
                 <div class="card radius-8 border-0">
 
-                    <div class="card-body">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                            <h6 class="mb-2 fw-bold text-lg">Distribution Maps</h6>
+                    <div class="card-body" style="padding: 16px 20px;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
+                            <h6 class="mb-0 fw-bold text-lg">Distribution Maps</h6>
                             <div class="">
-                                <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8">
-                                    <option>Yearly</option>
-                                    <option>Monthly</option>
-                                    <option>Weekly</option>
-                                    <option>Today</option>
+                                <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
+                                        onchange="window.location.href='/admin/dashboard?period=' + this.value">
+                                    <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
+                                    <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
+                                    <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
+                                    <option value="today" th:selected="${period == 'today'}">Today</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
-                    <div id="world-map"></div>
+                    <div id="world-map" style="height: 300px;"></div>
 
-                    <div class="card-body p-24 max-h-266-px scroll-sm overflow-y-auto">
-                        <div class="">
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-12 pb-2">
+                    <div class="card-body" style="padding: 16px 20px; max-height: 250px; overflow-y: auto;">
+                        <div th:if="${countryDistribution != null and countryDistribution.sortedCountries != null}">
+                            <div class="d-flex align-items-center justify-content-between gap-2 mb-2 pb-2" 
+                                 th:each="country : ${countryDistribution.sortedCountries}" 
+                                 style="padding: 6px 0;">
                                 <div class="d-flex align-items-center w-100">
-                                    <img src="assets/images/flags/flag1.png" alt="Image"
-                                         class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12">
+                                    <div class="w-32-px h-32-px rounded-circle flex-shrink-0 me-2 d-flex align-items-center justify-content-center" 
+                                         style="width: 32px; height: 32px; background: #f3f4f6; border: 1px solid #e5e7eb; font-size: 18px;">
+                                        <span th:text="${country.flag != null ? country.flag : country.code}">🇺🇸</span>
+                                    </div>
                                     <div class="flex-grow-1">
-                                        <h6 class="text-sm mb-0">USA</h6>
-                                        <span class="text-xs text-secondary-light fw-medium">1,240 Users</span>
+                                        <h6 class="mb-0" style="font-size: 13px;" th:text="${country.name}">Country</h6>
+                                        <span class="text-secondary-light fw-medium" style="font-size: 11px;" 
+                                              th:text="|${country.count} Orders|">0 Orders</span>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 w-100">
-                                    <div class="w-100 max-w-66 ms-auto">
+                                    <div class="w-100 max-w-80 ms-auto">
                                         <div class="progress progress-sm rounded-pill" role="progressbar"
-                                             aria-label="Success example" aria-valuenow="25" aria-valuemin="0"
-                                             aria-valuemax="100">
+                                             th:attr="aria-valuenow=${country.percentage != null ? country.percentage.intValue() : 0}"
+                                             aria-valuemin="0" aria-valuemax="100">
                                             <div class="progress-bar bg-primary-600 rounded-pill"
-                                                 style="width: 80%;"></div>
+                                                 th:style="|width: ${country.percentage != null ? country.percentage : 0}%;|"></div>
                                         </div>
                                     </div>
-                                    <span class="text-secondary-light font-xs fw-semibold">80%</span>
+                                    <span class="text-secondary-light fw-semibold" style="font-size: 11px; min-width: 35px;"
+                                          th:text="|${#numbers.formatDecimal(country.percentage != null ? country.percentage : 0, 1, 'POINT', 1, 'POINT')}%|">0%</span>
                                 </div>
                             </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-12 pb-2">
-                                <div class="d-flex align-items-center w-100">
-                                    <img src="assets/images/flags/flag2.png" alt="Image"
-                                         class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-sm mb-0">Japan</h6>
-                                        <span class="text-xs text-secondary-light fw-medium">1,240 Users</span>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center gap-2 w-100">
-                                    <div class="w-100 max-w-66 ms-auto">
-                                        <div class="progress progress-sm rounded-pill" role="progressbar"
-                                             aria-label="Success example" aria-valuenow="25" aria-valuemin="0"
-                                             aria-valuemax="100">
-                                            <div class="progress-bar bg-orange rounded-pill" style="width: 60%;"></div>
-                                        </div>
-                                    </div>
-                                    <span class="text-secondary-light font-xs fw-semibold">60%</span>
-                                </div>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-12 pb-2">
-                                <div class="d-flex align-items-center w-100">
-                                    <img src="assets/images/flags/flag3.png" alt="Image"
-                                         class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-sm mb-0">France</h6>
-                                        <span class="text-xs text-secondary-light fw-medium">1,240 Users</span>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center gap-2 w-100">
-                                    <div class="w-100 max-w-66 ms-auto">
-                                        <div class="progress progress-sm rounded-pill" role="progressbar"
-                                             aria-label="Success example" aria-valuenow="25" aria-valuemin="0"
-                                             aria-valuemax="100">
-                                            <div class="progress-bar bg-yellow rounded-pill" style="width: 49%;"></div>
-                                        </div>
-                                    </div>
-                                    <span class="text-secondary-light font-xs fw-semibold">49%</span>
-                                </div>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3">
-                                <div class="d-flex align-items-center w-100">
-                                    <img src="assets/images/flags/flag4.png" alt="Image"
-                                         class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-sm mb-0">Germany</h6>
-                                        <span class="text-xs text-secondary-light fw-medium">1,240 Users</span>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center gap-2 w-100">
-                                    <div class="w-100 max-w-66 ms-auto">
-                                        <div class="progress progress-sm rounded-pill" role="progressbar"
-                                             aria-label="Success example" aria-valuenow="25" aria-valuemin="0"
-                                             aria-valuemax="100">
-                                            <div class="progress-bar bg-success-main rounded-pill"
-                                                 style="width: 100%;"></div>
-                                        </div>
-                                    </div>
-                                    <span class="text-secondary-light font-xs fw-semibold">100%</span>
-                                </div>
-                            </div>
-
                         </div>
-
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-4 col-lg-6">
-                <div class="card h-100">
-
-                    <div class="card-body">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
-                            <h6 class="mb-2 fw-bold text-lg mb-0">Top Customers</h6>
-                            <a href="javascript:void(0)"
-                               class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
-                                View All
-                                <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
-                            </a>
-                        </div>
-
-                        <div class="mt-32">
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-32">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/users/user6.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">Dianne Russell</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">017******58</span>
-                                    </div>
-                                </div>
-                                <span class="text-primary-light text-md fw-medium">Orders: 30</span>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-32">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/users/user1.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">Wade Warren</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">017******58</span>
-                                    </div>
-                                </div>
-                                <span class="text-primary-light text-md fw-medium">Orders: 30</span>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-32">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/users/user2.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">Albert Flores</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">017******58</span>
-                                    </div>
-                                </div>
-                                <span class="text-primary-light text-md fw-medium">Orders: 35</span>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-32">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/users/user3.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">Bessie Cooper</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">017******58</span>
-                                    </div>
-                                </div>
-                                <span class="text-primary-light text-md fw-medium">Orders: 20</span>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3 mb-32">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/users/user4.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">Arlene McCoy</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">017******58</span>
-                                    </div>
-                                </div>
-                                <span class="text-primary-light text-md fw-medium">Orders: 25</span>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between gap-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="assets/images/users/user6.png" alt="Image"
-                                         class="w-40-px h-40-px radius-8 flex-shrink-0">
-                                    <div class="flex-grow-1">
-                                        <h6 class="text-md mb-0 fw-normal">John Doe</h6>
-                                        <span class="text-sm text-secondary-light fw-normal">017******58</span>
-                                    </div>
-                                </div>
-                                <span class="text-primary-light text-md fw-medium">Orders: 32</span>
-                            </div>
-
+                        <div th:if="${countryDistribution == null or countryDistribution.sortedCountries == null or countryDistribution.sortedCountries.isEmpty()}" class="text-center text-secondary-light py-4">
+                            No country data available
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-xxl-6">
                 <div class="card h-100">
-                    <div class="card-body p-24">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
-                            <h6 class="mb-2 fw-bold text-lg mb-0">Top Selling Product</h6>
-                            <a href="javascript:void(0)"
+                    <div class="card-body" style="padding: 16px 20px;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
+                            <h6 class="mb-0 fw-bold text-lg">Top Selling Product</h6>
+                            <a th:href="@{/admin/books(page=0, size=6, sortBy='bookId', sortDir='asc')}"
                                class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
                                 View All
                                 <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
                             </a>
                         </div>
                         <div class="table-responsive scroll-sm">
-                            <table class="table bordered-table mb-0">
+                            <table class="table bordered-table mb-0" style="font-size: 13px;">
                                 <thead>
                                 <tr>
-                                    <th scope="col">Items</th>
-                                    <th scope="col">Price</th>
-                                    <th scope="col">Discount</th>
-                                    <th scope="col">Sold</th>
-                                    <th scope="col" class="text-center">Total Orders</th>
+                                    <th scope="col" style="padding: 10px 8px;">Items</th>
+                                    <th scope="col" style="padding: 10px 8px;">Price</th>
+                                    <th scope="col" style="padding: 10px 8px;">Discount</th>
+                                    <th scope="col" style="padding: 10px 8px;">Sold</th>
+                                    <th scope="col" class="text-center" style="padding: 10px 8px;">Total Orders</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <td>
+                                <tr th:each="product : ${topSellingProducts}">
+                                    <td style="padding: 10px 8px;">
                                         <div class="d-flex align-items-center">
-                                            <img src="assets/images/product/product-img1.png" alt="Image"
-                                                 class="flex-shrink-0 me-12 radius-8 me-12">
+                                            <img th:if="${product.book.imageUrl != null}" 
+                                                 th:src="${product.book.imageUrl}" 
+                                                 alt="Book Image"
+                                                 class="flex-shrink-0 me-2 radius-8 w-40-px h-40-px object-fit-cover">
                                             <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-normal">Blue t-shirt</h6>
-                                                <span class="text-sm text-secondary-light fw-normal">Fashion</span>
+                                                <h6 class="mb-0 fw-bold" style="font-size: 10px;" th:text="${product.book.title}">Book Title</h6>
+                                                <span class="text-secondary-light fw-normal" style="font-size: 11px;" 
+                                                      th:text="${product.book.category != null ? product.book.category.name : 'Uncategorized'}">Category</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>$500.00</td>
-                                    <td>15%</td>
-                                    <td>300</td>
-                                    <td class="text-center">
-                                        <span class="bg-success-focus text-success-main px-32 py-4 rounded-pill fw-medium text-sm">70</span>
+                                    <td style="padding: 10px 8px;" th:text="${#numbers.formatDecimal(product.book.price != null ? product.book.price : 0, 0, 'COMMA', 2, 'POINT')}">$0.00</td>
+                                    <td style="padding: 10px 8px;">
+                                        <span th:if="${product.book.discountPercent != null and product.book.discountPercent > 0}" 
+                                              th:text="|${#numbers.formatDecimal(product.book.discountPercent, 0, 'POINT', 0, 'POINT')}%|">0%</span>
+                                        <span th:if="${product.book.discountPercent == null or product.book.discountPercent == 0}">N/A</span>
+                                    </td>
+                                    <td style="padding: 10px 8px;" th:text="${product.totalSold}">0</td>
+                                    <td class="text-center" style="padding: 10px 8px;">
+                                        <span class="bg-success-focus text-success-main px-2 py-1 rounded-pill fw-medium" style="font-size: 12px;" 
+                                              th:text="${product.totalOrders}">0</span>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="assets/images/product/product-img2.png" alt="Image"
-                                                 class="flex-shrink-0 me-12 radius-8 me-12">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-normal">Nike Air Shoe</h6>
-                                                <span class="text-sm text-secondary-light fw-normal">Fashion</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>$150.00</td>
-                                    <td>N/A</td>
-                                    <td>200</td>
-                                    <td class="text-center">
-                                        <span class="bg-success-focus text-success-main px-32 py-4 rounded-pill fw-medium text-sm">70</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="assets/images/product/product-img3.png" alt="Image"
-                                                 class="flex-shrink-0 me-12 radius-8 me-12">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-normal">Woman Dresses</h6>
-                                                <span class="text-sm text-secondary-light fw-normal">Fashion</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>$300.00</td>
-                                    <td>$50.00</td>
-                                    <td>1500</td>
-                                    <td class="text-center">
-                                        <span class="bg-success-focus text-success-main px-32 py-4 rounded-pill fw-medium text-sm">70</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="assets/images/product/product-img4.png" alt="Image"
-                                                 class="flex-shrink-0 me-12 radius-8 me-12">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-normal">Smart Watch</h6>
-                                                <span class="text-sm text-secondary-light fw-normal">Fashion</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>$400.00</td>
-                                    <td>$50.00</td>
-                                    <td>700</td>
-                                    <td class="text-center">
-                                        <span class="bg-success-focus text-success-main px-32 py-4 rounded-pill fw-medium text-sm">70</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="assets/images/product/product-img5.png" alt="Image"
-                                                 class="flex-shrink-0 me-12 radius-8 me-12">
-                                            <div class="flex-grow-1">
-                                                <h6 class="text-md mb-0 fw-normal">Hoodie Rose</h6>
-                                                <span class="text-sm text-secondary-light fw-normal">Fashion</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>$300.00</td>
-                                    <td>25%</td>
-                                    <td>500</td>
-                                    <td class="text-center">
-                                        <span class="bg-success-focus text-success-main px-32 py-4 rounded-pill fw-medium text-sm">70</span>
-                                    </td>
+                                <tr th:if="${topSellingProducts == null or topSellingProducts.isEmpty()}">
+                                    <td colspan="5" class="text-center text-secondary-light">No products sold yet</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -839,22 +517,22 @@
             </div>
             <div class="col-xxl-6">
                 <div class="card h-100">
-                    <div class="card-body p-24">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-20">
-                            <h6 class="mb-2 fw-bold text-lg mb-0">Stock Report</h6>
-                            <a href="javascript:void(0)"
+                    <div class="card-body" style="padding: 16px 20px;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
+                            <h6 class="mb-0 fw-bold text-lg">Stock Report</h6>
+                            <a th:href="@{/admin/inventory/stock(page=0, size=10)}"
                                class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
                                 View All
                                 <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
                             </a>
                         </div>
                         <div class="table-responsive scroll-sm">
-                            <table class="table bordered-table mb-0">
+                            <table class="table bordered-table mb-0" style="font-size: 13px;">
                                 <thead>
                                 <tr>
-                                    <th scope="col">Items</th>
-                                    <th scope="col">Price</th>
-                                    <th scope="col">
+                                    <th scope="col" style="padding: 10px 8px;">Items</th>
+                                    <th scope="col" style="padding: 10px 8px;">Price</th>
+                                    <th scope="col" style="padding: 10px 8px;">
                                         <div class="max-w-112 mx-auto">
                                             <span>Stock</span>
                                         </div>
@@ -862,90 +540,33 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <td>Nike Air Shoes</td>
-                                    <td>$500.00</td>
-                                    <td>
+                                <tr th:each="book, iterStat : ${stockReport}" th:if="${iterStat.index < 5}">
+                                    <td style="padding: 10px 8px;" th:text="${book.title}">Book Title</td>
+                                    <td style="padding: 10px 8px;" th:text="${#numbers.formatDecimal(book.price != null ? book.price : 0, 0, 'COMMA', 2, 'POINT')}">$0.00</td>
+                                    <td style="padding: 10px 8px;">
                                         <div class="max-w-112 mx-auto">
                                             <div class="w-100">
                                                 <div class="progress progress-sm rounded-pill" role="progressbar"
-                                                     aria-label="Success example" aria-valuenow="25" aria-valuemin="0"
-                                                     aria-valuemax="100">
-                                                    <div class="progress-bar bg-primary-600 rounded-pill"
-                                                         style="width: 0%;"></div>
+                                                     aria-valuemin="0" aria-valuemax="100"
+                                                     th:attr="aria-valuenow=${book.stock > 100 ? 100 : book.stock}">
+                                                    <div class="progress-bar rounded-pill"
+                                                         th:classappend="${book.stock == 0} ? 'bg-primary-600' : (${book.stock < 10} ? 'bg-danger-main' : 'bg-success-main')"
+                                                         th:style="|width: ${book.stock > 100 ? 100 : book.stock}%;|"></div>
                                                 </div>
                                             </div>
-                                            <span class="mt-12 text-secondary-light text-sm fw-medium">Out of Stock</span>
+                                            <span class="text-secondary-light fw-medium" style="font-size: 12px; margin-top: 6px; display: block;"
+                                                  th:if="${book.stock == 0}">Out of Stock</span>
+                                            <span class="text-secondary-light fw-medium" style="font-size: 12px; margin-top: 6px; display: block;"
+                                                  th:if="${book.stock > 0 and book.stock < 10}"
+                                                  th:text="|${book.stock} Low Stock|">Low Stock</span>
+                                            <span class="text-secondary-light fw-medium" style="font-size: 12px; margin-top: 6px; display: block;"
+                                                  th:if="${book.stock >= 10}"
+                                                  th:text="|${book.stock} High Stock|">High Stock</span>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>Nike Air Shoes</td>
-                                    <td>$300.00</td>
-                                    <td>
-                                        <div class="max-w-112 mx-auto">
-                                            <div class="w-100">
-                                                <div class="progress progress-sm rounded-pill" role="progressbar"
-                                                     aria-label="Success example" aria-valuenow="25" aria-valuemin="0"
-                                                     aria-valuemax="100">
-                                                    <div class="progress-bar bg-danger-main rounded-pill"
-                                                         style="width: 40%;"></div>
-                                                </div>
-                                            </div>
-                                            <span class="mt-12 text-secondary-light text-sm fw-medium">18 Low Stock</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Nike Air Shoes</td>
-                                    <td>$500.00</td>
-                                    <td>
-                                        <div class="max-w-112 mx-auto">
-                                            <div class="w-100">
-                                                <div class="progress progress-sm rounded-pill" role="progressbar"
-                                                     aria-label="Success example" aria-valuenow="25" aria-valuemin="0"
-                                                     aria-valuemax="100">
-                                                    <div class="progress-bar bg-success-main rounded-pill"
-                                                         style="width: 80%;"></div>
-                                                </div>
-                                            </div>
-                                            <span class="mt-12 text-secondary-light text-sm fw-medium">80 High Stock</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Nike Air Shoes</td>
-                                    <td>$300.00</td>
-                                    <td>
-                                        <div class="max-w-112 mx-auto">
-                                            <div class="w-100">
-                                                <div class="progress progress-sm rounded-pill" role="progressbar"
-                                                     aria-label="Success example" aria-valuenow="25" aria-valuemin="0"
-                                                     aria-valuemax="100">
-                                                    <div class="progress-bar bg-success-main rounded-pill"
-                                                         style="width: 50%;"></div>
-                                                </div>
-                                            </div>
-                                            <span class="mt-12 text-secondary-light text-sm fw-medium">50 High Stock</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Nike Air Shoes</td>
-                                    <td>$150.00</td>
-                                    <td>
-                                        <div class="max-w-112 mx-auto">
-                                            <div class="w-100">
-                                                <div class="progress progress-sm rounded-pill" role="progressbar"
-                                                     aria-label="Success example" aria-valuenow="25" aria-valuemin="0"
-                                                     aria-valuemax="100">
-                                                    <div class="progress-bar bg-success-main rounded-pill"
-                                                         style="width: 70%;"></div>
-                                                </div>
-                                            </div>
-                                            <span class="mt-12 text-secondary-light text-sm fw-medium">70 High Stock</span>
-                                        </div>
-                                    </td>
+                                <tr th:if="${stockReport == null or stockReport.isEmpty()}">
+                                    <td colspan="3" class="text-center text-secondary-light">No stock data available</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -971,7 +592,245 @@
 
 <div th:replace="common/admin/js :: js"></div>
 
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    
+    // Order Status Distribution Pie Chart
+    var orderStatusData = /*[[${orderStatusDistribution}]]*/ {};
+    var orderStatusSeries = [];
+    var orderStatusLabels = [];
+    var orderStatusColors = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'];
+    
+    var colorIndex = 0;
+    for (var status in orderStatusData) {
+        if (orderStatusData.hasOwnProperty(status)) {
+            orderStatusSeries.push(orderStatusData[status]);
+            // Capitalize first letter
+            orderStatusLabels.push(status.charAt(0).toUpperCase() + status.slice(1));
+            colorIndex++;
+        }
+    }
+    
+    var orderStatusOptions = {
+        series: orderStatusSeries,
+        chart: {
+            type: 'pie',
+            height: 250
+        },
+        labels: orderStatusLabels,
+        colors: orderStatusColors,
+        legend: {
+            position: 'bottom'
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val.toFixed(1) + "%";
+            }
+        }
+    };
+    
+    var orderStatusChart = new ApexCharts(document.querySelector("#orderStatusPieChart"), orderStatusOptions);
+    orderStatusChart.render();
+    
+    // Revenue by Category Pie Chart
+    var revenueCategoryData = /*[[${revenueByCategory}]]*/ {};
+    var revenueCategorySeries = [];
+    var revenueCategoryLabels = [];
+    var revenueCategoryColors = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+    
+    var totalRevenue = 0;
+    for (var category in revenueCategoryData) {
+        if (revenueCategoryData.hasOwnProperty(category)) {
+            totalRevenue += revenueCategoryData[category];
+        }
+    }
+    
+    colorIndex = 0;
+    for (var category in revenueCategoryData) {
+        if (revenueCategoryData.hasOwnProperty(category)) {
+            revenueCategorySeries.push(revenueCategoryData[category]);
+            revenueCategoryLabels.push(category);
+            colorIndex++;
+        }
+    }
+    
+    var revenueCategoryOptions = {
+        series: revenueCategorySeries,
+        chart: {
+            type: 'pie',
+            height: 250
+        },
+        labels: revenueCategoryLabels,
+        colors: revenueCategoryColors,
+        legend: {
+            position: 'bottom'
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val.toFixed(1) + "%";
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return "$" + val.toFixed(2);
+                }
+            }
+        }
+    };
+    
+    var revenueCategoryChart = new ApexCharts(document.querySelector("#revenueByCategoryPieChart"), revenueCategoryOptions);
+    revenueCategoryChart.render();
+    
+    // World Map
+    var countryDistributionData = /*[[${countryDistribution}]]*/ {};
+    
+    if (countryDistributionData && countryDistributionData.countryData) {
+        var markers = [];
+        var regionValues = {};
+        var colors = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'];
+        var colorIndex = 0;
+        
+        for (var code in countryDistributionData.countryData) {
+            if (countryDistributionData.countryData.hasOwnProperty(code)) {
+                var country = countryDistributionData.countryData[code];
+                if (country.count > 0) {
+                    markers.push({
+                        latLng: [country.lat, country.lng],
+                        name: country.name + ' : ' + country.count + ' Orders'
+                    });
+                    regionValues[code] = colors[colorIndex % colors.length];
+                    colorIndex++;
+                }
+            }
+        }
+        
+        $('#world-map').vectorMap({
+            map: 'world_mill_en',
+            backgroundColor: 'transparent',
+            borderColor: '#fff',
+            borderOpacity: 0.25,
+            borderWidth: 0,
+            color: '#000000',
+            regionStyle: {
+                initial: {
+                    fill: '#D1D5DB'
+                }
+            },
+            markerStyle: {
+                initial: {
+                    r: 5,
+                    'fill': '#fff',
+                    'fill-opacity': 1,
+                    'stroke': '#000',
+                    'stroke-width': 1,
+                    'stroke-opacity': 0.4
+                }
+            },
+            markers: markers,
+            series: {
+                regions: [{
+                    values: regionValues,
+                    attribute: 'fill'
+                }]
+            },
+            hoverOpacity: null,
+            normalizeFunction: 'linear',
+            zoomOnScroll: false,
+            scaleColors: ['#000000', '#000000'],
+            selectedColor: '#000000',
+            selectedRegions: [],
+            enableZoom: false,
+            hoverColor: '#fff'
+        });
+    }
+    
+    // Monthly Orders Chart
+    var monthlyOrderStats = /*[[${monthlyOrderStats}]]*/ {};
+    
+    if (monthlyOrderStats && monthlyOrderStats.monthlyOrders && monthlyOrderStats.monthLabels) {
+        var monthlyOrdersData = monthlyOrderStats.monthlyOrders;
+        var monthLabelsData = monthlyOrderStats.monthLabels;
+        
+        // Sort months chronologically
+        var sortedMonths = Object.keys(monthlyOrdersData).sort();
+        var chartLabels = [];
+        var chartData = [];
+        
+        for (var i = 0; i < sortedMonths.length; i++) {
+            var monthKey = sortedMonths[i];
+            chartLabels.push(monthLabelsData[monthKey] || monthKey);
+            chartData.push(monthlyOrdersData[monthKey] || 0);
+        }
+        
+        var monthlyOrdersOptions = {
+            series: [{
+                name: 'Orders',
+                data: chartData
+            }],
+            chart: {
+                type: 'bar',
+                height: 250,
+                toolbar: {
+                    show: false
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '55%',
+                    borderRadius: 4
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
+            xaxis: {
+                categories: chartLabels,
+                labels: {
+                    rotate: -45,
+                    style: {
+                        fontSize: '11px'
+                    }
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Number of Orders'
+                }
+            },
+            fill: {
+                opacity: 1,
+                colors: ['#2563eb']
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return val + " orders";
+                    }
+                }
+            },
+            colors: ['#2563eb']
+        };
+        
+        var monthlyOrdersChart = new ApexCharts(document.querySelector("#monthlyOrdersChart"), monthlyOrdersOptions);
+        monthlyOrdersChart.render();
+    }
+    
+    /*]]>*/
+</script>
+
 </body>
 
 <!-- Mirrored from wowdash.wowtheme7.com/demo/index-3.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Nov 2025 02:07:19 GMT -->
 </html>
+
+
+

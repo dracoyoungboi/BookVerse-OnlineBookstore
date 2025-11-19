@@ -189,34 +189,8 @@ public class DemoController {
     @GetMapping("/admin")
     public String admin(Model model, HttpSession session,
                        @AuthenticationPrincipal UserDetails userDetails) {
-        // Try to get user from session first
-        User currentUser = (User) session.getAttribute("currentUser");
-        
-        // If not in session, try to get from authentication
-        if (currentUser == null && userDetails != null) {
-            Optional<User> userOpt = userRepository.findByUsernameWithRole(userDetails.getUsername());
-            if (userOpt.isPresent()) {
-                currentUser = userOpt.get();
-                // Force initialize role if lazy
-                if (currentUser.getRole() != null) {
-                    currentUser.getRole().getName(); // Force fetch
-                }
-                session.setAttribute("currentUser", currentUser);
-                session.setAttribute("username", currentUser.getUsername());
-                session.setAttribute("fullName", currentUser.getFullName());
-                if (currentUser.getRole() != null) {
-                    session.setAttribute("role", currentUser.getRole().getName());
-                }
-            }
-        }
-        
-        if (currentUser != null) {
-            model.addAttribute("currentUser", currentUser);
-            model.addAttribute("username", currentUser.getUsername());
-            model.addAttribute("fullName", currentUser.getFullName());
-        }
-        
-        return "admin/invoice-list";
+        // Redirect to dashboard
+        return "redirect:/admin/dashboard";
     }
     
     @GetMapping("/admin/my-account")
