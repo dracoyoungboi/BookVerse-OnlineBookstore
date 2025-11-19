@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wowdash - Bootstrap 5 Admin Dashboard HTML Template</title>
+    <title>Admin Dashboard</title>
     <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
     <!-- common css import -->
     <div th:replace="common/admin/css :: css"></div>
@@ -132,9 +132,9 @@
 
     <div class="dashboard-main-body">
 
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-            <h6 class="fw-semibold mb-0">Dashboard</h6>
-            <ul class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3" style="margin-bottom: 10px;">
+            <h6 class="fw-semibold mb-0" style="font-size: 18px;">Dashboard</h6>
+            <ul class="d-flex align-items-center gap-2" style="margin-bottom: 0; font-size: 13px;">
                 <li class="fw-medium">
                     <a href="index.html" class="d-flex align-items-center gap-1 hover-text-primary">
                         <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
@@ -146,147 +146,26 @@
             </ul>
         </div>
 
-        <div class="row gy-3">
+        <div class="row" style="gap: 8px 0; margin-bottom: 0;">
             <div class="col-xxl-12">
-                <div class="card radius-8 border-0">
-                    <div class="row">
-                        <div class="col-xxl-6 pe-xxl-0">
-                            <div class="card-body" style="padding: 16px 20px;">
-                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
-                                    <h6 class="mb-0 fw-bold text-lg">Order Status Distribution</h6>
-                                    <div class="">
-                                        <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
-                                                onchange="window.location.href='/admin/dashboard?period=' + this.value">
-                                            <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
-                                            <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
-                                            <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
-                                            <option value="today" th:selected="${period == 'today'}">Today</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div style="margin-top: 10px;">
-                                    <div id="orderStatusPieChart" class="margin-16-minus"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-6">
-                            <div class="card-body" style="padding: 16px 20px;">
-                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
-                                    <h6 class="mb-0 fw-bold text-lg">Revenue by Category</h6>
-                                    <div class="">
-                                        <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
-                                                onchange="window.location.href='/admin/dashboard?period=' + this.value">
-                                            <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
-                                            <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
-                                            <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
-                                            <option value="today" th:selected="${period == 'today'}">Today</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div style="margin-top: 10px;">
-                                    <div id="revenueByCategoryPieChart" class="margin-16-minus"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-12">
-                <div class="card radius-8 border-0">
-                    <div class="row h-100 g-0">
-                        <div class="col-6 p-0 m-0">
-                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0" style="padding: 12px 16px;">
-                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-1">
-                                    <div>
-                                        <span class="w-36-px h-36-px text-primary-600 bg-primary-light border border-primary-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-1" style="display: inline-flex; margin-bottom: 6px; width: 36px; height: 36px;">
-                                            <iconify-icon icon="fa-solid:box-open" class="icon" style="font-size: 18px;"></iconify-icon>  
-                                        </span>
-                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 12px;">Total Products</span>
-                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 16px;" th:text="${totalProducts}">0</h6>
-                                    </div>
-                                </div>
-                                <p class="text-sm mb-0" style="font-size: 11px; margin-top: 4px;">Increase by <span
-                                        th:classappend="${productChange >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
-                                        class="px-1 rounded-2 fw-medium"
-                                        style="font-size: 11px;"
-                                        th:text="|${productChange >= 0 ? '+' : ''}${productChange}|">+0</span>
-                                    this week</p>
-                            </div>
-                        </div>
-                        <div class="col-6 p-0 m-0">
-                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-start-0 border-end-0" style="padding: 12px 16px;">
-                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-1">
-                                    <div>
-                                        <span class="w-36-px h-36-px text-yellow bg-yellow-light border border-yellow-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-1" style="display: inline-flex; margin-bottom: 6px; width: 36px; height: 36px;">
-                                            <iconify-icon icon="flowbite:users-group-solid" class="icon" style="font-size: 18px;"></iconify-icon>
-                                        </span>
-                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 12px;">Total Customer</span>
-                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 16px;" th:text="${totalCustomers}">0</h6>
-                                    </div>
-                                </div>
-                                <p class="text-sm mb-0" style="font-size: 11px; margin-top: 4px;">Increase by <span
-                                        th:classappend="${customerChange >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
-                                        class="px-1 rounded-2 fw-medium"
-                                        style="font-size: 11px;"
-                                        th:text="|${customerChange >= 0 ? '+' : ''}${customerChange}|">+0</span>
-                                    this week</p>
-                            </div>
-                        </div>
-                        <div class="col-6 p-0 m-0">
-                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-bottom-0" style="padding: 12px 16px;">
-                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-1">
-                                    <div>
-                                        <span class="w-36-px h-36-px text-lilac bg-lilac-light border border-lilac-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-1" style="display: inline-flex; margin-bottom: 6px; width: 36px; height: 36px;">
-                                            <iconify-icon icon="majesticons:shopping-cart" class="icon" style="font-size: 18px;"></iconify-icon>
-                                        </span>
-                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 12px;">Total Orders</span>
-                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 16px;" th:text="${totalOrders}">0</h6>
-                                    </div>
-                                </div>
-                                <p class="text-sm mb-0" style="font-size: 11px; margin-top: 4px;">Increase by <span
-                                        th:classappend="${orderChange >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
-                                        class="px-1 rounded-2 fw-medium"
-                                        style="font-size: 11px;"
-                                        th:text="|${orderChange >= 0 ? '+' : ''}${orderChange}|">+0</span>
-                                    this week</p>
-                            </div>
-                        </div>
-                        <div class="col-6 p-0 m-0">
-                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-start-0 border-end-0 border-bottom-0" style="padding: 12px 16px;">
-                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-1">
-                                    <div>
-                                        <span class="w-36-px h-36-px text-pink bg-pink-light border border-pink-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-1" style="display: inline-flex; margin-bottom: 6px; width: 36px; height: 36px;">
-                                            <iconify-icon icon="ri:discount-percent-fill" class="icon" style="font-size: 18px;"></iconify-icon>
-                                        </span>
-                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 12px;">Total Sales</span>
-                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 16px;" th:text="${#numbers.formatDecimal(totalSales, 0, 'COMMA', 2, 'POINT')}">$0.00</h6>
-                                    </div>
-                                </div>
-                                <p class="text-sm mb-0" style="font-size: 11px; margin-top: 4px;">Increase by <span
-                                        th:classappend="${periodStats.salesChangePercent >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
-                                        class="px-1 rounded-2 fw-medium"
-                                        style="font-size: 11px;"
-                                        th:text="|${periodStats.salesChangePercent >= 0 ? '+' : ''}${#numbers.formatDecimal(periodStats.salesChangePercent, 1, 'POINT', 1, 'POINT')}%|">+0%</span>
-                                    this period</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-3 col-lg-6">
-                <div class="card radius-8 border-0">
-                    <div class="card-body" style="padding: 14px 18px;">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <div class="flex-grow-1">
-                                <span class="w-36-px h-36-px text-success bg-success-light border border-success-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-1" style="display: inline-flex; margin-bottom: 6px; width: 36px; height: 36px;">
+                <div class="card radius-8 border-0" style="margin-bottom: 8px;">
+                    <div class="card-body" style="padding: 10px 16px;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="w-36-px h-36-px text-success bg-success-light border border-success-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8" style="display: inline-flex; width: 36px; height: 36px;">
                                     <iconify-icon icon="solar:dollar-minimalistic-bold" class="icon" style="font-size: 18px;"></iconify-icon>
                                 </span>
-                                <span class="d-block mb-1 fw-medium text-secondary-light" style="font-size: 12px;">Revenue</span>
-                                <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 16px;" id="revenueAmount" th:text="${#numbers.formatDecimal(revenueData.revenue, 0, 'COMMA', 2, 'POINT')}">$0.00</h6>
+                                <div>
+                                    <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 12px;">Revenue</span>
+                                    <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 18px;" id="revenueAmount" th:text="|${#numbers.formatDecimal(revenueData.revenue, 0, 'COMMA', 2, 'POINT')} $|">0.00 $</h6>
+                                </div>
                             </div>
-                            <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <div>
+                                    <p class="text-sm mb-0" style="font-size: 11px; text-align: right;" id="revenueLabel" th:text="${revenueData.label}">Current month total</p>
+                                </div>
                                 <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
-                                        id="revenuePeriod" style="font-size: 11px; padding: 4px 8px; min-width: 80px;"
+                                        id="revenuePeriod" style="font-size: 11px; padding: 5px 10px; min-width: 90px;"
                                         th:data-period="${period}"
                                         onchange="var period = this.getAttribute('data-period'); window.location.href='/admin/dashboard?period=' + period + '&revenuePeriod=' + this.value;">
                                     <option value="today" th:selected="${revenuePeriod == 'today'}">Today</option>
@@ -295,23 +174,150 @@
                                 </select>
                             </div>
                         </div>
-                        <p class="text-sm mb-0" style="font-size: 11px; margin-top: 4px;" id="revenueLabel" th:text="${revenueData.label}">Current month total</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-12">
+                <div class="card radius-8 border-0" style="margin-bottom: 8px;">
+                    <div class="row">
+                        <div class="col-xxl-6 pe-xxl-0">
+                            <div class="card-body" style="padding: 14px 18px;">
+                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-2">
+                                    <h6 class="mb-0 fw-bold" style="font-size: 16px;">Order Status Distribution</h6>
+                                    <div class="">
+                                        <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
+                                                style="font-size: 11px; padding: 4px 8px;"
+                                                onchange="window.location.href='/admin/dashboard?period=' + this.value + '&revenuePeriod=' + document.getElementById('revenuePeriod').value">
+                                            <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
+                                            <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
+                                            <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
+                                            <option value="today" th:selected="${period == 'today'}">Today</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 8px;">
+                                    <div id="orderStatusPieChart" class="margin-16-minus"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xxl-6">
+                            <div class="card-body" style="padding: 14px 18px;">
+                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-2">
+                                    <h6 class="mb-0 fw-bold" style="font-size: 16px;">Revenue by Category</h6>
+                                    <div class="">
+                                        <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
+                                                style="font-size: 11px; padding: 4px 8px;"
+                                                onchange="window.location.href='/admin/dashboard?period=' + this.value + '&revenuePeriod=' + document.getElementById('revenuePeriod').value">
+                                            <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
+                                            <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
+                                            <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
+                                            <option value="today" th:selected="${period == 'today'}">Today</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 8px;">
+                                    <div id="revenueByCategoryPieChart" class="margin-16-minus"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-12">
+                <div class="card radius-8 border-0" style="margin-bottom: 8px;">
+                    <div class="row h-100 g-0">
+                        <div class="col-6 p-0 m-0">
+                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0" style="padding: 8px 12px;">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-0">
+                                    <div>
+                                        <span class="w-30-px h-30-px text-primary-600 bg-primary-light border border-primary-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-0" style="display: inline-flex; margin-bottom: 3px; width: 30px; height: 30px;">
+                                            <iconify-icon icon="fa-solid:box-open" class="icon" style="font-size: 14px;"></iconify-icon>  
+                                        </span>
+                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 10px;">Total Products</span>
+                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 14px;" th:text="${totalProducts}">0</h6>
+                                    </div>
+                                </div>
+                                <p class="text-sm mb-0" style="font-size: 9px; margin-top: 2px;">Increase by <span
+                                        th:classappend="${productChange >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
+                                        class="px-1 rounded-2 fw-medium"
+                                        style="font-size: 9px;"
+                                        th:text="|${productChange >= 0 ? '+' : ''}${productChange}|">+0</span>
+                                    this week</p>
+                            </div>
+                        </div>
+                        <div class="col-6 p-0 m-0">
+                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-start-0 border-end-0" style="padding: 8px 12px;">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-0">
+                                    <div>
+                                        <span class="w-30-px h-30-px text-yellow bg-yellow-light border border-yellow-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-0" style="display: inline-flex; margin-bottom: 3px; width: 30px; height: 30px;">
+                                            <iconify-icon icon="flowbite:users-group-solid" class="icon" style="font-size: 14px;"></iconify-icon>
+                                        </span>
+                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 10px;">Total Customer</span>
+                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 14px;" th:text="${totalCustomers}">0</h6>
+                                    </div>
+                                </div>
+                                <p class="text-sm mb-0" style="font-size: 9px; margin-top: 2px;">Increase by <span
+                                        th:classappend="${customerChange >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
+                                        class="px-1 rounded-2 fw-medium"
+                                        style="font-size: 9px;"
+                                        th:text="|${customerChange >= 0 ? '+' : ''}${customerChange}|">+0</span>
+                                    this week</p>
+                            </div>
+                        </div>
+                        <div class="col-6 p-0 m-0">
+                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-bottom-0" style="padding: 8px 12px;">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-0">
+                                    <div>
+                                        <span class="w-30-px h-30-px text-lilac bg-lilac-light border border-lilac-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-0" style="display: inline-flex; margin-bottom: 3px; width: 30px; height: 30px;">
+                                            <iconify-icon icon="majesticons:shopping-cart" class="icon" style="font-size: 14px;"></iconify-icon>
+                                        </span>
+                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 10px;">Total Orders</span>
+                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 14px;" th:text="${totalOrders}">0</h6>
+                                    </div>
+                                </div>
+                                <p class="text-sm mb-0" style="font-size: 9px; margin-top: 2px;">Increase by <span
+                                        th:classappend="${orderChange >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
+                                        class="px-1 rounded-2 fw-medium"
+                                        style="font-size: 9px;"
+                                        th:text="|${orderChange >= 0 ? '+' : ''}${orderChange}|">+0</span>
+                                    this week</p>
+                            </div>
+                        </div>
+                        <div class="col-6 p-0 m-0">
+                            <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-start-0 border-end-0 border-bottom-0" style="padding: 8px 12px;">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-0">
+                                    <div>
+                                        <span class="w-30-px h-30-px text-pink bg-pink-light border border-pink-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-0" style="display: inline-flex; margin-bottom: 3px; width: 30px; height: 30px;">
+                                            <iconify-icon icon="ri:discount-percent-fill" class="icon" style="font-size: 14px;"></iconify-icon>
+                                        </span>
+                                        <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 10px;">Total Sales</span>
+                                        <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 14px;" th:text="|${#numbers.formatDecimal(totalSales, 0, 'COMMA', 2, 'POINT')} $|">0.00 $</h6>
+                                    </div>
+                                </div>
+                                <p class="text-sm mb-0" style="font-size: 9px; margin-top: 2px;">Increase by <span
+                                        th:classappend="${periodStats.salesChangePercent >= 0} ? 'bg-success-focus text-success-main' : 'bg-danger-focus text-danger-main'"
+                                        class="px-1 rounded-2 fw-medium"
+                                        style="font-size: 9px;"
+                                        th:text="|${periodStats.salesChangePercent >= 0 ? '+' : ''}${#numbers.formatDecimal(periodStats.salesChangePercent, 1, 'POINT', 1, 'POINT')}%|">+0%</span>
+                                    this period</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-xxl-9 col-lg-6">
-                <div class="card h-100">
-                    <div class="card-body" style="padding: 14px 18px;">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-2">
-                            <h6 class="mb-0 fw-bold" style="font-size: 16px;">Recent Orders</h6>
+                <div class="card h-100" style="margin-bottom: 8px;">
+                    <div class="card-body" style="padding: 10px 14px;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
+                            <h6 class="mb-0 fw-bold" style="font-size: 14px;">Recent Orders</h6>
                             <a th:href="@{/admin/orders(page=0, size=6, sortBy='userId', sortDir='asc')}"
-                               class="text-primary-600 hover-text-primary d-flex align-items-center gap-1" style="font-size: 12px;">
+                               class="text-primary-600 hover-text-primary d-flex align-items-center gap-1" style="font-size: 10px;">
                                 View All
                                 <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
                             </a>
                         </div>
-                        <div class="mb-2" style="margin-top: 8px;">
-                            <div id="monthlyOrdersChart" style="height: 220px;"></div>
+                        <div class="mb-1" style="margin-top: 4px;">
+                            <div id="monthlyOrdersChart" style="height: 180px;"></div>
                         </div>
                         <div class="table-responsive scroll-sm">
                             <table class="table bordered-table mb-0" style="font-size: 13px;">
@@ -346,7 +352,7 @@
                                         </span>
                                         <span th:if="${order.orderItems == null or order.orderItems.isEmpty()}">0</span>
                                     </td>
-                                    <td style="padding: 10px 8px;" th:text="${#numbers.formatDecimal(order.totalAmount != null ? order.totalAmount : 0, 0, 'COMMA', 2, 'POINT')}">$0.00</td>
+                                    <td style="padding: 10px 8px;" th:text="|${#numbers.formatDecimal(order.totalAmount != null ? order.totalAmount : 0, 0, 'COMMA', 2, 'POINT')} $|">0.00 $</td>
                                     <td class="text-center" style="padding: 10px 8px;">
                                         <span th:if="${order.status != null and order.status.toLowerCase() == 'pending'}"
                                               class="bg-warning-focus text-warning-main px-24 py-4 rounded-pill fw-medium text-sm">Pending</span>
@@ -373,15 +379,15 @@
                 </div>
             </div>
             <div class="col-xxl-3">
-                <div class="card h-100">
-                    <div class="card-body" style="padding: 16px 20px;">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
-                            <h6 class="mb-0 fw-bold text-lg">Transactions</h6>
-                            <span class="text-sm text-secondary-light">Processing Orders</span>
+                <div class="card h-100" style="margin-bottom: 8px;">
+                    <div class="card-body" style="padding: 10px 14px;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
+                            <h6 class="mb-0 fw-bold" style="font-size: 14px;">Transactions</h6>
+                            <span class="text-sm text-secondary-light" style="font-size: 10px;">Processing Orders</span>
                         </div>
 
-                        <div style="margin-top: 12px;">
-                            <div class="d-flex align-items-center justify-content-between gap-2 mb-3" th:each="order : ${processingOrders}" style="padding: 8px 0;">
+                        <div style="margin-top: 6px;">
+                            <div class="d-flex align-items-center justify-content-between gap-2 mb-1" th:each="order : ${processingOrders}" style="padding: 4px 0;">
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="w-40-px h-40-px radius-8 flex-shrink-0 bg-primary-light d-flex align-items-center justify-content-center">
                                         <iconify-icon icon="solar:document-text-linear" class="text-primary-600"></iconify-icon>
@@ -392,7 +398,7 @@
                                     </div>
                                 </div>
                                 <span class="text-success-main text-md fw-medium" 
-                                      th:text="${#numbers.formatDecimal(order.totalAmount != null ? order.totalAmount : 0, 0, 'COMMA', 2, 'POINT')}">$0.00</span>
+                                      th:text="|${#numbers.formatDecimal(order.totalAmount != null ? order.totalAmount : 0, 0, 'COMMA', 2, 'POINT')} $|">0.00 $</span>
                             </div>
                             <div th:if="${processingOrders == null or processingOrders.isEmpty()}" class="text-center text-secondary-light py-4">
                                 No processing orders
@@ -401,15 +407,15 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xxl-4 col-lg-6">
-                <div class="card radius-8 border-0">
-
-                    <div class="card-body" style="padding: 16px 20px;">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
-                            <h6 class="mb-0 fw-bold text-lg">Distribution Maps</h6>
+            <div class="col-xxl-5 col-lg-6">
+                <div class="card radius-8 border-0" style="margin-bottom: 4px;">
+                    <div class="card-body" style="padding: 12px 16px;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
+                            <h6 class="mb-0 fw-bold" style="font-size: 15px;">Distribution Maps</h6>
                             <div class="">
                                 <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
-                                        onchange="window.location.href='/admin/dashboard?period=' + this.value">
+                                        style="font-size: 11px; padding: 4px 8px;"
+                                        onchange="window.location.href='/admin/dashboard?period=' + this.value + '&revenuePeriod=' + document.getElementById('revenuePeriod').value">
                                     <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
                                     <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
                                     <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
@@ -419,21 +425,21 @@
                         </div>
                     </div>
 
-                    <div id="world-map" style="height: 300px;"></div>
+                    <div id="world-map" style="height: 240px;"></div>
 
-                    <div class="card-body" style="padding: 16px 20px; max-height: 250px; overflow-y: auto;">
+                    <div class="card-body" style="padding: 12px 16px; max-height: 200px; overflow-y: auto;">
                         <div th:if="${countryDistribution != null and countryDistribution.sortedCountries != null}">
-                            <div class="d-flex align-items-center justify-content-between gap-2 mb-2 pb-2" 
+                            <div class="d-flex align-items-center justify-content-between gap-2 mb-0" 
                                  th:each="country : ${countryDistribution.sortedCountries}" 
-                                 style="padding: 6px 0;">
+                                 style="padding: 4px 0;">
                                 <div class="d-flex align-items-center w-100">
                                     <div class="w-32-px h-32-px rounded-circle flex-shrink-0 me-2 d-flex align-items-center justify-content-center" 
                                          style="width: 32px; height: 32px; background: #f3f4f6; border: 1px solid #e5e7eb; font-size: 18px;">
                                         <span th:text="${country.flag != null ? country.flag : country.code}">🇺🇸</span>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <h6 class="mb-0" style="font-size: 13px;" th:text="${country.name}">Country</h6>
-                                        <span class="text-secondary-light fw-medium" style="font-size: 11px;" 
+                                        <h6 class="mb-0" style="font-size: 14px;" th:text="${country.name}">Country</h6>
+                                        <span class="text-secondary-light fw-medium" style="font-size: 12px;" 
                                               th:text="|${country.count} Orders|">0 Orders</span>
                                     </div>
                                 </div>
@@ -446,7 +452,7 @@
                                                  th:style="|width: ${country.percentage != null ? country.percentage : 0}%;|"></div>
                                         </div>
                                     </div>
-                                    <span class="text-secondary-light fw-semibold" style="font-size: 11px; min-width: 35px;"
+                                    <span class="text-secondary-light fw-semibold" style="font-size: 12px; min-width: 40px;"
                                           th:text="|${#numbers.formatDecimal(country.percentage != null ? country.percentage : 0, 1, 'POINT', 1, 'POINT')}%|">0%</span>
                                 </div>
                             </div>
@@ -457,13 +463,13 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xxl-6">
-                <div class="card h-100">
-                    <div class="card-body" style="padding: 16px 20px;">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
-                            <h6 class="mb-0 fw-bold text-lg">Top Selling Product</h6>
+            <div class="col-xxl-7 col-lg-6">
+                <div class="card h-100" style="margin-bottom: 4px;">
+                    <div class="card-body" style="padding: 12px 16px;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
+                            <h6 class="mb-0 fw-bold" style="font-size: 15px;">Top Selling Product</h6>
                             <a th:href="@{/admin/books(page=0, size=6, sortBy='bookId', sortDir='asc')}"
-                               class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                               class="text-primary-600 hover-text-primary d-flex align-items-center gap-1" style="font-size: 11px;">
                                 View All
                                 <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
                             </a>
@@ -486,15 +492,15 @@
                                             <img th:if="${product.book.imageUrl != null}" 
                                                  th:src="${product.book.imageUrl}" 
                                                  alt="Book Image"
-                                                 class="flex-shrink-0 me-2 radius-8 w-40-px h-40-px object-fit-cover">
+                                                 class="flex-shrink-0 me-2 radius-8 object-fit-cover" style="width: 36px; height: 36px;">
                                             <div class="flex-grow-1">
-                                                <h6 class="mb-0 fw-bold" style="font-size: 10px;" th:text="${product.book.title}">Book Title</h6>
+                                                <h6 class="mb-0 fw-bold" style="font-size: 12px;" th:text="${product.book.title}">Book Title</h6>
                                                 <span class="text-secondary-light fw-normal" style="font-size: 11px;" 
                                                       th:text="${product.book.category != null ? product.book.category.name : 'Uncategorized'}">Category</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td style="padding: 10px 8px;" th:text="${#numbers.formatDecimal(product.book.price != null ? product.book.price : 0, 0, 'COMMA', 2, 'POINT')}">$0.00</td>
+                                    <td style="padding: 10px 8px;" th:text="|${#numbers.formatDecimal(product.book.price != null ? product.book.price : 0, 0, 'COMMA', 2, 'POINT')} $|">0.00 $</td>
                                     <td style="padding: 10px 8px;">
                                         <span th:if="${product.book.discountPercent != null and product.book.discountPercent > 0}" 
                                               th:text="|${#numbers.formatDecimal(product.book.discountPercent, 0, 'POINT', 0, 'POINT')}%|">0%</span>
@@ -502,7 +508,7 @@
                                     </td>
                                     <td style="padding: 10px 8px;" th:text="${product.totalSold}">0</td>
                                     <td class="text-center" style="padding: 10px 8px;">
-                                        <span class="bg-success-focus text-success-main px-2 py-1 rounded-pill fw-medium" style="font-size: 12px;" 
+                                        <span class="bg-success-focus text-success-main px-2 py-1 rounded-pill fw-medium" style="font-size: 11px;" 
                                               th:text="${product.totalOrders}">0</span>
                                     </td>
                                 </tr>
@@ -515,13 +521,13 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xxl-6">
-                <div class="card h-100">
-                    <div class="card-body" style="padding: 16px 20px;">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-3">
-                            <h6 class="mb-0 fw-bold text-lg">Stock Report</h6>
+            <div class="col-xxl-7 col-lg-6">
+                <div class="card h-100" style="margin-bottom: 4px;">
+                    <div class="card-body" style="padding: 12px 16px;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
+                            <h6 class="mb-0 fw-bold" style="font-size: 15px;">Stock Report</h6>
                             <a th:href="@{/admin/inventory/stock(page=0, size=10)}"
-                               class="text-primary-600 hover-text-primary d-flex align-items-center gap-1">
+                               class="text-primary-600 hover-text-primary d-flex align-items-center gap-1" style="font-size: 11px;">
                                 View All
                                 <iconify-icon icon="solar:alt-arrow-right-linear" class="icon"></iconify-icon>
                             </a>
@@ -542,7 +548,7 @@
                                 <tbody>
                                 <tr th:each="book, iterStat : ${stockReport}" th:if="${iterStat.index < 5}">
                                     <td style="padding: 10px 8px;" th:text="${book.title}">Book Title</td>
-                                    <td style="padding: 10px 8px;" th:text="${#numbers.formatDecimal(book.price != null ? book.price : 0, 0, 'COMMA', 2, 'POINT')}">$0.00</td>
+                                    <td style="padding: 10px 8px;" th:text="|${#numbers.formatDecimal(book.price != null ? book.price : 0, 0, 'COMMA', 2, 'POINT')} $|">0.00 $</td>
                                     <td style="padding: 10px 8px;">
                                         <div class="max-w-112 mx-auto">
                                             <div class="w-100">
@@ -554,12 +560,12 @@
                                                          th:style="|width: ${book.stock > 100 ? 100 : book.stock}%;|"></div>
                                                 </div>
                                             </div>
-                                            <span class="text-secondary-light fw-medium" style="font-size: 12px; margin-top: 6px; display: block;"
+                                            <span class="text-secondary-light fw-medium" style="font-size: 11px; margin-top: 5px; display: block;"
                                                   th:if="${book.stock == 0}">Out of Stock</span>
-                                            <span class="text-secondary-light fw-medium" style="font-size: 12px; margin-top: 6px; display: block;"
+                                            <span class="text-secondary-light fw-medium" style="font-size: 11px; margin-top: 5px; display: block;"
                                                   th:if="${book.stock > 0 and book.stock < 10}"
                                                   th:text="|${book.stock} Low Stock|">Low Stock</span>
-                                            <span class="text-secondary-light fw-medium" style="font-size: 12px; margin-top: 6px; display: block;"
+                                            <span class="text-secondary-light fw-medium" style="font-size: 11px; margin-top: 5px; display: block;"
                                                   th:if="${book.stock >= 10}"
                                                   th:text="|${book.stock} High Stock|">High Stock</span>
                                         </div>
@@ -615,7 +621,7 @@
         series: orderStatusSeries,
         chart: {
             type: 'pie',
-            height: 250
+            height: 240
         },
         labels: orderStatusLabels,
         colors: orderStatusColors,
@@ -659,7 +665,7 @@
         series: revenueCategorySeries,
         chart: {
             type: 'pie',
-            height: 250
+            height: 240
         },
         labels: revenueCategoryLabels,
         colors: revenueCategoryColors,
@@ -675,7 +681,7 @@
         tooltip: {
             y: {
                 formatter: function(val) {
-                    return "$" + val.toFixed(2);
+                    return val.toFixed(2) + " $";
                 }
             }
         }
@@ -772,7 +778,7 @@
             }],
             chart: {
                 type: 'bar',
-                height: 250,
+                height: 200,
                 toolbar: {
                     show: false
                 }
