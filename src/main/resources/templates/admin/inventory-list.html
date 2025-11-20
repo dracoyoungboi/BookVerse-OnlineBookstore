@@ -140,6 +140,8 @@
                             class="ri-subtract-line"></i> Export Stock</a>
                     <a th:href="@{/admin/inventory/adjust}" class="btn btn-sm btn-primary-600"><i
                             class="ri-edit-line"></i> Adjust Stock</a>
+                    <a href="#" onclick="exportInventoryToExcel(); return false;" 
+                       class="btn btn-sm btn-info"><i class="ri-file-excel-2-line"></i> Export Excel</a>
                 </div>
             </div>
             <div class="card-body">
@@ -440,6 +442,26 @@
             "'": '&#039;'
         };
         return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Export inventory to Excel
+    function exportInventoryToExcel() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookId = urlParams.get('bookId') || '';
+        const transactionType = urlParams.get('transactionType') || '';
+        const startDate = urlParams.get('startDate') || '';
+        const endDate = urlParams.get('endDate') || '';
+        
+        let exportUrl = '/admin/inventory/export-excel?';
+        const params = [];
+        
+        if (bookId) params.push('bookId=' + encodeURIComponent(bookId));
+        if (transactionType) params.push('transactionType=' + encodeURIComponent(transactionType));
+        if (startDate) params.push('startDate=' + encodeURIComponent(startDate));
+        if (endDate) params.push('endDate=' + encodeURIComponent(endDate));
+        
+        exportUrl += params.join('&');
+        window.location.href = exportUrl;
     }
 </script>
 </body>

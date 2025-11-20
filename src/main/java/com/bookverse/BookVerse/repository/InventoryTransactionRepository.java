@@ -43,6 +43,30 @@ public interface InventoryTransactionRepository extends JpaRepository<InventoryT
     @Query("SELECT it FROM InventoryTransaction it LEFT JOIN FETCH it.book LEFT JOIN FETCH it.createdBy ORDER BY it.createdAt DESC")
     Page<InventoryTransaction> findAllWithDetails(Pageable pageable);
     
+    // Tìm tất cả transactions với book và user (không phân trang - cho export)
+    @Query("SELECT it FROM InventoryTransaction it LEFT JOIN FETCH it.book LEFT JOIN FETCH it.createdBy ORDER BY it.createdAt DESC")
+    List<InventoryTransaction> findAllWithDetailsList();
+    
+    // Tìm transactions theo sách (không phân trang)
+    @Query("SELECT it FROM InventoryTransaction it LEFT JOIN FETCH it.book LEFT JOIN FETCH it.createdBy WHERE it.book.bookId = :bookId ORDER BY it.createdAt DESC")
+    List<InventoryTransaction> findByBookBookIdWithDetails(@Param("bookId") Long bookId);
+    
+    // Tìm transactions theo loại (không phân trang)
+    @Query("SELECT it FROM InventoryTransaction it LEFT JOIN FETCH it.book LEFT JOIN FETCH it.createdBy WHERE it.transactionType = :transactionType ORDER BY it.createdAt DESC")
+    List<InventoryTransaction> findByTransactionTypeWithDetails(@Param("transactionType") String transactionType);
+    
+    // Tìm transactions theo sách và loại (không phân trang)
+    @Query("SELECT it FROM InventoryTransaction it LEFT JOIN FETCH it.book LEFT JOIN FETCH it.createdBy WHERE it.book.bookId = :bookId AND it.transactionType = :transactionType ORDER BY it.createdAt DESC")
+    List<InventoryTransaction> findByBookBookIdAndTransactionTypeWithDetails(
+            @Param("bookId") Long bookId, 
+            @Param("transactionType") String transactionType);
+    
+    // Tìm transactions trong khoảng thời gian (không phân trang)
+    @Query("SELECT it FROM InventoryTransaction it LEFT JOIN FETCH it.book LEFT JOIN FETCH it.createdBy WHERE it.createdAt BETWEEN :startDate AND :endDate ORDER BY it.createdAt DESC")
+    List<InventoryTransaction> findByDateRangeWithDetails(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+    
     // Tìm transactions theo reference (ví dụ: order)
     List<InventoryTransaction> findByReferenceTypeAndReferenceId(String referenceType, Long referenceId);
     

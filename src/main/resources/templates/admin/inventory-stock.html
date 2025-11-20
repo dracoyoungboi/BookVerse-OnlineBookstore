@@ -168,6 +168,8 @@
                         Import Stock</a>
                     <a th:href="@{/admin/inventory}" class="btn btn-sm btn-primary-600"><i class="ri-history-line"></i>
                         View History</a>
+                    <a href="#" onclick="exportStockToExcel(); return false;" 
+                       class="btn btn-sm btn-info"><i class="ri-file-excel-2-line"></i> Export Excel</a>
                 </div>
             </div>
             <div class="card-body">
@@ -337,6 +339,24 @@
         url.searchParams.set('size', size);
         url.searchParams.set('page', '0');
         window.location.href = url.toString();
+    }
+
+    // Export stock to Excel
+    function exportStockToExcel() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const stockFilter = urlParams.get('stockFilter') || '';
+        const categoryId = urlParams.get('categoryId') || '';
+        const search = urlParams.get('search') || '';
+        
+        let exportUrl = '/admin/inventory/stock/export-excel?';
+        const params = [];
+        
+        if (stockFilter) params.push('stockFilter=' + encodeURIComponent(stockFilter));
+        if (categoryId) params.push('categoryId=' + encodeURIComponent(categoryId));
+        if (search) params.push('search=' + encodeURIComponent(search));
+        
+        exportUrl += params.join('&');
+        window.location.href = exportUrl;
     }
 </script>
 </body>

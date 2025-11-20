@@ -5,8 +5,10 @@ import com.bookverse.BookVerse.entity.InventoryTransaction;
 import com.bookverse.BookVerse.entity.User;
 import com.bookverse.BookVerse.repository.BookRepository;
 import com.bookverse.BookVerse.repository.UserRepository;
+import com.bookverse.BookVerse.service.ExcelService;
 import com.bookverse.BookVerse.service.InventoryService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +42,9 @@ public class AdminInventoryController {
 
     @Autowired
     private com.bookverse.BookVerse.repository.CategoryRepository categoryRepository;
+
+    @Autowired
+    private ExcelService excelService;
 
     /**
      * Danh sách lịch sử kho
@@ -684,5 +689,147 @@ public class AdminInventoryController {
 
         return "admin/inventory-alerts";
     }
+
+    /**
+     * Export Inventory History to Excel
+     */
+    @GetMapping("/export-excel")
+    public void exportInventoryHistoryToExcel(
+            @RequestParam(required = false) Long bookId,
+            @RequestParam(required = false) String transactionType,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            HttpServletResponse response,
+            Authentication authentication) throws Exception {
+        
+        // Check authentication
+        if (authentication == null || !authentication.isAuthenticated()) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")
+                        || authority.getAuthority().contains("ADMIN"));
+
+        if (!isAdmin) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        // Parse dates
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
+        
+        if (startDate != null && !startDate.trim().isEmpty()) {
+            try {
+                startDateTime = LocalDateTime.parse(startDate + "T00:00:00");
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+        
+        if (endDate != null && !endDate.trim().isEmpty()) {
+            try {
+                endDateTime = LocalDateTime.parse(endDate + "T23:59:59");
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+
+        // Get all transactions (no pagination)
+        List<InventoryTransaction> transactions = inventoryService.getAllInventoryTransactionsForExport(
+                bookId, transactionType, startDateTime, endDateTime);
+
+        // Generate Excel file
+        byte[] excelBytes = excelService.exportInventoryTransactions(transactions);
+
+        // Set response headers
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=inventory_history.xlsx");
+        response.setContentLength(excelBytes.length);
+
+        // Write to response
+        response.getOutputStream().write(excelBytes);
+        response.getOutputStream().flush();
+    }
+
+    /**
+     * Export Stock Overview to Excel
+     */
+    @GetMapping("/stock/export-excel")
+    public void exportStockOverviewToExcel(
+            @RequestParam(required = false) String stockFilter,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String search,
+            HttpServletResponse response,
+            Authentication authentication) throws Exception {
+        
+        // Check authentication
+        if (authentication == null || !authentication.isAuthenticated()) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")
+                        || authority.getAuthority().contains("ADMIN"));
+
+        if (!isAdmin) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        // Get all books
+        List<Book> allBooks = bookRepository.findAll();
+        
+        // Apply filters
+        List<Book> filteredBooks = allBooks.stream()
+                .filter(book -> book.getDeleted() == null || !book.getDeleted())
+                .filter(book -> {
+                    if (search != null && !search.trim().isEmpty()) {
+                        String searchLower = search.toLowerCase();
+                        return (book.getTitle() != null && book.getTitle().toLowerCase().contains(searchLower)) ||
+                               (book.getAuthor() != null && book.getAuthor().toLowerCase().contains(searchLower));
+                    }
+                    return true;
+                })
+                .filter(book -> {
+                    if (categoryId != null) {
+                        return book.getCategory() != null && 
+                               book.getCategory().getCategoryId().equals(categoryId);
+                    }
+                    return true;
+                })
+                .filter(book -> {
+                    if (stockFilter != null && !stockFilter.isEmpty() && !"all".equals(stockFilter)) {
+                        switch (stockFilter) {
+                            case "out_of_stock":
+                                return book.getStock() == 0;
+                            case "low_stock":
+                                return book.getStock() > 0 && book.getStock() < 10;
+                            case "in_stock":
+                                return book.getStock() > 0;
+                            default:
+                                return true;
+                        }
+                    }
+                    return true;
+                })
+                .collect(java.util.stream.Collectors.toList());
+
+        // Generate Excel file
+        byte[] excelBytes = excelService.exportStockOverview(filteredBooks);
+
+        // Set response headers
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=stock_overview.xlsx");
+        response.setContentLength(excelBytes.length);
+
+        // Write to response
+        response.getOutputStream().write(excelBytes);
+        response.getOutputStream().flush();
+    }
+
 }
 

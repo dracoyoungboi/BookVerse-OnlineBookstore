@@ -291,5 +291,28 @@ public class InventoryService {
     public long getLowStockCount() {
         return getLowStockCount(10);
     }
+
+    /**
+     * Lấy tất cả inventory transactions (không phân trang) cho export Excel
+     */
+    public List<InventoryTransaction> getAllInventoryTransactionsForExport(
+            Long bookId,
+            String transactionType,
+            LocalDateTime startDate,
+            LocalDateTime endDate) {
+        
+        if (bookId != null && transactionType != null && !transactionType.isEmpty()) {
+            return inventoryTransactionRepository.findByBookBookIdAndTransactionTypeWithDetails(
+                    bookId, transactionType);
+        } else if (bookId != null) {
+            return inventoryTransactionRepository.findByBookBookIdWithDetails(bookId);
+        } else if (transactionType != null && !transactionType.isEmpty()) {
+            return inventoryTransactionRepository.findByTransactionTypeWithDetails(transactionType);
+        } else if (startDate != null && endDate != null) {
+            return inventoryTransactionRepository.findByDateRangeWithDetails(startDate, endDate);
+        } else {
+            return inventoryTransactionRepository.findAllWithDetailsList();
+        }
+    }
 }
 
