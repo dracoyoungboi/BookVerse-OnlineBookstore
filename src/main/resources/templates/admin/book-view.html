@@ -165,30 +165,22 @@
         <div class="mb-40">
           <h5 class="fw-semibold text-lg mb-24 pb-16 border-bottom">Book Overview</h5>
           <div class="row g-3">
-            <div class="col-md-3">
+            <div class="col-md-4">
               <div class="p-16 bg-neutral-50 rounded-3">
                 <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Book ID</label>
                 <p class="text-lg fw-semibold mb-0" th:text="${book.bookId}">-</p>
               </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <div class="p-16 bg-neutral-50 rounded-3">
                 <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Category</label>
                 <p class="text-lg fw-semibold mb-0 text-primary-600" th:text="${book.category != null ? book.category.name : 'N/A'}">Category</p>
               </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <div class="p-16 bg-neutral-50 rounded-3">
                 <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Price</label>
                 <p class="text-lg fw-semibold mb-0" th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 2, 'POINT')} + ' $'">$0.00</p>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="p-16 bg-neutral-50 rounded-3">
-                <label class="text-secondary-light text-sm fw-medium mb-8 d-block">Stock</label>
-                <span class="badge" 
-                      th:classappend="${book.stock > 0 ? 'bg-success' : 'bg-danger'}"
-                      th:text="${book.stock}">0</span>
               </div>
             </div>
           </div>

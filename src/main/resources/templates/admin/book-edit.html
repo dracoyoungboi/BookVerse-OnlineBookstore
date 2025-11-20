@@ -187,11 +187,6 @@
             </div>
             
             <div class="col-md-6">
-              <label class="form-label">Stock <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" th:field="*{stock}" min="0" required>
-            </div>
-            
-            <div class="col-md-6">
               <label class="form-label">Discount Percent (%)</label>
               <input type="number" class="form-control" th:field="*{discountPercent}" step="0.01" min="0" max="100">
               <small class="text-secondary-light">Enter 0 for no discount</small>

@@ -213,14 +213,13 @@
                 <th scope="col">Category</th>
                 <th scope="col">Price</th>
                 <th scope="col">Discount</th>
-                <th scope="col">Stock</th>
                 <th scope="col">Status</th>
                 <th scope="col">Action</th>
               </tr>
             </thead>
             <tbody>
               <tr th:if="${#lists.isEmpty(books)}">
-                <td colspan="10" class="text-center py-24">
+                <td colspan="9" class="text-center py-24">
                   <p class="text-secondary-light mb-0">No books found.</p>
                 </td>
               </tr>
@@ -245,11 +244,6 @@
                         th:text="${book.discountPercent} + '%'">0%</span>
                   <span th:if="${book.discountPercent == null or book.discountPercent == 0}" 
                         class="text-secondary-light">-</span>
-                </td>
-                <td>
-                  <span class="badge" 
-                        th:classappend="${book.stock > 0 ? 'bg-success' : 'bg-danger'}"
-                        th:text="${book.stock}">0</span>
                 </td>
                 <td>
                   <span class="badge" 
