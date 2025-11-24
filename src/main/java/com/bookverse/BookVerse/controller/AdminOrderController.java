@@ -56,7 +56,7 @@ public class AdminOrderController {
 
     /**
      * Lists aggregated order info per customer with search/status filters so admins can drill into users.
-     * Also guards access so only ADMIN roles can reach the list page.
+     * Also guards access so only ADMIN roles can reach the list page. 
      */
     @GetMapping
     public String listOrders(Model model,
