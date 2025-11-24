@@ -21,18 +21,23 @@ public class AccountController {
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * Renders the customer-facing profile page with sanitized account metadata.
+     * On the way it normalizes the authenticated principal (form login vs OAuth),
+     * caches the resolved {@link User} inside the HTTP session, and prepares UI-ready values.
+     */
     @GetMapping("/my-account")
     public String myAccount(Model model, 
                            HttpSession session,
                            @AuthenticationPrincipal Object principal,
                            Authentication authentication) {
         
-        // Check if user is authenticated
+        // Check if user is authenticated before pulling any other data
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
         }
         
-        // Try to get user from session first
+        // Try to get user from session first to avoid hitting the database unnecessarily
         User currentUser = (User) session.getAttribute("currentUser");
         String sessionUsername = (String) session.getAttribute("username");
         
@@ -40,7 +45,7 @@ public class AccountController {
         if (currentUser == null) {
             String usernameOrEmail = null;
             
-            // Handle different principal types
+            // Handle different principal types (form login, custom OAuth2 user, OIDC, generic OAuth2)
             if (principal instanceof UserDetails) {
                 UserDetails userDetails = (UserDetails) principal;
                 usernameOrEmail = userDetails.getUsername();
@@ -61,7 +66,7 @@ public class AccountController {
                 usernameOrEmail = oauth2User.getAttribute("email");
             }
             
-            // If we have username/email but no user object, load from database
+            // If we have username/email but no user object, load from database using the most precise lookup we have
             if (currentUser == null && usernameOrEmail != null) {
                 // Try by username first
                 Optional<User> userOpt = userRepository.findByUsernameWithRole(usernameOrEmail);
@@ -83,7 +88,7 @@ public class AccountController {
                 }
             }
             
-            // Save to session for future requests
+            // Save to session for future requests so subsequent requests have fast access to the user snapshot
             if (currentUser != null) {
                 session.setAttribute("currentUser", currentUser);
                 session.setAttribute("username", currentUser.getUsername());
@@ -92,6 +97,7 @@ public class AccountController {
                 if (currentUser.getRole() != null) {
                     session.setAttribute("role", currentUser.getRole().getName());
                 }
+                // Keep the session alive for 30 minutes which matches the expected browsing session for the storefront
                 session.setMaxInactiveInterval(30 * 60);
             }
         }
@@ -120,7 +126,7 @@ public class AccountController {
             return "redirect:/demo/admin";
         }
         
-        // Prepare display values with fallbacks
+        // Prepare display values with fallbacks, so the template never shows null/blank strings
         String displayUsername = currentUser.getUsername();
         if (displayUsername == null || displayUsername.trim().isEmpty()) {
             displayUsername = currentUser.getEmail() != null ? currentUser.getEmail().split("@")[0] : "User";
@@ -151,7 +157,7 @@ public class AccountController {
             displayRole = currentUser.getRole().getName();
         }
         
-        // Calculate account active duration (time since account creation)
+        // Calculate account active duration (time since account creation) for a friendly "member since" display
         String accountActiveDuration = "Not available";
         if (currentUser.getCreatedAt() != null) {
             java.time.LocalDateTime now = java.time.LocalDateTime.now();
@@ -213,6 +219,7 @@ public class AccountController {
         }
         
         // Add user info to model
+        // Push normalized fields to the model so the profile view can render consistent data
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("username", displayUsername);
         model.addAttribute("fullName", displayFullName);

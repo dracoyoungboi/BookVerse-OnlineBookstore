@@ -2,6 +2,7 @@
 <html class="no-js" lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <!-- Base metadata + CSS bundle for the customer-facing account area -->
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>BookVerse – My Account</title>
@@ -16,7 +17,7 @@
 <body class="home-2">
 <div th:replace="common/user/header :: header"></div>
 
-<!-- breadcrumbs-area-start -->
+<!-- Breadcrumb trail helps users know they are on their profile page -->
 <div class="breadcrumbs-area mb-70">
     <div class="container">
         <div class="row">
@@ -33,7 +34,7 @@
 </div>
 <!-- breadcrumbs-area-end -->
 
-<!-- my-account-area-start -->
+<!-- Main profile wrapper with the aggregated account information -->
 <div class="my-account-area mb-70">
     <div class="container">
         <div class="row">
@@ -53,23 +54,29 @@
                             Personal Information
                         </h3>
                         <div class="account-details" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            <!-- Each detail-item surfaces a read-only snapshot of the authenticated customer -->
                             <div class="detail-item" style="padding: 15px; background: #f9f9f9; border-radius: 5px;">
+                                <!-- Full name is prioritized so the customer instantly recognizes the profile -->
                                 <label style="font-weight: 600; color: #666; display: block; margin-bottom: 8px; font-size: 14px;">Full Name:</label>
                                 <p style="color: #333; font-size: 16px; margin: 0;" th:text="${fullName}">-</p>
                             </div>
                             <div class="detail-item" style="padding: 15px; background: #f9f9f9; border-radius: 5px;">
+                                <!-- Username may differ from email for local accounts, so surface it separately -->
                                 <label style="font-weight: 600; color: #666; display: block; margin-bottom: 8px; font-size: 14px;">Username:</label>
                                 <p style="color: #333; font-size: 16px; margin: 0;" th:text="${username}">-</p>
                             </div>
                             <div class="detail-item" style="padding: 15px; background: #f9f9f9; border-radius: 5px;">
+                                <!-- Email doubles as the primary contact + login identifier -->
                                 <label style="font-weight: 600; color: #666; display: block; margin-bottom: 8px; font-size: 14px;">Email:</label>
                                 <p style="color: #333; font-size: 16px; margin: 0; word-break: break-word;" th:text="${email}">-</p>
                             </div>
                             <div class="detail-item" style="padding: 15px; background: #f9f9f9; border-radius: 5px;">
+                                <!-- Phone and address are optional, so the controller sends friendly fallbacks -->
                                 <label style="font-weight: 600; color: #666; display: block; margin-bottom: 8px; font-size: 14px;">Phone:</label>
                                 <p style="color: #333; font-size: 16px; margin: 0;" th:text="${phone}">Not provided</p>
                             </div>
                             <div class="detail-item" style="padding: 15px; background: #f9f9f9; border-radius: 5px; grid-column: 1 / -1;">
+                                <!-- Address spans the full row because it can wrap to multiple lines -->
                                 <label style="font-weight: 600; color: #666; display: block; margin-bottom: 8px; font-size: 14px;">Address:</label>
                                 <p style="color: #333; font-size: 16px; margin: 0;" th:text="${address}">Not provided</p>
                             </div>
@@ -79,6 +86,7 @@
                     <!-- Account Actions -->
                     <div class="account-actions" style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #eee;">
                         <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                            <!-- Actions keep the customer in the shopping journey or let them hop to the demo dashboard -->
                             <a th:href="@{/shop}" class="btn btn-primary" style="min-width: 150px;">Continue Shopping</a>
                             <a th:href="@{/demo/user}" class="btn" style="min-width: 150px; background: #666; color: #fff; border: none;">Go to Dashboard</a>
                         </div>
@@ -89,7 +97,7 @@
         </div>
     </div>
 </div>
-<!-- my-account-area-end -->
+<!-- End of main profile wrapper -->
 
 <div th:replace="common/user/footer :: footer"></div>
 <div th:replace="common/user/js :: js"></div>
