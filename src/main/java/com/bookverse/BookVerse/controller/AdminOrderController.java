@@ -202,7 +202,7 @@ public class AdminOrderController {
 
     /**
      * Handles the status transition form within the admin UI (processing -> shipped).
-     * Redirect query param lets the same handler keep list + detail pages in sync.
+     * Redirect query param lets the same handler keep list + detail pages in sync. 
      */
     @PostMapping("/{id}/update-status")
     public String updateOrderStatus(@PathVariable("id") Long id,
