@@ -150,6 +150,7 @@
             <div class="col-xxl-12">
                 <div class="card radius-8 border-0" style="margin-bottom: 8px;">
                     <div class="card-body" style="padding: 10px 16px;">
+                        <!-- KPI tile: shows current revenue and lets admins pivot period without leaving page -->
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="w-36-px h-36-px text-success bg-success-light border border-success-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8" style="display: inline-flex; width: 36px; height: 36px;">
@@ -182,6 +183,7 @@
                     <div class="row">
                         <div class="col-xxl-6 pe-xxl-0">
                             <div class="card-body" style="padding: 14px 18px;">
+                                <!-- KPI visualization: breakdown of order lifecycle to monitor fulfillment pressure -->
                                 <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-2">
                                     <h6 class="mb-0 fw-bold" style="font-size: 16px;">Order Status Distribution</h6>
                                     <div class="">
@@ -202,6 +204,7 @@
                         </div>
                         <div class="col-xxl-6">
                             <div class="card-body" style="padding: 14px 18px;">
+                                <!-- KPI visualization: category contribution to revenue for merchandising decisions -->
                                 <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-2">
                                     <h6 class="mb-0 fw-bold" style="font-size: 16px;">Revenue by Category</h6>
                                     <div class="">
@@ -228,6 +231,7 @@
                     <div class="row h-100 g-0">
                         <div class="col-6 p-0 m-0">
                             <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0" style="padding: 8px 12px;">
+                                <!-- KPI widget: inventory footprint -->
                                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-0">
                                     <div>
                                         <span class="w-30-px h-30-px text-primary-600 bg-primary-light border border-primary-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-0" style="display: inline-flex; margin-bottom: 3px; width: 30px; height: 30px;">
@@ -247,6 +251,7 @@
                         </div>
                         <div class="col-6 p-0 m-0">
                             <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-start-0 border-end-0" style="padding: 8px 12px;">
+                                <!-- KPI widget: customer growth snapshot -->
                                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-0">
                                     <div>
                                         <span class="w-30-px h-30-px text-yellow bg-yellow-light border border-yellow-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-0" style="display: inline-flex; margin-bottom: 3px; width: 30px; height: 30px;">
@@ -266,6 +271,7 @@
                         </div>
                         <div class="col-6 p-0 m-0">
                             <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-bottom-0" style="padding: 8px 12px;">
+                                <!-- KPI widget: order momentum -->
                                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-0">
                                     <div>
                                         <span class="w-30-px h-30-px text-lilac bg-lilac-light border border-lilac-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-0" style="display: inline-flex; margin-bottom: 3px; width: 30px; height: 30px;">
@@ -285,6 +291,7 @@
                         </div>
                         <div class="col-6 p-0 m-0">
                             <div class="card-body h-100 d-flex flex-column justify-content-center border border-top-0 border-start-0 border-end-0 border-bottom-0" style="padding: 8px 12px;">
+                                <!-- KPI widget: total sales + delta versus selected period -->
                                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-0">
                                     <div>
                                         <span class="w-30-px h-30-px text-pink bg-pink-light border border-pink-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-0" style="display: inline-flex; margin-bottom: 3px; width: 30px; height: 30px;">
@@ -308,6 +315,7 @@
             <div class="col-xxl-9 col-lg-6">
                 <div class="card h-100" style="margin-bottom: 8px;">
                     <div class="card-body" style="padding: 10px 14px;">
+                        <!-- KPI table: recent orders streamlines spot-checking anomalies -->
                         <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
                             <h6 class="mb-0 fw-bold" style="font-size: 14px;">Recent Orders</h6>
                             <a th:href="@{/admin/orders(page=0, size=6, sortBy='userId', sortDir='asc')}"
@@ -381,6 +389,7 @@
             <div class="col-xxl-3">
                 <div class="card h-100" style="margin-bottom: 8px;">
                     <div class="card-body" style="padding: 10px 14px;">
+                        <!-- KPI list: focuses on processing orders so ops can prioritize -->
                         <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
                             <h6 class="mb-0 fw-bold" style="font-size: 14px;">Transactions</h6>
                             <span class="text-sm text-secondary-light" style="font-size: 10px;">Processing Orders</span>
@@ -410,6 +419,7 @@
             <div class="col-xxl-5 col-lg-6">
                 <div class="card radius-8 border-0" style="margin-bottom: 4px;">
                     <div class="card-body" style="padding: 12px 16px;">
+                        <!-- KPI map: geographic spread of demand for localization planning -->
                         <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
                             <h6 class="mb-0 fw-bold" style="font-size: 15px;">Distribution Maps</h6>
                             <div class="">
@@ -466,6 +476,7 @@
             <div class="col-xxl-7 col-lg-6">
                 <div class="card h-100" style="margin-bottom: 4px;">
                     <div class="card-body" style="padding: 12px 16px;">
+                        <!-- KPI table: highlights merchandising winners driving revenue -->
                         <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
                             <h6 class="mb-0 fw-bold" style="font-size: 15px;">Top Selling Product</h6>
                             <a th:href="@{/admin/books(page=0, size=6, sortBy='bookId', sortDir='asc')}"
@@ -524,6 +535,7 @@
             <div class="col-xxl-7 col-lg-6">
                 <div class="card h-100" style="margin-bottom: 4px;">
                     <div class="card-body" style="padding: 12px 16px;">
+                        <!-- KPI table: quick health check on inventory levels -->
                         <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
                             <h6 class="mb-0 fw-bold" style="font-size: 15px;">Stock Report</h6>
                             <a th:href="@{/admin/inventory/stock(page=0, size=10)}"
