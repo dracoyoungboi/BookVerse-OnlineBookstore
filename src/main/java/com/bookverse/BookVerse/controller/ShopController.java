@@ -57,7 +57,7 @@ public class ShopController {
             HttpSession session,
             Authentication authentication) {
         
-        // Block admin from accessing user pages
+        // Make the storefront inaccessible to admins so they stay in the dashboard UI
         if (authentication != null && authentication.isAuthenticated()) {
             boolean isAdmin = authentication.getAuthorities().stream()
                     .anyMatch(authority -> {
@@ -81,31 +81,27 @@ public class ShopController {
         }
         Page<Book> books;
 
-        // Lọc theo category
+        // Select the correct dataset for the grid/list view based on active filters
         if (categoryId != null) {
             books = bookService.getBooksByCategory(categoryId, page, size, sortBy, sortDir);
         }
-        // Tìm kiếm
         else if (search != null && !search.trim().isEmpty()) {
             books = bookService.searchBooks(search, page, size, sortBy, sortDir);
         }
-        // Lọc theo giá
         else if (minPrice != null && maxPrice != null) {
             books = bookService.getBooksByPriceRange(minPrice, maxPrice, page, size, sortBy, sortDir);
         }
-        // Chỉ đang giảm giá
         else if (saleOnly) {
             books = bookService.getOnSaleBooks(page, size, sortBy, sortDir);
         }
-        // Lấy tất cả
         else {
             books = bookService.getAllBooks(page, size, sortBy, sortDir);
         }
 
-        // Lấy categories và tính số lượng sách
+        // Populate sidebar filters so the user can pivot between categories
         var categories = bookService.getAllCategories();
 
-        // Tìm category được chọn (nếu có)
+        // Highlight the active category (if any) to keep UI state in sync
         com.bookverse.BookVerse.entity.Category selectedCategoryObj = null;
         if (categoryId != null) {
             selectedCategoryObj = categories.stream()
@@ -114,10 +110,10 @@ public class ShopController {
                     .orElse(null);
         }
 
-        // Lấy sách ngẫu nhiên cho sidebar (6 sách)
+        // Surface a small random set to spotlight titles outside the current filters
         var randomBooks = bookService.getRandomBooks(6);
 
-        // Lấy wishlist items và chia thành các nhóm 3 items cho carousel
+        // Split the user's wishlist into groups of three so the carousel renders clean slides
         List<List<Book>> wishlistBooksGroups = new java.util.ArrayList<>();
         if (authentication != null && authentication.isAuthenticated()) {
             User currentUser = (User) session.getAttribute("currentUser");
@@ -138,7 +134,7 @@ public class ShopController {
             }
         }
 
-        // Thêm dữ liệu vào model
+        // Attach everything the Thymeleaf template needs to render the book list UI
         model.addAttribute("books", books);
         model.addAttribute("categories", categories);
         model.addAttribute("randomBooks", randomBooks);
