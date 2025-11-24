@@ -223,8 +223,10 @@ public class AdminOrderController {
             return "redirect:/demo/user";
         }
 
+        String normalizedStatus = status != null ? status.trim().toLowerCase() : "";
+
         // Validate status - only allow expected statuses to prevent arbitrary values from UI tampering
-        if (!status.equals("pending") && !status.equals("processing") && !status.equals("shipped")) {
+        if (!isAllowedStatus(normalizedStatus)) {
             redirectAttributes.addFlashAttribute("error", "Invalid status!");
             if (redirect.equals("view")) {
                 return "redirect:/admin/orders/" + id;
@@ -244,16 +246,18 @@ public class AdminOrderController {
 
         Order order = orderOpt.get();
         
-        // Only allow processing -> shipped transition to keep the fulfillment pipeline linear
-        if (!order.getStatus().equals("processing") && status.equals("shipped")) {
-            redirectAttributes.addFlashAttribute("error", "Only processing orders can be shipped!");
+        String currentStatus = order.getStatus() != null ? order.getStatus().toLowerCase() : "pending";
+
+        // Only allow forward/linear transitions (pending -> processing handled elsewhere, processing -> shipped here)
+        if (!isValidStatusTransition(currentStatus, normalizedStatus)) {
+            redirectAttributes.addFlashAttribute("error", "Invalid status transition!");
             if (redirect.equals("view")) {
                 return "redirect:/admin/orders/" + id;
             }
             return "redirect:/admin/orders";
         }
         
-        order.setStatus(status);
+        order.setStatus(normalizedStatus);
         orderRepository.save(order);
 
         redirectAttributes.addFlashAttribute("success", "Order status updated successfully!");
@@ -515,5 +519,20 @@ public class AdminOrderController {
             redirectAttributes.addFlashAttribute("error", "Error deleting order: " + e.getMessage());
             return "redirect:/admin/orders/" + id;
         }
+    }
+
+    private boolean isAllowedStatus(String status) {
+        return "pending".equals(status) || "processing".equals(status) || "shipped".equals(status);
+    }
+
+    private boolean isValidStatusTransition(String currentStatus, String newStatus) {
+        if (currentStatus.equals(newStatus)) {
+            return true;
+        }
+        return switch (currentStatus) {
+            case "pending" -> "processing".equals(newStatus);
+            case "processing" -> "shipped".equals(newStatus);
+            default -> false;
+        };
     }
 }
