@@ -27,6 +27,11 @@ public class AdminDashboardController {
     @Autowired
     private com.bookverse.BookVerse.repository.UserRepository userRepository;
 
+    /**
+     * Builds the admin KPI dashboard by aggregating revenue, order, inventory, and geo stats.
+     * Each section below mirrors a widget in the dashboard template so future maintainers can
+     * trace where numbers originate.
+     */
     @GetMapping
     public String dashboard(Model model, HttpSession session,
                           @org.springframework.security.core.annotation.AuthenticationPrincipal UserDetails userDetails,
@@ -60,49 +65,49 @@ public class AdminDashboardController {
             model.addAttribute("fullName", currentUser.getFullName());
         }
         
-        // Get dashboard statistics
+        // KPI totals: headline widgets in the first row
         long totalProducts = dashboardService.getTotalProducts();
         long totalCustomers = dashboardService.getTotalCustomers();
         long totalOrders = dashboardService.getTotalOrders();
         Double totalSales = dashboardService.getTotalSales();
         
-        // Get period statistics
+        // KPI deltas: period-over-period change for sales widget
         Map<String, Object> periodStats = dashboardService.getPeriodStatistics(period);
         
-        // Get changes for this week
+        // KPI micro cards: week-over-week deltas for products/customers/orders
         long productChange = dashboardService.getProductChangeThisWeek();
         long customerChange = dashboardService.getCustomerChangeThisWeek();
         long orderChange = dashboardService.getOrderChangeThisWeek();
         
-        // Get recent orders
+        // KPI table: recent orders feed
         List<Order> recentOrders = dashboardService.getRecentOrders(5);
         
-        // Get top selling products
+        // KPI table: top selling products list
         List<Map<String, Object>> topSellingProducts = dashboardService.getTopSellingProducts(5);
         
-        // Get stock report
+        // KPI table: stock health report
         List<com.bookverse.BookVerse.entity.Book> stockReport = dashboardService.getStockReport();
         
-        // Get order statistics by status
+        // KPI chart: order status counts for quick reference (non-period filtered)
         Map<String, Long> orderStatusStats = dashboardService.getOrderStatisticsByStatus();
         
-        // Get processing orders for transactions
+        // KPI list: open transactions widget
         List<Order> processingOrders = dashboardService.getProcessingOrders(6);
         
-        // Get data for pie charts (with period filter)
+        // KPI charts: pie slices filtered by the selected timeline
         Map<String, Long> orderStatusDistribution = dashboardService.getOrderStatusDistribution(period);
         Map<String, Double> revenueByCategory = dashboardService.getRevenueByCategory(period);
         
-        // Get country distribution for world map
+        // KPI map: geo distribution data backing the world map + list
         Map<String, Object> countryDistribution = dashboardService.getCountryDistribution(period);
         
-        // Get monthly order statistics for chart
+        // KPI bar chart: monthly order volume
         Map<String, Object> monthlyOrderStats = dashboardService.getMonthlyOrderStatistics();
         
-        // Get revenue by period (default: monthly)
+        // KPI revenue selector: aggregated revenue for the chosen window (today/month/year)
         Map<String, Object> revenueData = dashboardService.getRevenueByPeriod(revenuePeriod);
         
-        // Add to model
+        // Wire up everything to the view; template consumes these keys to paint KPI widgets
         model.addAttribute("totalProducts", totalProducts);
         model.addAttribute("totalCustomers", totalCustomers);
         model.addAttribute("totalOrders", totalOrders);
