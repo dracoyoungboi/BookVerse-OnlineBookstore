@@ -32,6 +32,7 @@ public class AccountController {
                            @AuthenticationPrincipal Object principal,
                            Authentication authentication) {
         
+        
         // Check if user is authenticated before pulling any other data
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/login";
