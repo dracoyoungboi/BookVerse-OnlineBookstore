@@ -54,7 +54,10 @@ public class AdminOrderController {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
-    // List all orders
+    /**
+     * Lists aggregated order info per customer with search/status filters so admins can drill into users.
+     * Also guards access so only ADMIN roles can reach the list page.
+     */
     @GetMapping
     public String listOrders(Model model,
                             HttpSession session,
@@ -104,7 +107,7 @@ public class AdminOrderController {
             sortDir = "asc";
         }
         
-        // Get order summaries grouped by user
+        // Get order summaries grouped by user - this powers the manage orders landing table
         String statusFilter = (status != null && !status.trim().isEmpty()) ? status.trim() : null;
         String searchFilter = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
         
@@ -144,7 +147,9 @@ public class AdminOrderController {
         return "admin/orders-list";
     }
 
-    // View order details
+    /**
+     * Shows the detail view for a single order, including items and management actions.
+     */
     @GetMapping("/{id}")
     public String viewOrder(@PathVariable("id") Long id,
                           Model model,
@@ -182,7 +187,7 @@ public class AdminOrderController {
             model.addAttribute("fullName", currentUser.getFullName());
         }
 
-        // Find order with user and items
+        // Find order with user and items so the template can render a full breakdown
         Optional<Order> orderOpt = orderRepository.findByIdWithUserAndItems(id);
         if (orderOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Order not found!");
@@ -195,7 +200,10 @@ public class AdminOrderController {
         return "admin/order-view";
     }
 
-    // Update order status
+    /**
+     * Handles the status transition form within the admin UI (processing -> shipped).
+     * Redirect query param lets the same handler keep list + detail pages in sync.
+     */
     @PostMapping("/{id}/update-status")
     public String updateOrderStatus(@PathVariable("id") Long id,
                                    @RequestParam("status") String status,
@@ -215,7 +223,7 @@ public class AdminOrderController {
             return "redirect:/demo/user";
         }
 
-        // Validate status - only allow processing -> shipped
+        // Validate status - only allow expected statuses to prevent arbitrary values from UI tampering
         if (!status.equals("pending") && !status.equals("processing") && !status.equals("shipped")) {
             redirectAttributes.addFlashAttribute("error", "Invalid status!");
             if (redirect.equals("view")) {
@@ -236,7 +244,7 @@ public class AdminOrderController {
 
         Order order = orderOpt.get();
         
-        // Only allow processing -> shipped transition
+        // Only allow processing -> shipped transition to keep the fulfillment pipeline linear
         if (!order.getStatus().equals("processing") && status.equals("shipped")) {
             redirectAttributes.addFlashAttribute("error", "Only processing orders can be shipped!");
             if (redirect.equals("view")) {
@@ -255,7 +263,9 @@ public class AdminOrderController {
         return "redirect:/admin/orders";
     }
 
-    // Process payment for pending order
+    /**
+     * Processes a pending order (deduct stock, mark processing) when admins click "Process Payment".
+     */
     @PostMapping("/{id}/process-payment")
     public String processPayment(@PathVariable("id") Long id,
                                  @RequestParam(value = "redirect", defaultValue = "list") String redirect,
@@ -295,7 +305,7 @@ public class AdminOrderController {
             return "redirect:/admin/orders";
         }
 
-        // Process payment (deduct stock, change status to processing)
+        // Process payment (deduct stock, change status to processing) via service, surface message to UI
         boolean success = orderService.processPayment(id);
         if (success) {
             redirectAttributes.addFlashAttribute("success", "Payment processed successfully! Order status changed to processing.");
@@ -309,7 +319,9 @@ public class AdminOrderController {
         return "redirect:/admin/orders";
     }
 
-    // View orders by user
+    /**
+     * Renders a paginated per-user order list so admins can inspect one customer's history.
+     */
     @GetMapping("/user/{userId}")
     public String viewUserOrders(@PathVariable("userId") Long userId,
                                  Model model,
@@ -363,7 +375,7 @@ public class AdminOrderController {
         // Create pageable with sorting (ASC by orderId)
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderId").ascending());
         
-        // Get orders for this user
+        // Get orders for this user filtered by status if provided
         Page<Order> orderPage;
         String statusFilter = (status != null && !status.trim().isEmpty()) ? status.trim() : null;
         
@@ -396,7 +408,10 @@ public class AdminOrderController {
         return "admin/user-orders";
     }
 
-    // Delete order
+    /**
+     * Deletes an order (pending/processing) and optionally notifies customers depending on status.
+     * Includes extra validation so admins cannot wipe fulfilled orders accidentally.
+     */
     @PostMapping("/{id}/delete")
     @Transactional
     public String deleteOrder(@PathVariable("id") Long id,
@@ -417,7 +432,7 @@ public class AdminOrderController {
         }
 
         try {
-            // Find order with user
+            // Find order with user so we can email them about cancellations
             Optional<Order> orderOpt = orderRepository.findByIdWithUserAndItems(id);
             if (orderOpt.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "Order not found!");
@@ -477,7 +492,7 @@ public class AdminOrderController {
                 }
             }
 
-            // Delete order items first to avoid TransientObjectException
+            // Delete order items first to avoid TransientObjectException when removing the parent
             if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
                 orderItemRepository.deleteAll(order.getOrderItems());
                 orderItemRepository.flush(); // Flush to ensure items are deleted before order

@@ -166,6 +166,7 @@
               <option value="20" th:selected="${pageSize == 20}">20</option>
             </select>
           </div>
+          <!-- Filter bar keeps the manage-orders grid scoped to the right users/status combinations -->
           <form th:action="@{/admin/orders}" method="get" class="d-flex align-items-center gap-2">
             <input type="hidden" name="page" value="0" />
             <input type="hidden" name="size" th:value="${pageSize}" />
@@ -190,6 +191,7 @@
       </div>
       <div class="card-body">
         <div class="table-responsive">
+          <!-- Each row summarizes a customer so admins can jump into detailed order management -->
           <table class="table bordered-table mb-0">
             <thead>
               <tr>
