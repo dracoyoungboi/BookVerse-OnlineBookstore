@@ -165,13 +165,13 @@
                                 <div>
                                     <p class="text-sm mb-0" style="font-size: 11px; text-align: right;" id="revenueLabel" th:text="${revenueData.label}">Current month total</p>
                                 </div>
-                                <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
-                                        id="revenuePeriod" style="font-size: 11px; padding: 5px 10px; min-width: 90px;"
-                                        th:data-period="${period}"
-                                        onchange="var period = this.getAttribute('data-period'); window.location.href='/admin/dashboard?period=' + period + '&revenuePeriod=' + this.value;">
-                                    <option value="today" th:selected="${revenuePeriod == 'today'}">Today</option>
-                                    <option value="monthly" th:selected="${revenuePeriod == 'monthly'}">Monthly</option>
-                                    <option value="yearly" th:selected="${revenuePeriod == 'yearly'}">Yearly</option>
+                                <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8"
+                                        id="globalPeriod" style="font-size: 11px; padding: 5px 10px; min-width: 90px;"
+                                        onchange="window.location.href='/admin/dashboard?period=' + this.value + '&revenuePeriod=' + this.value;">
+                                    <option value="today" th:selected="${period == 'today'}">Today</option>
+                                    <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
+                                    <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
+                                    <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
                                 </select>
                             </div>
                         </div>
@@ -186,16 +186,7 @@
                                 <!-- KPI visualization: breakdown of order lifecycle to monitor fulfillment pressure -->
                                 <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-2">
                                     <h6 class="mb-0 fw-bold" style="font-size: 16px;">Order Status Distribution</h6>
-                                    <div class="">
-                                        <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
-                                                style="font-size: 11px; padding: 4px 8px;"
-                                                onchange="window.location.href='/admin/dashboard?period=' + this.value + '&revenuePeriod=' + document.getElementById('revenuePeriod').value">
-                                            <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
-                                            <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
-                                            <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
-                                            <option value="today" th:selected="${period == 'today'}">Today</option>
-                                        </select>
-                                    </div>
+                                    <div class="text-secondary-light" style="font-size: 11px;">Period: <span th:text="${period}">monthly</span></div>
                                 </div>
                                 <div style="margin-top: 8px;">
                                     <div id="orderStatusPieChart" class="margin-16-minus"></div>
@@ -207,16 +198,7 @@
                                 <!-- KPI visualization: category contribution to revenue for merchandising decisions -->
                                 <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-2">
                                     <h6 class="mb-0 fw-bold" style="font-size: 16px;">Revenue by Category</h6>
-                                    <div class="">
-                                        <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
-                                                style="font-size: 11px; padding: 4px 8px;"
-                                                onchange="window.location.href='/admin/dashboard?period=' + this.value + '&revenuePeriod=' + document.getElementById('revenuePeriod').value">
-                                            <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
-                                            <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
-                                            <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
-                                            <option value="today" th:selected="${period == 'today'}">Today</option>
-                                        </select>
-                                    </div>
+                                    <div class="text-secondary-light" style="font-size: 11px;">Period: <span th:text="${period}">monthly</span></div>
                                 </div>
                                 <div style="margin-top: 8px;">
                                     <div id="revenueByCategoryPieChart" class="margin-16-minus"></div>
@@ -235,7 +217,7 @@
                                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-0">
                                     <div>
                                         <span class="w-30-px h-30-px text-primary-600 bg-primary-light border border-primary-light-white flex-shrink-0 d-flex justify-content-center align-items-center radius-8 mb-0" style="display: inline-flex; margin-bottom: 3px; width: 30px; height: 30px;">
-                                            <iconify-icon icon="fa-solid:box-open" class="icon" style="font-size: 14px;"></iconify-icon>  
+                                            <iconify-icon icon="fa-solid:box-open" class="icon" style="font-size: 14px;"></iconify-icon>
                                         </span>
                                         <span class="d-block mb-0 fw-medium text-secondary-light" style="font-size: 10px;">Total Products</span>
                                         <h6 class="fw-semibold text-primary-light mb-0" style="font-size: 14px;" th:text="${totalProducts}">0</h6>
@@ -348,7 +330,7 @@
                                     </td>
                                     <td style="padding: 10px 8px;" th:text="|#${order.orderId}|">#0</td>
                                     <td style="padding: 10px 8px;">
-                                        <span th:if="${order.orderItems != null and !order.orderItems.isEmpty()}" 
+                                        <span th:if="${order.orderItems != null and !order.orderItems.isEmpty()}"
                                               th:text="${order.orderItems.size() == 1 ? order.orderItems[0].book.title : (order.orderItems.size() + ' items')}">Items</span>
                                         <span th:if="${order.orderItems == null or order.orderItems.isEmpty()}">No items</span>
                                     </td>
@@ -406,7 +388,7 @@
                                         <span class="text-sm text-secondary-light fw-normal" th:text="|Order #${order.orderId}|">Order #0</span>
                                     </div>
                                 </div>
-                                <span class="text-success-main text-md fw-medium" 
+                                <span class="text-success-main text-md fw-medium"
                                       th:text="|${#numbers.formatDecimal(order.totalAmount != null ? order.totalAmount : 0, 0, 'COMMA', 2, 'POINT')} $|">0.00 $</span>
                             </div>
                             <div th:if="${processingOrders == null or processingOrders.isEmpty()}" class="text-center text-secondary-light py-4">
@@ -422,16 +404,7 @@
                         <!-- KPI map: geographic spread of demand for localization planning -->
                         <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between mb-1">
                             <h6 class="mb-0 fw-bold" style="font-size: 15px;">Distribution Maps</h6>
-                            <div class="">
-                                <select class="form-select form-select-sm w-auto bg-base border text-secondary-light radius-8" 
-                                        style="font-size: 11px; padding: 4px 8px;"
-                                        onchange="window.location.href='/admin/dashboard?period=' + this.value + '&revenuePeriod=' + document.getElementById('revenuePeriod').value">
-                                    <option value="yearly" th:selected="${period == 'yearly'}">Yearly</option>
-                                    <option value="monthly" th:selected="${period == 'monthly'}">Monthly</option>
-                                    <option value="weekly" th:selected="${period == 'weekly'}">Weekly</option>
-                                    <option value="today" th:selected="${period == 'today'}">Today</option>
-                                </select>
-                            </div>
+                            <div class="text-secondary-light" style="font-size: 11px;">Period: <span th:text="${period}">monthly</span></div>
                         </div>
                     </div>
 
@@ -439,17 +412,17 @@
 
                     <div class="card-body" style="padding: 12px 16px; max-height: 200px; overflow-y: auto;">
                         <div th:if="${countryDistribution != null and countryDistribution.sortedCountries != null}">
-                            <div class="d-flex align-items-center justify-content-between gap-2 mb-0" 
-                                 th:each="country : ${countryDistribution.sortedCountries}" 
+                            <div class="d-flex align-items-center justify-content-between gap-2 mb-0"
+                                 th:each="country : ${countryDistribution.sortedCountries}"
                                  style="padding: 4px 0;">
                                 <div class="d-flex align-items-center w-100">
-                                    <div class="w-32-px h-32-px rounded-circle flex-shrink-0 me-2 d-flex align-items-center justify-content-center" 
+                                    <div class="w-32-px h-32-px rounded-circle flex-shrink-0 me-2 d-flex align-items-center justify-content-center"
                                          style="width: 32px; height: 32px; background: #f3f4f6; border: 1px solid #e5e7eb; font-size: 18px;">
                                         <span th:text="${country.flag != null ? country.flag : country.code}">🇺🇸</span>
                                     </div>
                                     <div class="flex-grow-1">
                                         <h6 class="mb-0" style="font-size: 14px;" th:text="${country.name}">Country</h6>
-                                        <span class="text-secondary-light fw-medium" style="font-size: 12px;" 
+                                        <span class="text-secondary-light fw-medium" style="font-size: 12px;"
                                               th:text="|${country.count} Orders|">0 Orders</span>
                                     </div>
                                 </div>
@@ -500,26 +473,26 @@
                                 <tr th:each="product : ${topSellingProducts}">
                                     <td style="padding: 10px 8px;">
                                         <div class="d-flex align-items-center">
-                                            <img th:if="${product.book.imageUrl != null}" 
-                                                 th:src="${product.book.imageUrl}" 
+                                            <img th:if="${product.book.imageUrl != null}"
+                                                 th:src="${product.book.imageUrl}"
                                                  alt="Book Image"
                                                  class="flex-shrink-0 me-2 radius-8 object-fit-cover" style="width: 36px; height: 36px;">
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-0 fw-bold" style="font-size: 12px;" th:text="${product.book.title}">Book Title</h6>
-                                                <span class="text-secondary-light fw-normal" style="font-size: 11px;" 
+                                                <span class="text-secondary-light fw-normal" style="font-size: 11px;"
                                                       th:text="${product.book.category != null ? product.book.category.name : 'Uncategorized'}">Category</span>
                                             </div>
                                         </div>
                                     </td>
                                     <td style="padding: 10px 8px;" th:text="|${#numbers.formatDecimal(product.book.price != null ? product.book.price : 0, 0, 'COMMA', 2, 'POINT')} $|">0.00 $</td>
                                     <td style="padding: 10px 8px;">
-                                        <span th:if="${product.book.discountPercent != null and product.book.discountPercent > 0}" 
+                                        <span th:if="${product.book.discountPercent != null and product.book.discountPercent > 0}"
                                               th:text="|${#numbers.formatDecimal(product.book.discountPercent, 0, 'POINT', 0, 'POINT')}%|">0%</span>
                                         <span th:if="${product.book.discountPercent == null or product.book.discountPercent == 0}">N/A</span>
                                     </td>
                                     <td style="padding: 10px 8px;" th:text="${product.totalSold}">0</td>
                                     <td class="text-center" style="padding: 10px 8px;">
-                                        <span class="bg-success-focus text-success-main px-2 py-1 rounded-pill fw-medium" style="font-size: 11px;" 
+                                        <span class="bg-success-focus text-success-main px-2 py-1 rounded-pill fw-medium" style="font-size: 11px;"
                                               th:text="${product.totalOrders}">0</span>
                                     </td>
                                 </tr>
@@ -612,13 +585,13 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    
+
     // Order Status Distribution Pie Chart
     var orderStatusData = /*[[${orderStatusDistribution}]]*/ {};
     var orderStatusSeries = [];
     var orderStatusLabels = [];
     var orderStatusColors = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'];
-    
+
     var colorIndex = 0;
     for (var status in orderStatusData) {
         if (orderStatusData.hasOwnProperty(status)) {
@@ -628,7 +601,7 @@
             colorIndex++;
         }
     }
-    
+
     var orderStatusOptions = {
         series: orderStatusSeries,
         chart: {
@@ -647,23 +620,23 @@
             }
         }
     };
-    
+
     var orderStatusChart = new ApexCharts(document.querySelector("#orderStatusPieChart"), orderStatusOptions);
     orderStatusChart.render();
-    
+
     // Revenue by Category Pie Chart
     var revenueCategoryData = /*[[${revenueByCategory}]]*/ {};
     var revenueCategorySeries = [];
     var revenueCategoryLabels = [];
     var revenueCategoryColors = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
-    
+
     var totalRevenue = 0;
     for (var category in revenueCategoryData) {
         if (revenueCategoryData.hasOwnProperty(category)) {
             totalRevenue += revenueCategoryData[category];
         }
     }
-    
+
     colorIndex = 0;
     for (var category in revenueCategoryData) {
         if (revenueCategoryData.hasOwnProperty(category)) {
@@ -672,7 +645,7 @@
             colorIndex++;
         }
     }
-    
+
     var revenueCategoryOptions = {
         series: revenueCategorySeries,
         chart: {
@@ -698,19 +671,19 @@
             }
         }
     };
-    
+
     var revenueCategoryChart = new ApexCharts(document.querySelector("#revenueByCategoryPieChart"), revenueCategoryOptions);
     revenueCategoryChart.render();
-    
+
     // World Map
     var countryDistributionData = /*[[${countryDistribution}]]*/ {};
-    
+
     if (countryDistributionData && countryDistributionData.countryData) {
         var markers = [];
         var regionValues = {};
         var colors = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'];
         var colorIndex = 0;
-        
+
         for (var code in countryDistributionData.countryData) {
             if (countryDistributionData.countryData.hasOwnProperty(code)) {
                 var country = countryDistributionData.countryData[code];
@@ -724,7 +697,7 @@
                 }
             }
         }
-        
+
         $('#world-map').vectorMap({
             map: 'world_mill_en',
             backgroundColor: 'transparent',
@@ -764,25 +737,25 @@
             hoverColor: '#fff'
         });
     }
-    
+
     // Monthly Orders Chart
     var monthlyOrderStats = /*[[${monthlyOrderStats}]]*/ {};
-    
+
     if (monthlyOrderStats && monthlyOrderStats.monthlyOrders && monthlyOrderStats.monthLabels) {
         var monthlyOrdersData = monthlyOrderStats.monthlyOrders;
         var monthLabelsData = monthlyOrderStats.monthLabels;
-        
+
         // Sort months chronologically
         var sortedMonths = Object.keys(monthlyOrdersData).sort();
         var chartLabels = [];
         var chartData = [];
-        
+
         for (var i = 0; i < sortedMonths.length; i++) {
             var monthKey = sortedMonths[i];
             chartLabels.push(monthLabelsData[monthKey] || monthKey);
             chartData.push(monthlyOrdersData[monthKey] || 0);
         }
-        
+
         var monthlyOrdersOptions = {
             series: [{
                 name: 'Orders',
@@ -837,11 +810,11 @@
             },
             colors: ['#2563eb']
         };
-        
+
         var monthlyOrdersChart = new ApexCharts(document.querySelector("#monthlyOrdersChart"), monthlyOrdersOptions);
         monthlyOrdersChart.render();
     }
-    
+
     /*]]>*/
 </script>
 

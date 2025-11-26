@@ -61,7 +61,7 @@
                             </div>
 
                             <a th:each="notification : ${notifications}"
-                               th:href="@{/admin/orders/view/{id}(id=${notification.orderId})}"
+                               th:href="@{/admin/orders/{id}(id=${notification.orderId})}"
                                th:data-notification-id="${notification.id}"
                                th:classappend="${notification.read ? 'bg-neutral-50' : ''}"
                                class="px-24 py-12 d-flex align-items-start gap-3 mb-2 justify-content-between notification-item"
