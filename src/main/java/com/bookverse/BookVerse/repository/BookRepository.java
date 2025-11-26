@@ -15,11 +15,41 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     
     /**
      * Finds books by category ID with pagination support.
-     * Used for filtering books by category in the shop page.
      * 
-     * @param categoryId The category ID to filter by
-     * @param pageable Pagination and sorting parameters
-     * @return Page of books in the specified category
+     * This is the core database query method for category filtering. Spring Data JPA
+     * automatically generates the SQL query based on the method name convention.
+     * 
+     * METHOD NAME BREAKDOWN:
+     * - "findBy" - indicates a query operation
+     * - "Category" - refers to the Book entity's category property (ManyToOne relationship)
+     * - "CategoryId" - refers to the Category entity's categoryId property
+     * - Together: "find books where book.category.categoryId equals the provided value"
+     * 
+     * GENERATED SQL (conceptual):
+     * SELECT b.* FROM books b 
+     * WHERE b.category_id = ? 
+     * ORDER BY ? 
+     * LIMIT ? OFFSET ?
+     * 
+     * DATABASE RELATIONSHIP:
+     * - Book entity has a ManyToOne relationship with Category
+     * - Each book belongs to one category (book.category_id references categories.category_id)
+     * - Multiple books can belong to the same category
+     * 
+     * PAGINATION:
+     * - The Pageable parameter handles pagination (which page, how many items)
+     * - It also handles sorting (which field, ascending/descending)
+     * - Returns a Page object containing the requested books plus metadata
+     * 
+     * USAGE EXAMPLE:
+     * - User clicks "Fiction" category (categoryId = 1)
+     * - Controller calls: getBooksByCategory(1, 0, 12, "title", "asc")
+     * - This method queries: "Find books where category_id = 1, page 0, 12 per page, sorted by title"
+     * - Returns first 12 Fiction books, ordered alphabetically by title
+     * 
+     * @param categoryId The category ID to filter by (foreign key in books table)
+     * @param pageable Contains pagination info (page number, page size) and sorting info (field, direction)
+     * @return Page object containing books in the specified category, with pagination metadata
      */
     Page<Book> findByCategoryCategoryId(Long categoryId, Pageable pageable);
     

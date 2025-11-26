@@ -44,19 +44,44 @@ public class BookService {
     
     /**
      * Retrieves books filtered by category with pagination and sorting.
-     * Used when user selects a specific category from the sidebar filter.
      * 
-     * @param categoryId ID of the category to filter by
-     * @param page Page number (0-indexed)
-     * @param size Number of books per page
-     * @param sortBy Field to sort by
-     * @param sortDir Sort direction ("asc" or "desc")
-     * @return Page of books in the specified category
+     * This method is called when a user selects a category from the sidebar filter menu.
+     * It filters the book catalog to show only books that belong to the specified category,
+     * while maintaining pagination and sorting capabilities.
+     * 
+     * HOW CATEGORY FILTERING WORKS:
+     * 1. The categoryId parameter identifies which category to filter by
+     * 2. Spring Data JPA uses the method name "findByCategoryCategoryId" to automatically
+     *    generate a query that joins the Book and Category tables
+     * 3. Only books where book.category.categoryId matches the provided categoryId are returned
+     * 4. Results are paginated (split into pages) and sorted according to user preferences
+     * 
+     * EXAMPLE:
+     * - If categoryId = 1 (e.g., "Fiction"), only books in the Fiction category are returned
+     * - If user is on page 2 with 12 items per page, books 13-24 from Fiction category are shown
+     * - If sorted by "price" ascending, Fiction books are ordered from cheapest to most expensive
+     * 
+     * @param categoryId ID of the category to filter by (must exist in categories table)
+     * @param page Page number (0-indexed, e.g., 0 = first page, 1 = second page)
+     * @param size Number of books per page (e.g., 12 books per page)
+     * @param sortBy Field to sort by (e.g., "title", "price", "createdAt", "discountPercent")
+     * @param sortDir Sort direction - "asc" for ascending (A-Z, low-high) or "desc" for descending (Z-A, high-low)
+     * @return Page object containing books in the specified category, with pagination metadata
+     *         (total pages, total elements, current page, etc.)
      */
     public Page<Book> getBooksByCategory(Long categoryId, int page, int size, String sortBy, String sortDir) {
+        // Create a Sort object based on the sort field and direction
+        // This tells Spring Data JPA how to order the results
         Sort sort = sortDir.equalsIgnoreCase("asc") ? 
             Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        
+        // Create a Pageable object that combines pagination (page, size) with sorting
+        // This is passed to the repository method to control which books are returned
         Pageable pageable = PageRequest.of(page, size, sort);
+        
+        // Query the database for books matching the category ID
+        // Spring Data JPA automatically generates the SQL query:
+        // SELECT * FROM books WHERE category_id = ? ORDER BY ? LIMIT ? OFFSET ?
         return bookRepository.findByCategoryCategoryId(categoryId, pageable);
     }
     
@@ -122,7 +147,26 @@ public class BookService {
         return Optional.of(book);
     }
     
-    // Lấy tất cả categories
+    /**
+     * Retrieves all categories from the database.
+     * 
+     * This method is used to populate the category filter menu in the shop page sidebar.
+     * It returns all available categories so users can see and select from them.
+     * 
+     * USAGE IN CATEGORY FILTERING:
+     * - Called by the controller to build the category sidebar menu
+     * - Each category in the list becomes a clickable filter option
+     * - When user clicks a category, the categoryId is passed as a URL parameter
+     * - The controller then uses that categoryId to filter books
+     * 
+     * EXAMPLE:
+     * - Returns: [Category(id=1, name="Fiction"), Category(id=2, name="Science"), ...]
+     * - These are displayed as clickable links: "Fiction", "Science", etc.
+     * - Clicking "Fiction" navigates to: /shop?categoryId=1
+     * - Controller receives categoryId=1 and filters books accordingly
+     * 
+     * @return List of all categories in the database, used for the filter menu
+     */
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }

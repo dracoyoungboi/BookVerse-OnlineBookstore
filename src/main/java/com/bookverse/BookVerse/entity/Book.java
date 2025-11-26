@@ -52,6 +52,29 @@ public class Book {
         this.discountEnd = discountEnd;
     }
 
+    /**
+     * Category relationship - Each book belongs to one category.
+     * 
+     * This is the ManyToOne side of the Book-Category relationship.
+     * It's the key field used for category filtering:
+     * 
+     * CATEGORY FILTERING MECHANISM:
+     * - When filtering by category, the repository queries books where
+     *   this category field's categoryId matches the filter parameter
+     * - The @JoinColumn annotation creates a foreign key: books.category_id
+     * - This foreign key references categories.category_id in the database
+     * 
+     * EXAMPLE:
+     * - Book A has category = Category(id=1, name="Fiction")
+     * - Book B has category = Category(id=1, name="Fiction")
+     * - Book C has category = Category(id=2, name="Science")
+     * - Filtering by categoryId=1 returns Book A and Book B only
+     * 
+     * This relationship enables:
+     * 1. Category filtering in the shop page
+     * 2. Related books suggestions (books in same category)
+     * 3. Category-based navigation and organization
+     */
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;

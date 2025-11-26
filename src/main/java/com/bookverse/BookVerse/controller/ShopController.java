@@ -104,10 +104,22 @@ public class ShopController {
         // Initialize the book list - will be populated based on active filters
         Page<Book> books;
 
-        // Apply filters in priority order: category > search > price range > sale only > all books
+        // ====================================================================
+        // CATEGORY FILTERING LOGIC
+        // ====================================================================
+        // The categoryId parameter comes from the URL query string when user clicks
+        // a category link (e.g., /shop?categoryId=1). This is the highest priority
+        // filter - if a category is selected, it takes precedence over other filters.
+        // 
+        // Filter priority order: category > search > price range > sale only > all books
         // This ensures only one filter type is active at a time for clear user experience
+        // ====================================================================
         if (categoryId != null) {
-            // Filter: Show books belonging to the selected category
+            // CATEGORY FILTER ACTIVE:
+            // User has selected a specific category from the sidebar or category menu.
+            // Filter the book list to show only books that belong to this category.
+            // The categoryId is used to query the database for books with matching category.
+            // Pagination and sorting are still applied to the filtered results.
             books = bookService.getBooksByCategory(categoryId, page, size, sortBy, sortDir);
         }
         else if (search != null && !search.trim().isEmpty()) {
@@ -127,14 +139,30 @@ public class ShopController {
             books = bookService.getAllBooks(page, size, sortBy, sortDir);
         }
 
-        // Fetch all categories for the sidebar filter menu
-        // This allows users to quickly switch between different book categories
+        // ====================================================================
+        // CATEGORY SIDEBAR MENU POPULATION
+        // ====================================================================
+        // Fetch all available categories from the database to populate the sidebar
+        // filter menu. This allows users to see all categories and quickly switch
+        // between them by clicking category links.
         var categories = bookService.getAllCategories();
 
-        // Find the currently selected category object (if any) to highlight it in the UI
-        // This provides visual feedback showing which filter is currently active
+        // ====================================================================
+        // SELECTED CATEGORY HIGHLIGHTING
+        // ====================================================================
+        // If a category filter is active (categoryId is not null), find the full
+        // Category object from the list. This object contains category details
+        // (name, description) that can be displayed in the UI to show which category
+        // is currently selected. The template uses this to:
+        // 1. Highlight the active category in the sidebar menu
+        // 2. Display the category name in the page header/breadcrumb
+        // 3. Show category-specific information or styling
+        // ====================================================================
         com.bookverse.BookVerse.entity.Category selectedCategoryObj = null;
         if (categoryId != null) {
+            // Search through all categories to find the one matching the selected categoryId
+            // This gives us access to the full Category entity (name, description, etc.)
+            // instead of just the ID, which is useful for display purposes
             selectedCategoryObj = categories.stream()
                     .filter(c -> c.getCategoryId().equals(categoryId))
                     .findFirst()
