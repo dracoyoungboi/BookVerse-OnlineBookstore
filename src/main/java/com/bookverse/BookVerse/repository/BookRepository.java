@@ -129,7 +129,146 @@ public interface BookRepository extends JpaRepository<Book, Long> {
      * @param pageable Contains pagination info (page number, page size) and sorting info (field, direction)
      * @return Page object containing books whose titles contain the keyword, with pagination metadata
      */
+    /**
+     * Searches books by title with case-insensitive partial matching.
+     * 
+     * This is the core database query method for keyword search. Spring Data JPA
+     * automatically generates the SQL query based on the method name convention.
+     * 
+     * METHOD NAME BREAKDOWN:
+     * - "findBy" - indicates a query operation
+     * - "Title" - refers to the Book entity's title property
+     * - "Containing" - creates a SQL LIKE query with wildcards on both sides (%keyword%)
+     * - "IgnoreCase" - makes the search case-insensitive (uses LOWER() function)
+     * - Together: "find books where title contains the keyword, case-insensitive"
+     * 
+     * GENERATED SQL (conceptual):
+     * SELECT b.* FROM books b 
+     * WHERE LOWER(b.title) LIKE LOWER(CONCAT('%', ?, '%'))
+     * ORDER BY ? 
+     * LIMIT ? OFFSET ?
+     * 
+     * SEARCH BEHAVIOR:
+     * - Case-insensitive: "JAVA" matches "java", "Java", "JAVA", "jAvA"
+     * - Partial matching: "potter" matches "Harry Potter", "Potter's Field"
+     * - Substring matching: "java" matches "Java Programming", "Advanced Java"
+     * - Wildcard matching: Uses SQL LIKE with % wildcards on both sides
+     * 
+     * EXAMPLES OF GENERATED QUERIES:
+     * 
+     * Keyword: "java"
+     * SQL: WHERE LOWER(title) LIKE LOWER('%java%')
+     * Matches: "Java Programming", "Advanced Java", "JavaScript Basics"
+     * 
+     * Keyword: "harry potter"
+     * SQL: WHERE LOWER(title) LIKE LOWER('%harry potter%')
+     * Matches: "Harry Potter and the Philosopher's Stone", "The Harry Potter Collection"
+     * 
+     * Keyword: "SCIENCE"
+     * SQL: WHERE LOWER(title) LIKE LOWER('%science%')
+     * Matches: "Science Fiction", "Computer Science", "science textbook"
+     * 
+     * PERFORMANCE CONSIDERATIONS:
+     * - LIKE queries with leading wildcards (%keyword%) cannot use indexes efficiently
+     * - For large databases, consider:
+     *   1. Full-text search indexes (MySQL FULLTEXT, PostgreSQL tsvector)
+     *   2. Search engines (Elasticsearch, Solr)
+     *   3. Limiting search to beginning of title (findByTitleStartingWithIgnoreCase)
+     * 
+     * CURRENT LIMITATIONS:
+     * - Searches only the title field, not author or description
+     * - Does not support multiple keywords (AND/OR logic)
+     * - Does not support phrase matching (exact phrase search)
+     * - No relevance ranking (results ordered by sortBy parameter, not relevance)
+     * 
+     * PAGINATION:
+     * - The Pageable parameter handles pagination (which page, how many items)
+     * - It also handles sorting (which field, ascending/descending)
+     * - Returns a Page object containing the matching books plus metadata
+     * 
+     * USAGE EXAMPLE:
+     * - User searches for "java" (page 0, 12 per page, sorted by title ascending)
+     * - Controller calls: searchBooks("java", 0, 12, "title", "asc")
+     * - This method queries: "Find books where title contains 'java', page 0, 12 per page, sorted by title"
+     * - Returns first 12 books matching "java", ordered alphabetically by title
+     * 
+     * @param title Search keyword to match against book titles (case-insensitive, partial match)
+     * @param pageable Contains pagination info (page number, page size) and sorting info (field, direction)
+     * @return Page object containing books whose titles contain the keyword, with pagination metadata
+     */
     Page<Book> findByTitleContainingIgnoreCase(String title, Pageable pageable);
+    
+    /**
+     * Searches books by title OR author with case-insensitive partial matching.
+     * 
+     * This method searches both the title and author fields, returning books that match
+     * the keyword in either field. This provides a more comprehensive search experience
+     * for users who may search by book title or author name.
+     * 
+     * SEARCH BEHAVIOR:
+     * - Searches BOTH title AND author fields
+     * - Uses OR logic: matches if keyword is found in title OR author
+     * - Case-insensitive: "STEPHEN" matches "Stephen", "stephen", "STEPHEN"
+     * - Partial matching: "king" matches "Stephen King" (author) and "The King's Speech" (title)
+     * - Substring matching: "rowling" matches "J.K. Rowling" (author)
+     * 
+     * GENERATED SQL (conceptual):
+     * SELECT DISTINCT b.* FROM books b 
+     * WHERE LOWER(b.title) LIKE LOWER(CONCAT('%', ?, '%')) 
+     *    OR LOWER(b.author) LIKE LOWER(CONCAT('%', ?, '%'))
+     * ORDER BY ? 
+     * LIMIT ? OFFSET ?
+     * 
+     * EXAMPLES OF SEARCH RESULTS:
+     * 
+     * Keyword: "king"
+     * Matches in Title: "The King's Speech", "King Arthur", "The Lion King"
+     * Matches in Author: Books by "Stephen King", "Martin Luther King Jr."
+     * Returns: All books matching in either field
+     * 
+     * Keyword: "rowling"
+     * Matches in Title: None (unless a book title contains "rowling")
+     * Matches in Author: All books by "J.K. Rowling"
+     * Returns: All Harry Potter books and other books by J.K. Rowling
+     * 
+     * Keyword: "harry potter"
+     * Matches in Title: "Harry Potter and the Philosopher's Stone", etc.
+     * Matches in Author: None (unless author name contains "harry potter")
+     * Returns: All Harry Potter series books
+     * 
+     * Keyword: "tolkien"
+     * Matches in Title: None (unless title contains "tolkien")
+     * Matches in Author: All books by "J.R.R. Tolkien"
+     * Returns: The Hobbit, Lord of the Rings, etc.
+     * 
+     * WHY SEARCH BOTH FIELDS:
+     * - Users may search by author name: "stephen king" → finds all Stephen King books
+     * - Users may search by book title: "harry potter" → finds Harry Potter books
+     * - Users may search by partial author: "rowling" → finds J.K. Rowling books
+     * - Provides better user experience than title-only search
+     * 
+     * PERFORMANCE CONSIDERATIONS:
+     * - OR queries can be slower than single-field queries
+     * - Both title and author fields are searched, doubling the search space
+     * - DISTINCT is used to avoid duplicate results if a book somehow matches both
+     * - For large databases, consider full-text search indexes on both fields
+     * 
+     * PAGINATION:
+     * - The Pageable parameter handles pagination (which page, how many items)
+     * - It also handles sorting (which field, ascending/descending)
+     * - Returns a Page object containing the matching books plus metadata
+     * 
+     * @param search Search keyword to match against book titles or author names (case-insensitive, partial match)
+     * @param pageable Contains pagination info (page number, page size) and sorting info (field, direction)
+     * @return Page object containing books whose title OR author contains the keyword, with pagination metadata
+     */
+    @Query(value = "SELECT DISTINCT b FROM Book b WHERE " +
+           "LOWER(b.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%'))",
+           countQuery = "SELECT COUNT(DISTINCT b) FROM Book b WHERE " +
+           "LOWER(b.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%'))")
+    Page<Book> findByTitleOrAuthorContainingIgnoreCase(@Param("search") String search, Pageable pageable);
     
     /**
      * Finds books within a price range (inclusive).

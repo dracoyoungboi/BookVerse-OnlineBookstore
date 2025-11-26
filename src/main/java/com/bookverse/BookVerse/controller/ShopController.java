@@ -123,38 +123,65 @@ public class ShopController {
             books = bookService.getBooksByCategory(categoryId, page, size, sortBy, sortDir);
         }
         // ====================================================================
-        // KEYWORD SEARCH FILTERING LOGIC
+        // TITLE/AUTHOR KEYWORD SEARCH FILTERING LOGIC
         // ====================================================================
         // The search parameter comes from the search form in the shop page header.
         // User types a keyword in the search box and submits the form via GET request.
+        // The search queries BOTH book titles AND author names, providing comprehensive results.
         // 
         // SEARCH FORM SUBMISSION:
         // - Form action: /shop (GET method)
         // - Input field name: "search"
-        // - Example URL: /shop?search=harry+potter&page=0&size=12
+        // - Example URLs:
+        //   * /shop?search=harry+potter (searches title and author)
+        //   * /shop?search=stephen+king (searches title and author)
+        //   * /shop?search=rowling (searches title and author)
         // 
         // SEARCH PRIORITY:
         // - Search has second priority (after category filter)
         // - If both categoryId and search are provided, category takes precedence
         // - Search only activates when categoryId is null
         // 
-        // SEARCH BEHAVIOR:
-        // - Case-insensitive: "HARRY" matches "harry" and "Harry"
-        // - Partial matching: "potter" matches "Harry Potter" and "Potter's Field"
+        // SEARCH BEHAVIOR - TITLE AND AUTHOR:
+        // - Searches BOTH title AND author fields (OR logic)
+        // - Case-insensitive: "STEPHEN" matches "Stephen", "stephen", "STEPHEN"
+        // - Partial matching: "king" matches "Stephen King" (author) and "The King's Speech" (title)
+        // - Substring matching: "rowling" matches "J.K. Rowling" (author)
+        // - Multiple words: "harry potter" matches "Harry Potter" (title) and authors named "Harry Potter"
         // - Whitespace handling: Leading/trailing spaces are trimmed
         // - Empty search: If search is null or empty after trimming, search is skipped
+        // 
+        // SEARCH EXAMPLES:
+        // - "harry potter" → Finds books with "Harry Potter" in title (e.g., Harry Potter series)
+        // - "stephen king" → Finds all books by author "Stephen King" (The Shining, It, etc.)
+        // - "rowling" → Finds all books by "J.K. Rowling" (Harry Potter series)
+        // - "tolkien" → Finds all books by "J.R.R. Tolkien" (Lord of the Rings, The Hobbit)
+        // - "king" → Finds books with "king" in title AND books by authors with "king" in name
         // ====================================================================
         else if (search != null && !search.trim().isEmpty()) {
-            // KEYWORD SEARCH ACTIVE:
+            // TITLE/AUTHOR SEARCH ACTIVE:
             // User has entered a search keyword in the search box and submitted the form.
             // The search keyword is trimmed to remove leading/trailing whitespace.
             // Only non-empty keywords trigger the search - empty strings are ignored.
             // 
-            // The search performs a case-insensitive partial match on book titles.
-            // For example, searching "java" will match:
-            // - "Java Programming"
-            // - "Advanced Java Techniques"
-            // - "Learn JAVA in 30 Days"
+            // The search performs a case-insensitive partial match on BOTH:
+            // 1. Book titles - finds books whose title contains the keyword
+            // 2. Author names - finds books whose author name contains the keyword
+            // 
+            // Results include books matching in EITHER field (OR logic).
+            // 
+            // EXAMPLES OF WHAT GETS MATCHED:
+            // - Searching "java" matches:
+            //   * Titles: "Java Programming", "Advanced Java", "JavaScript Basics"
+            //   * Authors: Books by authors with "java" in their name (rare)
+            // 
+            // - Searching "stephen king" matches:
+            //   * Titles: Books with "stephen king" in title (rare)
+            //   * Authors: All books by "Stephen King" (The Shining, It, The Stand, etc.)
+            // 
+            // - Searching "rowling" matches:
+            //   * Titles: Books with "rowling" in title (rare)
+            //   * Authors: All books by "J.K. Rowling" (entire Harry Potter series)
             // 
             // Pagination and sorting are still applied to search results.
             // User can navigate through multiple pages of search results and sort them.

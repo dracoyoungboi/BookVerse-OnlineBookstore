@@ -86,39 +86,66 @@ public class BookService {
     }
     
     /**
-     * Searches books by title keyword with pagination and sorting.
+     * Searches books by title OR author keyword with pagination and sorting.
      * 
      * This method is called when a user enters a search keyword in the shop page search box
      * and submits the search form. It performs a case-insensitive partial match search on
-     * book titles, meaning it will find books whose titles contain the keyword anywhere
-     * in the title, regardless of case.
+     * BOTH book titles AND author names, meaning it will find books where either the title
+     * or the author contains the keyword anywhere, regardless of case.
      * 
-     * HOW KEYWORD SEARCH WORKS:
-     * 1. User types a keyword in the search box (e.g., "java", "Harry Potter", "science")
-     * 2. Form submits the keyword as a URL parameter: /shop?search=java
+     * HOW TITLE/AUTHOR SEARCH WORKS:
+     * 1. User types a keyword in the search box (e.g., "java", "Stephen King", "rowling")
+     * 2. Form submits the keyword as a URL parameter: /shop?search=stephen+king
      * 3. Controller receives the search parameter and calls this method
      * 4. This method creates pagination and sorting parameters
-     * 5. Repository queries database for books where title contains the keyword
+     * 5. Repository queries database for books where title OR author contains the keyword
      * 6. Results are paginated and sorted according to user preferences
      * 
      * SEARCH MATCHING BEHAVIOR:
-     * - Case-insensitive: "JAVA" matches "java", "Java", "JAVA", "jAvA"
-     * - Partial matching: "potter" matches "Harry Potter", "Potter's Field", "Pottery Basics"
-     * - Substring matching: "java" matches "Java Programming", "Advanced Java", "JavaScript"
-     * - Multiple words: "harry potter" matches "Harry Potter and the Philosopher's Stone"
+     * - Searches BOTH title AND author fields (OR logic)
+     * - Case-insensitive: "STEPHEN" matches "Stephen", "stephen", "STEPHEN"
+     * - Partial matching: "king" matches "Stephen King" (author) and "The King's Speech" (title)
+     * - Substring matching: "rowling" matches "J.K. Rowling" (author)
+     * - Multiple words: "harry potter" matches "Harry Potter" (title) and authors named "Harry Potter"
      * 
-     * EXAMPLES:
+     * SEARCH EXAMPLES BY TITLE:
      * - Keyword: "java"
-     *   Matches: "Java Programming", "Advanced Java Techniques", "JavaScript Basics"
-     *   Does NOT match: "Python Programming", "C++ Guide"
+     *   Matches in Title: "Java Programming", "Advanced Java Techniques", "JavaScript Basics"
+     *   Matches in Author: Books by authors with "java" in their name (rare)
+     *   Returns: All matching books from either field
      * 
-     * - Keyword: "harry"
-     *   Matches: "Harry Potter", "Harry's Adventure", "The Harry Chronicles"
-     *   Does NOT match: "Barry Potter", "Hairy Situation"
+     * - Keyword: "harry potter"
+     *   Matches in Title: "Harry Potter and the Philosopher's Stone", "Harry Potter Collection"
+     *   Matches in Author: None (unless author name contains "harry potter")
+     *   Returns: All Harry Potter series books
      * 
-     * - Keyword: "science fiction"
-     *   Matches: "Science Fiction Classics", "Introduction to Science Fiction"
-     *   Does NOT match: "Science Textbook" (if "fiction" is not in title)
+     * SEARCH EXAMPLES BY AUTHOR:
+     * - Keyword: "stephen king"
+     *   Matches in Title: None (unless title contains "stephen king")
+     *   Matches in Author: All books by "Stephen King"
+     *   Returns: The Shining, It, The Stand, etc.
+     * 
+     * - Keyword: "rowling"
+     *   Matches in Title: None (unless title contains "rowling")
+     *   Matches in Author: All books by "J.K. Rowling"
+     *   Returns: All Harry Potter books and other books by J.K. Rowling
+     * 
+     * - Keyword: "tolkien"
+     *   Matches in Title: None (unless title contains "tolkien")
+     *   Matches in Author: All books by "J.R.R. Tolkien"
+     *   Returns: The Hobbit, Lord of the Rings trilogy, etc.
+     * 
+     * SEARCH EXAMPLES - MATCHES BOTH:
+     * - Keyword: "king"
+     *   Matches in Title: "The King's Speech", "King Arthur", "The Lion King"
+     *   Matches in Author: Books by "Stephen King", "Martin Luther King Jr."
+     *   Returns: All books matching in either field
+     * 
+     * WHY SEARCH BOTH TITLE AND AUTHOR:
+     * - Users often search by author name to find all books by that author
+     * - Users may not remember exact book titles but remember the author
+     * - Provides more comprehensive search results than title-only search
+     * - Better user experience: one search box works for both titles and authors
      * 
      * PAGINATION & SORTING:
      * - Search results are paginated (e.g., 12 books per page)
@@ -127,16 +154,17 @@ public class BookService {
      * - Sorting applies to the filtered search results only
      * 
      * PERFORMANCE NOTES:
-     * - The search uses SQL LIKE query with wildcards: WHERE title LIKE '%keyword%'
-     * - For large databases, consider adding a full-text search index on the title column
-     * - Current implementation searches only the title field, not author or description
+     * - The search uses SQL LIKE query with OR condition on two fields
+     * - Searches both title and author fields, which may be slower than single-field search
+     * - For large databases, consider adding full-text search indexes on both title and author columns
+     * - DISTINCT is used to avoid duplicate results
      * 
-     * @param keyword Search keyword to match against book titles (should be trimmed before calling)
+     * @param keyword Search keyword to match against book titles OR author names (should be trimmed before calling)
      * @param page Page number (0-indexed, e.g., 0 = first page, 1 = second page)
      * @param size Number of books per page (e.g., 12 books per page)
      * @param sortBy Field to sort by (e.g., "title", "price", "createdAt", "discountPercent")
      * @param sortDir Sort direction - "asc" for ascending (A-Z, low-high) or "desc" for descending (Z-A, high-low)
-     * @return Page object containing books whose titles contain the keyword, with pagination metadata
+     * @return Page object containing books whose title OR author contains the keyword, with pagination metadata
      *         (total pages, total elements, current page, etc.)
      */
     public Page<Book> searchBooks(String keyword, int page, int size, String sortBy, String sortDir) {
@@ -151,11 +179,19 @@ public class BookService {
         // Example: PageRequest.of(0, 12, sort) = first page, 12 items, with sorting
         Pageable pageable = PageRequest.of(page, size, sort);
         
-        // Query the database for books whose titles contain the keyword
-        // Spring Data JPA automatically generates the SQL query:
-        // SELECT * FROM books WHERE LOWER(title) LIKE LOWER('%keyword%') ORDER BY ? LIMIT ? OFFSET ?
-        // The "ContainingIgnoreCase" in the method name creates the case-insensitive LIKE query
-        return bookRepository.findByTitleContainingIgnoreCase(keyword, pageable);
+        // Query the database for books whose titles OR authors contain the keyword
+        // This searches both the title and author fields, providing a more comprehensive search.
+        // Spring Data JPA generates the SQL query:
+        // SELECT DISTINCT b.* FROM books b 
+        // WHERE LOWER(b.title) LIKE LOWER('%keyword%') OR LOWER(b.author) LIKE LOWER('%keyword%')
+        // ORDER BY ? LIMIT ? OFFSET ?
+        // 
+        // SEARCHING BOTH TITLE AND AUTHOR:
+        // - User can search by book title: "harry potter" → finds Harry Potter books
+        // - User can search by author name: "stephen king" → finds all Stephen King books
+        // - User can search by partial author: "rowling" → finds J.K. Rowling books
+        // - Provides better results than title-only search
+        return bookRepository.findByTitleOrAuthorContainingIgnoreCase(keyword, pageable);
     }
     
     /**
