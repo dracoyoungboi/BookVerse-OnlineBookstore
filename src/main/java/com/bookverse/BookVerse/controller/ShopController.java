@@ -122,8 +122,42 @@ public class ShopController {
             // Pagination and sorting are still applied to the filtered results.
             books = bookService.getBooksByCategory(categoryId, page, size, sortBy, sortDir);
         }
+        // ====================================================================
+        // KEYWORD SEARCH FILTERING LOGIC
+        // ====================================================================
+        // The search parameter comes from the search form in the shop page header.
+        // User types a keyword in the search box and submits the form via GET request.
+        // 
+        // SEARCH FORM SUBMISSION:
+        // - Form action: /shop (GET method)
+        // - Input field name: "search"
+        // - Example URL: /shop?search=harry+potter&page=0&size=12
+        // 
+        // SEARCH PRIORITY:
+        // - Search has second priority (after category filter)
+        // - If both categoryId and search are provided, category takes precedence
+        // - Search only activates when categoryId is null
+        // 
+        // SEARCH BEHAVIOR:
+        // - Case-insensitive: "HARRY" matches "harry" and "Harry"
+        // - Partial matching: "potter" matches "Harry Potter" and "Potter's Field"
+        // - Whitespace handling: Leading/trailing spaces are trimmed
+        // - Empty search: If search is null or empty after trimming, search is skipped
+        // ====================================================================
         else if (search != null && !search.trim().isEmpty()) {
-            // Filter: Search books by title (case-insensitive partial match)
+            // KEYWORD SEARCH ACTIVE:
+            // User has entered a search keyword in the search box and submitted the form.
+            // The search keyword is trimmed to remove leading/trailing whitespace.
+            // Only non-empty keywords trigger the search - empty strings are ignored.
+            // 
+            // The search performs a case-insensitive partial match on book titles.
+            // For example, searching "java" will match:
+            // - "Java Programming"
+            // - "Advanced Java Techniques"
+            // - "Learn JAVA in 30 Days"
+            // 
+            // Pagination and sorting are still applied to search results.
+            // User can navigate through multiple pages of search results and sort them.
             books = bookService.searchBooks(search, page, size, sortBy, sortDir);
         }
         else if (minPrice != null && maxPrice != null) {
@@ -199,18 +233,40 @@ public class ShopController {
             }
         }
 
-        // Add all data to the model for Thymeleaf template rendering
-        // The template will use these attributes to display the book list and controls
-        model.addAttribute("books", books);                    // Paginated book list
+        // ====================================================================
+        // MODEL ATTRIBUTES FOR TEMPLATE RENDERING
+        // ====================================================================
+        // Add all data to the model for Thymeleaf template rendering.
+        // The template uses these attributes to display the book list, filters, and controls.
+        // ====================================================================
+        model.addAttribute("books", books);                    // Paginated book list (or search results if search is active)
         model.addAttribute("categories", categories);          // All categories for sidebar
         model.addAttribute("randomBooks", randomBooks);        // Random recommendations
         model.addAttribute("wishlistBooksGroups", wishlistBooksGroups); // Wishlist carousel data
         model.addAttribute("currentPage", page);               // Current page number
         model.addAttribute("totalPages", books.getTotalPages()); // Total number of pages
-        model.addAttribute("totalItems", books.getTotalElements()); // Total number of books
+        model.addAttribute("totalItems", books.getTotalElements()); // Total number of books (or search results count)
         model.addAttribute("selectedCategory", categoryId);    // Selected category ID
         model.addAttribute("selectedCategoryObj", selectedCategoryObj); // Selected category object
-        model.addAttribute("searchKeyword", search);           // Current search keyword
+        
+        // ====================================================================
+        // SEARCH KEYWORD PRESERVATION
+        // ====================================================================
+        // Store the search keyword in the model so the template can:
+        // 1. Display it in the search input field (th:value="${searchKeyword}")
+        //    - User sees what they searched for when viewing results
+        // 2. Preserve it in pagination links (hidden input: name="search")
+        //    - When user clicks "Next Page", search keyword is maintained
+        // 3. Preserve it in sorting links (hidden input: name="search")
+        //    - When user changes sort order, search keyword is maintained
+        // 4. Preserve it in view type switches (hidden input: name="search")
+        //    - When user switches grid/list view, search keyword is maintained
+        // 5. Display search results header (e.g., "Search results for: 'harry potter'")
+        // 
+        // This ensures the search context persists across all user interactions
+        // on the shop page, providing a seamless search experience.
+        // ====================================================================
+        model.addAttribute("searchKeyword", search);           // Current search keyword (preserved in all links)
         model.addAttribute("sortBy", sortBy);                  // Current sort field
         model.addAttribute("sortDir", sortDir);                // Current sort direction
         model.addAttribute("viewType", view);                  // Current view type (grid/list)

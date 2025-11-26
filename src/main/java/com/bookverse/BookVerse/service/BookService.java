@@ -87,20 +87,74 @@ public class BookService {
     
     /**
      * Searches books by title keyword with pagination and sorting.
-     * Performs case-insensitive partial matching on book titles.
-     * Used when user enters a search term in the search box.
      * 
-     * @param keyword Search keyword to match against book titles
-     * @param page Page number (0-indexed)
-     * @param size Number of books per page
-     * @param sortBy Field to sort by
-     * @param sortDir Sort direction ("asc" or "desc")
-     * @return Page of books whose titles contain the keyword
+     * This method is called when a user enters a search keyword in the shop page search box
+     * and submits the search form. It performs a case-insensitive partial match search on
+     * book titles, meaning it will find books whose titles contain the keyword anywhere
+     * in the title, regardless of case.
+     * 
+     * HOW KEYWORD SEARCH WORKS:
+     * 1. User types a keyword in the search box (e.g., "java", "Harry Potter", "science")
+     * 2. Form submits the keyword as a URL parameter: /shop?search=java
+     * 3. Controller receives the search parameter and calls this method
+     * 4. This method creates pagination and sorting parameters
+     * 5. Repository queries database for books where title contains the keyword
+     * 6. Results are paginated and sorted according to user preferences
+     * 
+     * SEARCH MATCHING BEHAVIOR:
+     * - Case-insensitive: "JAVA" matches "java", "Java", "JAVA", "jAvA"
+     * - Partial matching: "potter" matches "Harry Potter", "Potter's Field", "Pottery Basics"
+     * - Substring matching: "java" matches "Java Programming", "Advanced Java", "JavaScript"
+     * - Multiple words: "harry potter" matches "Harry Potter and the Philosopher's Stone"
+     * 
+     * EXAMPLES:
+     * - Keyword: "java"
+     *   Matches: "Java Programming", "Advanced Java Techniques", "JavaScript Basics"
+     *   Does NOT match: "Python Programming", "C++ Guide"
+     * 
+     * - Keyword: "harry"
+     *   Matches: "Harry Potter", "Harry's Adventure", "The Harry Chronicles"
+     *   Does NOT match: "Barry Potter", "Hairy Situation"
+     * 
+     * - Keyword: "science fiction"
+     *   Matches: "Science Fiction Classics", "Introduction to Science Fiction"
+     *   Does NOT match: "Science Textbook" (if "fiction" is not in title)
+     * 
+     * PAGINATION & SORTING:
+     * - Search results are paginated (e.g., 12 books per page)
+     * - User can navigate through multiple pages of search results
+     * - Results can be sorted by title, price, date, etc.
+     * - Sorting applies to the filtered search results only
+     * 
+     * PERFORMANCE NOTES:
+     * - The search uses SQL LIKE query with wildcards: WHERE title LIKE '%keyword%'
+     * - For large databases, consider adding a full-text search index on the title column
+     * - Current implementation searches only the title field, not author or description
+     * 
+     * @param keyword Search keyword to match against book titles (should be trimmed before calling)
+     * @param page Page number (0-indexed, e.g., 0 = first page, 1 = second page)
+     * @param size Number of books per page (e.g., 12 books per page)
+     * @param sortBy Field to sort by (e.g., "title", "price", "createdAt", "discountPercent")
+     * @param sortDir Sort direction - "asc" for ascending (A-Z, low-high) or "desc" for descending (Z-A, high-low)
+     * @return Page object containing books whose titles contain the keyword, with pagination metadata
+     *         (total pages, total elements, current page, etc.)
      */
     public Page<Book> searchBooks(String keyword, int page, int size, String sortBy, String sortDir) {
+        // Create a Sort object based on the sort field and direction
+        // This tells Spring Data JPA how to order the search results
+        // Example: Sort.by("title").ascending() orders results A-Z by title
         Sort sort = sortDir.equalsIgnoreCase("asc") ? 
             Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        
+        // Create a Pageable object that combines pagination (page, size) with sorting
+        // This is passed to the repository method to control which search results are returned
+        // Example: PageRequest.of(0, 12, sort) = first page, 12 items, with sorting
         Pageable pageable = PageRequest.of(page, size, sort);
+        
+        // Query the database for books whose titles contain the keyword
+        // Spring Data JPA automatically generates the SQL query:
+        // SELECT * FROM books WHERE LOWER(title) LIKE LOWER('%keyword%') ORDER BY ? LIMIT ? OFFSET ?
+        // The "ContainingIgnoreCase" in the method name creates the case-insensitive LIKE query
         return bookRepository.findByTitleContainingIgnoreCase(keyword, pageable);
     }
     

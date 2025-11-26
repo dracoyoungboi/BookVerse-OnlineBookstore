@@ -64,12 +64,70 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     
     /**
      * Searches books by title with case-insensitive partial matching.
-     * Used for the search functionality in the shop page.
-     * Matches any book whose title contains the search keyword.
      * 
-     * @param title Search keyword (partial match, case-insensitive)
-     * @param pageable Pagination and sorting parameters
-     * @return Page of books matching the search keyword
+     * This is the core database query method for keyword search. Spring Data JPA
+     * automatically generates the SQL query based on the method name convention.
+     * 
+     * METHOD NAME BREAKDOWN:
+     * - "findBy" - indicates a query operation
+     * - "Title" - refers to the Book entity's title property
+     * - "Containing" - creates a SQL LIKE query with wildcards on both sides (%keyword%)
+     * - "IgnoreCase" - makes the search case-insensitive (uses LOWER() function)
+     * - Together: "find books where title contains the keyword, case-insensitive"
+     * 
+     * GENERATED SQL (conceptual):
+     * SELECT b.* FROM books b 
+     * WHERE LOWER(b.title) LIKE LOWER(CONCAT('%', ?, '%'))
+     * ORDER BY ? 
+     * LIMIT ? OFFSET ?
+     * 
+     * SEARCH BEHAVIOR:
+     * - Case-insensitive: "JAVA" matches "java", "Java", "JAVA", "jAvA"
+     * - Partial matching: "potter" matches "Harry Potter", "Potter's Field"
+     * - Substring matching: "java" matches "Java Programming", "Advanced Java"
+     * - Wildcard matching: Uses SQL LIKE with % wildcards on both sides
+     * 
+     * EXAMPLES OF GENERATED QUERIES:
+     * 
+     * Keyword: "java"
+     * SQL: WHERE LOWER(title) LIKE LOWER('%java%')
+     * Matches: "Java Programming", "Advanced Java", "JavaScript Basics"
+     * 
+     * Keyword: "harry potter"
+     * SQL: WHERE LOWER(title) LIKE LOWER('%harry potter%')
+     * Matches: "Harry Potter and the Philosopher's Stone", "The Harry Potter Collection"
+     * 
+     * Keyword: "SCIENCE"
+     * SQL: WHERE LOWER(title) LIKE LOWER('%science%')
+     * Matches: "Science Fiction", "Computer Science", "science textbook"
+     * 
+     * PERFORMANCE CONSIDERATIONS:
+     * - LIKE queries with leading wildcards (%keyword%) cannot use indexes efficiently
+     * - For large databases, consider:
+     *   1. Full-text search indexes (MySQL FULLTEXT, PostgreSQL tsvector)
+     *   2. Search engines (Elasticsearch, Solr)
+     *   3. Limiting search to beginning of title (findByTitleStartingWithIgnoreCase)
+     * 
+     * CURRENT LIMITATIONS:
+     * - Searches only the title field, not author or description
+     * - Does not support multiple keywords (AND/OR logic)
+     * - Does not support phrase matching (exact phrase search)
+     * - No relevance ranking (results ordered by sortBy parameter, not relevance)
+     * 
+     * PAGINATION:
+     * - The Pageable parameter handles pagination (which page, how many items)
+     * - It also handles sorting (which field, ascending/descending)
+     * - Returns a Page object containing the matching books plus metadata
+     * 
+     * USAGE EXAMPLE:
+     * - User searches for "java" (page 0, 12 per page, sorted by title ascending)
+     * - Controller calls: searchBooks("java", 0, 12, "title", "asc")
+     * - This method queries: "Find books where title contains 'java', page 0, 12 per page, sorted by title"
+     * - Returns first 12 books matching "java", ordered alphabetically by title
+     * 
+     * @param title Search keyword to match against book titles (case-insensitive, partial match)
+     * @param pageable Contains pagination info (page number, page size) and sorting info (field, direction)
+     * @return Page object containing books whose titles contain the keyword, with pagination metadata
      */
     Page<Book> findByTitleContainingIgnoreCase(String title, Pageable pageable);
     
