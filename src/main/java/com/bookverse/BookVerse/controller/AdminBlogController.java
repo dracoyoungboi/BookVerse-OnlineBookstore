@@ -24,7 +24,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * AdminBlogController
+ */
 @Controller
 @RequestMapping("/admin/blogs")
 public class AdminBlogController {
@@ -322,6 +326,7 @@ public class AdminBlogController {
 
     // Delete blog (hard delete)
     @PostMapping("/delete/{id}")
+    @Transactional
     public String deleteBlog(@org.springframework.web.bind.annotation.PathVariable("id") Long id,
                              RedirectAttributes redirectAttributes,
                              Authentication authentication) {
@@ -338,6 +343,7 @@ public class AdminBlogController {
                 redirectAttributes.addFlashAttribute("error", "Blog not found!");
                 return "redirect:/admin/blogs";
             }
+            blogDetailRepository.deleteByBlog_BlogId(id);
             blogRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Blog deleted successfully!");
         } catch (Exception e) {
