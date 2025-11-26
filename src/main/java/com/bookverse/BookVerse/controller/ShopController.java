@@ -303,6 +303,30 @@ public class ShopController {
         return "user/shop";
     }
 
+    /**
+     * Displays the book detail page showing comprehensive information about a single book.
+     * 
+     * This is the product detail page where users can view:
+     * - Book title, author, description
+     * - Book price (with discount if applicable)
+     * - Book image
+     * - Stock availability
+     * - Category information
+     * - Customer reviews and ratings
+     * - Related books recommendations
+     * 
+     * URL PATTERN:
+     * - Route: /shop/product/{id}
+     * - Example: /shop/product/1 displays details for book with ID 1
+     * - The {id} path variable is extracted from the URL
+     * 
+     * @param id Book ID extracted from the URL path (e.g., /shop/product/1 → id = 1)
+     * @param model Spring MVC model to pass data to the view template
+     * @param session HTTP session to access current user information
+     * @param authentication Spring Security authentication object to check user role
+     * @return Thymeleaf template name "user/product-details" to render the book detail page,
+     *         or redirects to /shop if book not found, or /demo/admin if user is admin
+     */
     @GetMapping("/product/{id}")
     public String productDetails(
             @PathVariable Long id,
@@ -310,7 +334,8 @@ public class ShopController {
             HttpSession session,
             Authentication authentication) {
         
-        // Block admin from accessing user pages
+        // Prevent admin users from accessing the user product detail page
+        // Redirect them to admin dashboard to maintain role separation
         if (authentication != null && authentication.isAuthenticated()) {
             boolean isAdmin = authentication.getAuthorities().stream()
                     .anyMatch(authority -> {
@@ -332,53 +357,95 @@ public class ShopController {
                 return "redirect:/demo/admin";
             }
         }
+        
+        // ====================================================================
+        // BOOK DATA RETRIEVAL
+        // ====================================================================
+        // Fetch the book by ID along with its reviews (eager loading to avoid lazy loading issues).
+        // The getBookByIdWithDetails method uses a JOIN FETCH query to load the book
+        // and its reviews in a single database query for better performance.
+        // ====================================================================
         Optional<Book> bookOpt = bookService.getBookByIdWithDetails(id);
 
+        // If book doesn't exist (invalid ID or deleted), redirect to shop page
+        // This prevents showing error pages and provides a better user experience
         if (bookOpt.isEmpty()) {
             return "redirect:/shop";
         }
 
+        // Extract the book from Optional - we know it exists at this point
         Book book = bookOpt.get();
 
-        // Lấy related books (cùng category, tối đa 4 sách)
+        // ====================================================================
+        // RELATED BOOKS RECOMMENDATIONS
+        // ====================================================================
+        // Display related books to help users discover similar titles.
+        // Strategy: First try to find books in the same category, then fill with random books.
+        // This provides relevant recommendations while ensuring the section is always populated.
+        // ====================================================================
         List<Book> relatedBooks = Collections.emptyList();
         if (book.getCategory() != null) {
+            // Step 1: Find books in the same category (excluding current book)
+            // This shows users other books they might like in the same genre/category
+            // Example: If viewing "Harry Potter", show other Fantasy books
             relatedBooks = bookService.getRelatedBooks(book.getBookId(), book.getCategory().getCategoryId(), 4);
         }
 
-        // Nếu không đủ related books, lấy thêm sách ngẫu nhiên
+        // Step 2: If we don't have enough related books (less than 4), fill with random books
+        // This ensures the "Related Books" section always shows 4 books
+        // The current book is excluded to avoid showing it in related books
         if (relatedBooks.size() < 4) {
             List<Book> randomBooks = bookService.getRandomBooks(4 - relatedBooks.size());
-            // Loại trừ sách hiện tại
+            // Exclude the current book from random recommendations
             randomBooks = randomBooks.stream()
                     .filter(b -> !b.getBookId().equals(book.getBookId()))
                     .collect(java.util.stream.Collectors.toList());
             relatedBooks.addAll(randomBooks);
         }
 
-        // Lấy reviews hiển thị từ DB và tính rating trung bình
+        // ====================================================================
+        // REVIEWS AND RATINGS CALCULATION
+        // ====================================================================
+        // Fetch visible reviews for this book and calculate the average rating.
+        // Only visible reviews are shown (admin may hide inappropriate reviews).
+        // Reviews are ordered by creation date (newest first) to show recent feedback.
+        // ====================================================================
         List<Review> visibleReviews = reviewRepository.findByBookBookIdAndVisibleTrueOrderByCreatedAtDesc(book.getBookId());
+        
+        // Calculate average rating from all visible reviews
+        // Rating scale: 1-5 stars
+        // Example: Reviews [5, 4, 5, 3] → avgRating = 4.25
         double avgRating = 0.0;
         if (visibleReviews != null && !visibleReviews.isEmpty()) {
             avgRating = visibleReviews.stream()
-                    .mapToInt(Review::getRating)
-                    .average()
-                    .orElse(0.0);
+                    .mapToInt(Review::getRating)  // Extract rating (1-5) from each review
+                    .average()                     // Calculate arithmetic mean
+                    .orElse(0.0);                 // Default to 0.0 if no reviews
         }
 
-        // Lấy tất cả wishlist items và chia thành các nhóm 3 items cho carousel
+        // ====================================================================
+        // WISHLIST CAROUSEL PREPARATION
+        // ====================================================================
+        // If user is logged in, prepare their wishlist books for carousel display.
+        // The current book is excluded from the wishlist carousel to avoid redundancy.
+        // Books are grouped into sets of 3 for carousel slides.
+        // ====================================================================
         List<List<Book>> wishlistBooksGroups = new java.util.ArrayList<>();
         if (authentication != null && authentication.isAuthenticated()) {
             User currentUser = (User) session.getAttribute("currentUser");
             if (currentUser != null) {
+                // Fetch all wishlist items for the current user
                 List<Wishlist> allWishlistItems = wishlistService.getUserWishlist(currentUser.getUserId());
-                // Loại trừ sách hiện tại khỏi wishlist
+                
+                // Extract book entities from wishlist items, excluding the current book
+                // This prevents showing the book being viewed in the wishlist carousel
                 List<Book> allWishlistBooks = allWishlistItems.stream()
                         .map(Wishlist::getBook)
-                        .filter(b -> !b.getBookId().equals(book.getBookId())) // Loại trừ sách hiện tại
+                        .filter(b -> !b.getBookId().equals(book.getBookId())) // Exclude current book
                         .collect(Collectors.toList());
 
-                // Chia thành các nhóm 3 items
+                // Group books into chunks of 3 for carousel slides
+                // Each slide displays up to 3 books from the user's wishlist
                 int itemsPerSlide = 3;
                 for (int i = 0; i < allWishlistBooks.size(); i += itemsPerSlide) {
                     int endIndex = Math.min(i + itemsPerSlide, allWishlistBooks.size());
@@ -388,14 +455,46 @@ public class ShopController {
             }
         }
 
-        model.addAttribute("book", book);
-        model.addAttribute("relatedBooks", relatedBooks);
-        model.addAttribute("wishlistBooksGroups", wishlistBooksGroups);
-        model.addAttribute("avgRating", avgRating);
-        model.addAttribute("visibleReviews", visibleReviews);
-        model.addAttribute("visibleReviewCount", visibleReviews.size());
-        model.addAttribute("categories", bookService.getAllCategories());
+        // ====================================================================
+        // MODEL ATTRIBUTES FOR TEMPLATE RENDERING
+        // ====================================================================
+        // Add all data to the model for the Thymeleaf template to render the book detail page.
+        // The template uses these attributes to display:
+        // 
+        // BOOK INFORMATION:
+        // - book: The main book entity containing all book details:
+        //   * book.title - Book title (e.g., "Harry Potter and the Philosopher's Stone")
+        //   * book.author - Author name (e.g., "J.K. Rowling")
+        //   * book.description - Full book description/synopsis
+        //   * book.price - Original price (e.g., 29.99)
+        //   * book.getDiscountPrice() - Price after discount (if on sale)
+        //   * book.discountPercent - Discount percentage (e.g., 20 for 20% off)
+        //   * book.imageUrl - URL to book cover image
+        //   * book.stock - Number of copies available
+        //   * book.category - Category information (name, description)
+        // 
+        // RELATED CONTENT:
+        // - relatedBooks: List of 4 related books for recommendations section
+        // - wishlistBooksGroups: User's wishlist books grouped for carousel (if logged in)
+        // 
+        // REVIEWS AND RATINGS:
+        // - avgRating: Average rating (0.0 to 5.0) calculated from all visible reviews
+        // - visibleReviews: List of all visible reviews (newest first)
+        // - visibleReviewCount: Total number of visible reviews
+        // 
+        // NAVIGATION:
+        // - categories: All categories for navigation menu
+        // ====================================================================
+        model.addAttribute("book", book);                        // Main book entity with all details
+        model.addAttribute("relatedBooks", relatedBooks);        // Related book recommendations
+        model.addAttribute("wishlistBooksGroups", wishlistBooksGroups); // Wishlist carousel data
+        model.addAttribute("avgRating", avgRating);              // Average rating (0.0-5.0)
+        model.addAttribute("visibleReviews", visibleReviews);     // List of visible reviews
+        model.addAttribute("visibleReviewCount", visibleReviews.size()); // Total review count
+        model.addAttribute("categories", bookService.getAllCategories()); // All categories for navigation
 
+        // Return the Thymeleaf template that renders the book detail page
+        // Template location: src/main/resources/templates/user/product-details.html
         return "user/product-details";
     }
 

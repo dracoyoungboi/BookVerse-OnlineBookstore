@@ -7,25 +7,114 @@ import java.util.List;
 @Table(name = "books")
 public class Book {
 
+    /**
+     * Unique identifier for the book.
+     * Used in URLs: /shop/product/{bookId}
+     * Displayed on detail page as SKU/Product ID.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookId;
 
+    /**
+     * Book title - displayed prominently on the detail page.
+     * Example: "Harry Potter and the Philosopher's Stone"
+     * Shown in: Page header, product title section, breadcrumbs
+     */
     private String title;
+    
+    /**
+     * Author name - displayed on the detail page.
+     * Example: "J.K. Rowling"
+     * Shown in: Product info section, book details tab
+     */
     private String author;
+    
+    /**
+     * Original price of the book.
+     * Displayed on detail page, may be crossed out if book is on sale.
+     * Example: 29.99 (for $29.99)
+     */
     private Double price;
+    
+    /**
+     * Number of copies available in stock.
+     * Displayed on detail page to show availability.
+     * Used to enable/disable "Add to Cart" button.
+     * Example: 10 means 10 copies available
+     */
     private int stock;
+    
+    /**
+     * Full book description/synopsis.
+     * Displayed on detail page in the "Description" tab.
+     * Can be long text explaining the book's content, plot, etc.
+     */
     private String description;
+    
+    /**
+     * URL to the book cover image.
+     * Displayed prominently on detail page as the main product image.
+     * Can be a relative path or absolute URL.
+     * Example: "/user/img/product/book1.jpg" or "https://example.com/book-cover.jpg"
+     */
     private String imageUrl;
+    
+    /**
+     * Date and time when the book was added to the catalog.
+     * May be displayed on detail page to show when book was added.
+     */
     private LocalDateTime createdAt;
+    
+    /**
+     * Soft delete flag - marks book as deleted without removing from database.
+     * Deleted books are not shown on user-facing pages.
+     */
     private Boolean deleted = false; // Soft delete flag
 
-    // Discount (sale)
+    /**
+     * Discount percentage for sale pricing.
+     * Displayed on detail page if book is on sale.
+     * Example: 20.0 means 20% off (20% discount)
+     * Value of 0.0 or null means book is not on sale.
+     */
     private Double discountPercent = 0.0; // percent (0 = no sale)
+    
+    /**
+     * Start date/time for the discount period.
+     * Used to determine if discount is currently active.
+     * Discount is only applied if current time is between discountStart and discountEnd.
+     */
     private LocalDateTime discountStart;
+    
+    /**
+     * End date/time for the discount period.
+     * Used to determine if discount is currently active.
+     * Discount is only applied if current time is between discountStart and discountEnd.
+     */
     private LocalDateTime discountEnd;
     
-    // Giá đã giảm (tính động)
+    /**
+     * Calculates the discounted price dynamically.
+     * 
+     * This method is used on the book detail page to display the sale price.
+     * It calculates: originalPrice * (1 - discountPercent / 100)
+     * 
+     * DISPLAY ON DETAIL PAGE:
+     * - If discountPercent > 0: Shows both original price (crossed out) and discounted price
+     * - If discountPercent = 0: Shows only original price
+     * 
+     * EXAMPLE:
+     * - Original price: $29.99
+     * - Discount: 20%
+     * - Discounted price: $29.99 * (1 - 20/100) = $29.99 * 0.8 = $23.99
+     * 
+     * ROUNDING:
+     * - Result is rounded to 2 decimal places for currency display
+     * - Example: 23.992 → 23.99, 23.996 → 24.00
+     * 
+     * @return Discounted price if discount is active, original price otherwise
+     */
     public Double getDiscountPrice() {
         if (discountPercent != null && discountPercent > 0) {
             return Math.round((price * (1 - discountPercent / 100)) * 100.0) / 100.0;

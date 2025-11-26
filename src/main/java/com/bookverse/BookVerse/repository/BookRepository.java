@@ -311,7 +311,52 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("SELECT b FROM Book b WHERE b.category.categoryId = :categoryId AND b.bookId != :bookId")
     List<Book> findRelatedBooks(@Param("categoryId") Long categoryId, @Param("bookId") Long bookId);
     
-    // Lấy sách với reviews (fetch join để tránh LazyInitializationException)
+    /**
+     * Finds a book by ID with all its reviews eagerly loaded.
+     * 
+     * This method is used for the book detail page where we need to display
+     * both the book information and all its reviews. Using JOIN FETCH ensures
+     * that reviews are loaded in the same query, preventing lazy loading exceptions.
+     * 
+     * WHY JOIN FETCH:
+     * - Book entity has a OneToMany relationship with Review (lazy by default)
+     * - Without JOIN FETCH, accessing book.getReviews() in the template would cause
+     *   LazyInitializationException (session closed)
+     * - JOIN FETCH loads reviews immediately in the same query
+     * 
+     * GENERATED SQL (conceptual):
+     * SELECT DISTINCT b.*, r.* 
+     * FROM books b 
+     * LEFT JOIN reviews r ON b.book_id = r.book_id 
+     * WHERE b.book_id = ?
+     * 
+     * WHAT IS RETRIEVED:
+     * - Complete book entity with all fields:
+     *   * bookId, title, author, description, price, imageUrl, stock
+     *   * category (via ManyToOne relationship)
+     *   * discountPercent, discountStart, discountEnd
+     * - All reviews associated with the book:
+     *   * reviewId, rating (1-5), comment, createdAt, visible flag
+     *   * User information for each review (via ManyToOne relationship)
+     * 
+     * DISTINCT CLAUSE:
+     * - Used because JOIN FETCH can create duplicate book rows (one per review)
+     * - DISTINCT ensures we get a single Book entity with all reviews in its collection
+     * 
+     * PERFORMANCE:
+     * - Single database query instead of multiple queries
+     * - Prevents N+1 query problem (1 query for book + N queries for reviews)
+     * - Efficient for displaying book detail pages with reviews
+     * 
+     * USAGE EXAMPLE:
+     * - User visits /shop/product/1
+     * - Controller calls: getBookByIdWithDetails(1)
+     * - This method queries: "Find book ID 1 with all its reviews"
+     * - Returns: Book entity with reviews collection populated
+     * 
+     * @param id The book ID to find
+     * @return Optional containing the book with reviews if found, empty Optional if not found
+     */
     @Query("SELECT DISTINCT b FROM Book b LEFT JOIN FETCH b.reviews WHERE b.bookId = :id")
     java.util.Optional<Book> findByIdWithReviews(@Param("id") Long id);
     

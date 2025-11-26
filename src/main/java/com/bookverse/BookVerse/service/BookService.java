@@ -218,10 +218,41 @@ public class BookService {
         return bookRepository.findById(id);
     }
     
-    // Lấy sách theo ID với reviews
+    /**
+     * Retrieves a book by ID along with its reviews for the detail page.
+     * 
+     * This method is used to fetch a complete book entity with all its reviews
+     * for display on the book detail page. It uses eager loading to fetch
+     * reviews in the same database query to avoid N+1 query problems.
+     * 
+     * HOW IT WORKS:
+     * 1. Uses a JOIN FETCH query to load book and reviews in one database call
+     * 2. This prevents lazy loading exceptions when accessing reviews in the template
+     * 3. Returns Optional<Book> to handle cases where book doesn't exist
+     * 
+     * BOOK DATA RETRIEVED:
+     * - All book fields: title, author, description, price, imageUrl, stock, etc.
+     * - Category information (ManyToOne relationship)
+     * - All reviews associated with the book (OneToMany relationship)
+     * 
+     * PERFORMANCE:
+     * - Uses @Transactional(readOnly = true) for read-only optimization
+     * - JOIN FETCH prevents multiple queries (one for book, one for reviews)
+     * - Single database round-trip instead of N+1 queries
+     * 
+     * USAGE:
+     * - Called by productDetails controller method
+     * - Used when displaying book detail page (/shop/product/{id})
+     * - Ensures all book information and reviews are available for template rendering
+     * 
+     * @param id The book ID to retrieve
+     * @return Optional containing the book with reviews if found, empty Optional if not found
+     */
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<Book> getBookByIdWithDetails(Long id) {
-        // Fetch book với reviews
+        // Fetch book with reviews using JOIN FETCH query
+        // This single query loads both the book and all its reviews
+        // SQL equivalent: SELECT b.*, r.* FROM books b LEFT JOIN reviews r ON b.id = r.book_id WHERE b.id = ?
         Optional<Book> bookOpt = bookRepository.findByIdWithReviews(id);
         if (bookOpt.isEmpty()) {
             return Optional.empty();
@@ -229,9 +260,11 @@ public class BookService {
         
         Book book = bookOpt.get();
         
-        // Đảm bảo reviews đã được load
+        // Ensure reviews are loaded (trigger lazy loading if needed)
+        // This is a safety check - with JOIN FETCH, reviews should already be loaded
+        // Accessing the collection ensures it's initialized in the current transaction
         if (book.getReviews() != null) {
-            book.getReviews().size(); // Trigger lazy loading nếu cần
+            book.getReviews().size(); // Trigger lazy loading if needed
         }
         
         return Optional.of(book);
@@ -317,10 +350,49 @@ public class BookService {
         return allBooks.stream().limit(limit).collect(java.util.stream.Collectors.toList());
     }
     
-    // Lấy sách liên quan (cùng category, loại trừ sách hiện tại)
+    /**
+     * Retrieves related books from the same category, excluding the current book.
+     * 
+     * This method is used on the book detail page to show "Related Books" or
+     * "You May Also Like" recommendations. It finds books in the same category
+     * as the current book, which helps users discover similar titles.
+     * 
+     * HOW IT WORKS:
+     * 1. Queries database for books in the same category
+     * 2. Excludes the current book (so it doesn't recommend itself)
+     * 3. Shuffles results for variety (different books shown on each page load)
+     * 4. Limits to specified number (typically 4 books)
+     * 
+     * USAGE ON DETAIL PAGE:
+     * - User views "Harry Potter" book (category: Fantasy)
+     * - This method finds other Fantasy books
+     * - Returns 4 random Fantasy books (excluding Harry Potter)
+     * - Displayed in "Related Books" section at bottom of detail page
+     * 
+     * SHUFFLING:
+     * - Results are shuffled to show different books on each page load
+     * - Provides variety and helps users discover different titles
+     * - Without shuffling, same books would always appear first
+     * 
+     * EXAMPLE:
+     * - Current book: "Harry Potter" (categoryId = 1, Fantasy)
+     * - Method finds: "Lord of the Rings", "The Hobbit", "Game of Thrones", "Chronicles of Narnia"
+     * - Returns: 4 shuffled books from Fantasy category
+     * 
+     * @param bookId ID of the current book (excluded from results)
+     * @param categoryId Category ID to find related books from
+     * @param limit Maximum number of related books to return
+     * @return List of related books (shuffled, limited to specified count)
+     */
     public List<Book> getRelatedBooks(Long bookId, Long categoryId, int limit) {
+        // Find books in the same category, excluding the current book
         List<Book> relatedBooks = bookRepository.findRelatedBooks(categoryId, bookId);
+        
+        // Shuffle results to show different books on each page load
+        // This provides variety in recommendations
         Collections.shuffle(relatedBooks);
+        
+        // Limit to the specified number of books
         return relatedBooks.stream().limit(limit).collect(java.util.stream.Collectors.toList());
     }
     
