@@ -10,9 +10,30 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
 
+    /**
+     * Rating value (1-5 stars).
+     * Used to calculate average rating displayed on book detail page.
+     */
     private int rating;
+    
+    /**
+     * Optional review comment/text.
+     * Can be null if user only provides rating without written review.
+     */
     private String comment;
+    
+    /**
+     * Timestamp when review was created.
+     * Used for sorting reviews (newest first) and pagination.
+     */
     private LocalDateTime createdAt;
+    
+    /**
+     * Visibility flag for admin moderation.
+     * - true: Review is visible to users (default)
+     * - false: Review is hidden by admin (inappropriate content, spam, etc.)
+     * Only visible reviews are displayed and included in average rating calculation.
+     */
     private Boolean visible = true;
 
     @ManyToOne

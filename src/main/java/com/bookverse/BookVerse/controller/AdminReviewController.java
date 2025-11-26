@@ -57,6 +57,13 @@ public class AdminReviewController {
         }
     }
 
+    /**
+     * Lists reviews with pagination for admin moderation.
+     * 
+     * PAGINATION: Reviews are paginated (default 10 per page) for admin panel.
+     * Can filter by bookId or userId. Sorted by newest first.
+     * Shows all reviews (visible and hidden) for moderation purposes.
+     */
     @GetMapping
     public String listReviews(Model model,
                               HttpSession session,
@@ -71,13 +78,17 @@ public class AdminReviewController {
         }
         attachCurrentUserToModel(session, userDetails, model);
 
+        // Pagination: default 10 reviews per page, sorted by newest first
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Review> reviewPage;
         if (bookId != null) {
+            // Filter by book (all reviews for a specific book)
             reviewPage = reviewRepository.findByBookBookId(bookId, pageable);
         } else if (userId != null) {
+            // Filter by user (all reviews by a specific user)
             reviewPage = reviewRepository.findByUserUserId(userId, pageable);
         } else {
+            // Show all reviews across all books
             reviewPage = reviewRepository.findAll(pageable);
         }
 
@@ -104,6 +115,14 @@ public class AdminReviewController {
         return "admin/reviews-list";
     }
 
+    /**
+     * Toggles review visibility (admin moderation).
+     * 
+     * MODERATION: Admin can hide/show reviews to moderate content.
+     * - Hidden reviews (visible=false) are not displayed on book detail page
+     * - Hidden reviews are excluded from average rating calculation
+     * - Admin can toggle visibility to hide inappropriate/spam reviews
+     */
     @PostMapping("/toggle/{id}")
     public String toggleVisibility(@PathVariable("id") Long id,
                                    RedirectAttributes redirectAttributes,
@@ -117,6 +136,7 @@ public class AdminReviewController {
             return "redirect:/admin/reviews";
         }
         Review r = opt.get();
+        // Toggle visibility: if visible, hide it; if hidden, show it
         r.setVisible(r.getVisible() == null || !r.getVisible() ? true : false);
         reviewRepository.save(r);
         redirectAttributes.addFlashAttribute("success", "Review visibility updated.");

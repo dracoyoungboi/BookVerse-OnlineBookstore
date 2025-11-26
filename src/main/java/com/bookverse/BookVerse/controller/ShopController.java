@@ -406,21 +406,19 @@ public class ShopController {
         // ====================================================================
         // REVIEWS AND RATINGS CALCULATION
         // ====================================================================
-        // Fetch visible reviews for this book and calculate the average rating.
-        // Only visible reviews are shown (admin may hide inappropriate reviews).
-        // Reviews are ordered by creation date (newest first) to show recent feedback.
+        // Fetch only visible reviews (admin moderation: hidden reviews are excluded).
+        // Reviews are ordered by creation date (newest first) for display.
         // ====================================================================
         List<Review> visibleReviews = reviewRepository.findByBookBookIdAndVisibleTrueOrderByCreatedAtDesc(book.getBookId());
         
-        // Calculate average rating from all visible reviews
-        // Rating scale: 1-5 stars
-        // Example: Reviews [5, 4, 5, 3] → avgRating = 4.25
+        // Calculate average rating from visible reviews only (hidden reviews excluded).
+        // Rating scale: 1-5 stars. Example: [5, 4, 5, 3] → 4.25
         double avgRating = 0.0;
         if (visibleReviews != null && !visibleReviews.isEmpty()) {
             avgRating = visibleReviews.stream()
-                    .mapToInt(Review::getRating)  // Extract rating (1-5) from each review
-                    .average()                     // Calculate arithmetic mean
-                    .orElse(0.0);                 // Default to 0.0 if no reviews
+                    .mapToInt(Review::getRating)
+                    .average()
+                    .orElse(0.0);
         }
 
         // ====================================================================
@@ -498,13 +496,30 @@ public class ShopController {
         return "user/product-details";
     }
 
+    /**
+     * Handles review submission from users.
+     * 
+     * REQUIREMENTS:
+     * - User must be logged in (authentication required)
+     * - Rating must be between 1-5 (validated and clamped)
+     * - Comment is optional
+     * 
+     * NOTE: Purchase verification not implemented - any logged-in user can review.
+     * To restrict to purchasers only, add check: verify user has order containing this book.
+     * 
+     * ANTI-SPAM: No throttling implemented. To prevent spam, add:
+     * - Check if user already reviewed this book (one review per user per book)
+     * - Rate limiting (e.g., max 1 review per hour per user)
+     * 
+     * MODERATION: New reviews are visible by default. Admin can hide via /admin/reviews.
+     */
     @PostMapping("/product/{id}/reviews")
     public String submitReview(
             @PathVariable("id") Long bookId,
             @RequestParam("rating") int rating,
             @RequestParam(value = "comment", required = false) String comment,
             HttpSession session) {
-        // Validate rating bounds
+        // Validate and clamp rating to valid range (1-5 stars)
         if (rating < 1) rating = 1;
         if (rating > 5) rating = 5;
 
@@ -513,18 +528,27 @@ public class ShopController {
             return "redirect:/shop";
         }
 
+        // Require user to be logged in to submit review
         User currentUser = (User) session.getAttribute("currentUser");
         if (currentUser == null) {
             return "redirect:/login";
         }
 
+        // TODO: Add purchase verification if policy requires it
+        // Check if user has purchased this book before allowing review
+        
+        // TODO: Add anti-spam throttling
+        // Check if user already reviewed this book (prevent duplicate reviews)
+        // Optional: Add rate limiting (e.g., max reviews per hour)
+
+        // Create and save review (visible by default, admin can hide later)
         Review review = new Review();
         review.setBook(bookOpt.get());
         review.setUser(currentUser);
         review.setRating(rating);
         review.setComment(comment);
         review.setCreatedAt(LocalDateTime.now());
-        review.setVisible(true);
+        review.setVisible(true); // Default visible, admin can hide via moderation
         reviewRepository.save(review);
 
         return "redirect:/shop/product/" + bookId + "#Reviews";
