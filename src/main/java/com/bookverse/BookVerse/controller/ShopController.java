@@ -41,6 +41,25 @@ public class ShopController {
         this.reviewRepository = reviewRepository;
     }
 
+    /**
+     * Displays the book list page for users with filtering, sorting, and pagination capabilities.
+     * This is the main shop page where users can browse all available books.
+     * 
+     * @param page Current page number (0-indexed, default: 0)
+     * @param size Number of books per page (default: 12)
+     * @param categoryId Optional category filter - shows only books in this category
+     * @param search Optional search keyword - filters books by title matching this keyword
+     * @param minPrice Optional minimum price filter - used with maxPrice for price range filtering
+     * @param maxPrice Optional maximum price filter - used with minPrice for price range filtering
+     * @param sortBy Field to sort by (default: "title") - options: title, price, createdAt, etc.
+     * @param sortDir Sort direction (default: "asc") - "asc" for ascending, "desc" for descending
+     * @param view Display view type (default: "grid") - "grid" for grid view, "list" for list view
+     * @param saleOnly If true, shows only books currently on sale (discountPercent > 0)
+     * @param model Spring MVC model to pass data to the view
+     * @param session HTTP session to access current user information
+     * @param authentication Spring Security authentication object to check user role
+     * @return Thymeleaf template name "user/shop" to render the book list page
+     */
     @GetMapping
     public String shopPage(
             @RequestParam(defaultValue = "0") int page,
@@ -57,7 +76,8 @@ public class ShopController {
             HttpSession session,
             Authentication authentication) {
         
-        // Make the storefront inaccessible to admins so they stay in the dashboard UI
+        // Prevent admin users from accessing the user shop page - redirect them to admin dashboard
+        // This ensures role separation and prevents admins from accidentally using the customer interface
         if (authentication != null && authentication.isAuthenticated()) {
             boolean isAdmin = authentication.getAuthorities().stream()
                     .anyMatch(authority -> {
@@ -65,6 +85,7 @@ public class ShopController {
                         return auth.equals("ROLE_ADMIN") || auth.contains("ADMIN");
                     });
             
+            // Double-check admin status from session if not found in authorities
             if (!isAdmin) {
                 User currentUser = (User) session.getAttribute("currentUser");
                 if (currentUser != null && currentUser.getRole() != null) {
@@ -79,29 +100,39 @@ public class ShopController {
                 return "redirect:/demo/admin";
             }
         }
+        
+        // Initialize the book list - will be populated based on active filters
         Page<Book> books;
 
-        // Select the correct dataset for the grid/list view based on active filters
+        // Apply filters in priority order: category > search > price range > sale only > all books
+        // This ensures only one filter type is active at a time for clear user experience
         if (categoryId != null) {
+            // Filter: Show books belonging to the selected category
             books = bookService.getBooksByCategory(categoryId, page, size, sortBy, sortDir);
         }
         else if (search != null && !search.trim().isEmpty()) {
+            // Filter: Search books by title (case-insensitive partial match)
             books = bookService.searchBooks(search, page, size, sortBy, sortDir);
         }
         else if (minPrice != null && maxPrice != null) {
+            // Filter: Show books within the specified price range
             books = bookService.getBooksByPriceRange(minPrice, maxPrice, page, size, sortBy, sortDir);
         }
         else if (saleOnly) {
+            // Filter: Show only books currently on sale (have active discount)
             books = bookService.getOnSaleBooks(page, size, sortBy, sortDir);
         }
         else {
+            // Default: Show all books with pagination and sorting
             books = bookService.getAllBooks(page, size, sortBy, sortDir);
         }
 
-        // Populate sidebar filters so the user can pivot between categories
+        // Fetch all categories for the sidebar filter menu
+        // This allows users to quickly switch between different book categories
         var categories = bookService.getAllCategories();
 
-        // Highlight the active category (if any) to keep UI state in sync
+        // Find the currently selected category object (if any) to highlight it in the UI
+        // This provides visual feedback showing which filter is currently active
         com.bookverse.BookVerse.entity.Category selectedCategoryObj = null;
         if (categoryId != null) {
             selectedCategoryObj = categories.stream()
@@ -110,21 +141,27 @@ public class ShopController {
                     .orElse(null);
         }
 
-        // Surface a small random set to spotlight titles outside the current filters
+        // Get random books for sidebar recommendations
+        // These are displayed to help users discover new books outside their current filter
         var randomBooks = bookService.getRandomBooks(6);
 
-        // Split the user's wishlist into groups of three so the carousel renders clean slides
+        // Prepare wishlist books grouped for carousel display
+        // If user is logged in, fetch their wishlist and organize books into groups of 3
+        // This allows the carousel to display multiple books per slide
         List<List<Book>> wishlistBooksGroups = new java.util.ArrayList<>();
         if (authentication != null && authentication.isAuthenticated()) {
             User currentUser = (User) session.getAttribute("currentUser");
             if (currentUser != null) {
+                // Fetch all wishlist items for the current user
                 List<Wishlist> allWishlistItems = wishlistService.getUserWishlist(currentUser.getUserId());
-                // Lấy tất cả books từ wishlist
+                
+                // Extract book entities from wishlist items
                 List<Book> allWishlistBooks = allWishlistItems.stream()
                         .map(Wishlist::getBook)
                         .collect(Collectors.toList());
 
-                // Chia thành các nhóm 3 items
+                // Group books into chunks of 3 for carousel slides
+                // Each slide will display up to 3 books from the wishlist
                 int itemsPerSlide = 3;
                 for (int i = 0; i < allWishlistBooks.size(); i += itemsPerSlide) {
                     int endIndex = Math.min(i + itemsPerSlide, allWishlistBooks.size());
@@ -134,22 +171,24 @@ public class ShopController {
             }
         }
 
-        // Attach everything the Thymeleaf template needs to render the book list UI
-        model.addAttribute("books", books);
-        model.addAttribute("categories", categories);
-        model.addAttribute("randomBooks", randomBooks);
-        model.addAttribute("wishlistBooksGroups", wishlistBooksGroups);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", books.getTotalPages());
-        model.addAttribute("totalItems", books.getTotalElements());
-        model.addAttribute("selectedCategory", categoryId);
-        model.addAttribute("selectedCategoryObj", selectedCategoryObj);
-        model.addAttribute("searchKeyword", search);
-        model.addAttribute("sortBy", sortBy);
-        model.addAttribute("sortDir", sortDir);
-        model.addAttribute("viewType", view);
-        model.addAttribute("saleOnly", saleOnly);
+        // Add all data to the model for Thymeleaf template rendering
+        // The template will use these attributes to display the book list and controls
+        model.addAttribute("books", books);                    // Paginated book list
+        model.addAttribute("categories", categories);          // All categories for sidebar
+        model.addAttribute("randomBooks", randomBooks);        // Random recommendations
+        model.addAttribute("wishlistBooksGroups", wishlistBooksGroups); // Wishlist carousel data
+        model.addAttribute("currentPage", page);               // Current page number
+        model.addAttribute("totalPages", books.getTotalPages()); // Total number of pages
+        model.addAttribute("totalItems", books.getTotalElements()); // Total number of books
+        model.addAttribute("selectedCategory", categoryId);    // Selected category ID
+        model.addAttribute("selectedCategoryObj", selectedCategoryObj); // Selected category object
+        model.addAttribute("searchKeyword", search);           // Current search keyword
+        model.addAttribute("sortBy", sortBy);                  // Current sort field
+        model.addAttribute("sortDir", sortDir);                // Current sort direction
+        model.addAttribute("viewType", view);                  // Current view type (grid/list)
+        model.addAttribute("saleOnly", saleOnly);              // Sale filter flag
 
+        // Return the Thymeleaf template that renders the shop page
         return "user/shop";
     }
 

@@ -13,25 +13,68 @@ import java.util.List;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
     
-    // Tìm sách theo category
+    /**
+     * Finds books by category ID with pagination support.
+     * Used for filtering books by category in the shop page.
+     * 
+     * @param categoryId The category ID to filter by
+     * @param pageable Pagination and sorting parameters
+     * @return Page of books in the specified category
+     */
     Page<Book> findByCategoryCategoryId(Long categoryId, Pageable pageable);
     
-    // Tìm sách theo category
+    /**
+     * Finds all books by category ID (without pagination).
+     * Used for counting books in a category or getting full category lists.
+     * 
+     * @param categoryId The category ID to filter by
+     * @return List of all books in the specified category
+     */
     List<Book> findByCategoryCategoryId(Long categoryId);
     
-    // Tìm sách theo tên (tìm kiếm)
+    /**
+     * Searches books by title with case-insensitive partial matching.
+     * Used for the search functionality in the shop page.
+     * Matches any book whose title contains the search keyword.
+     * 
+     * @param title Search keyword (partial match, case-insensitive)
+     * @param pageable Pagination and sorting parameters
+     * @return Page of books matching the search keyword
+     */
     Page<Book> findByTitleContainingIgnoreCase(String title, Pageable pageable);
     
-    // Tìm sách theo khoảng giá
+    /**
+     * Finds books within a price range (inclusive).
+     * Used for price filtering in the shop page.
+     * 
+     * @param minPrice Minimum price (inclusive)
+     * @param maxPrice Maximum price (inclusive)
+     * @param pageable Pagination and sorting parameters
+     * @return Page of books within the specified price range
+     */
     @Query("SELECT b FROM Book b WHERE b.price BETWEEN :minPrice AND :maxPrice")
     Page<Book> findByPriceBetween(@Param("minPrice") Double minPrice, 
                                     @Param("maxPrice") Double maxPrice, 
                                     Pageable pageable);
     
-    // Tìm sách còn hàng
+    /**
+     * Finds books with stock greater than the specified value.
+     * Used for filtering available books (stock > 0).
+     * 
+     * @param stock Minimum stock level (exclusive)
+     * @param pageable Pagination and sorting parameters
+     * @return Page of books with stock above the threshold
+     */
     Page<Book> findByStockGreaterThan(int stock, Pageable pageable);
     
-    // Tìm sách đang giảm giá
+    /**
+     * Finds books with discount percentage greater than the specified value.
+     * Used for displaying books on sale (discountPercent > 0).
+     * 
+     * @param percent Minimum discount percentage (exclusive)
+     * @param pageable Pagination and sorting parameters
+     * @return Page of books with discount above the threshold
+     */
     Page<com.bookverse.BookVerse.entity.Book> findByDiscountPercentGreaterThan(Double percent, Pageable pageable);
 
     // Lấy tất cả sách có phân trang

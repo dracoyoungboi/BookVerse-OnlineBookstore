@@ -25,6 +25,16 @@ public class BookService {
         this.categoryRepository = categoryRepository;
     }
     
+    /**
+     * Retrieves all books with pagination and sorting.
+     * Used when no filters are applied - displays the complete book catalog.
+     * 
+     * @param page Page number (0-indexed)
+     * @param size Number of books per page
+     * @param sortBy Field to sort by (e.g., "title", "price", "createdAt")
+     * @param sortDir Sort direction ("asc" or "desc")
+     * @return Page of books matching the pagination and sorting criteria
+     */
     public Page<Book> getAllBooks(int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? 
             Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -32,6 +42,17 @@ public class BookService {
         return bookRepository.findAll(pageable);
     }
     
+    /**
+     * Retrieves books filtered by category with pagination and sorting.
+     * Used when user selects a specific category from the sidebar filter.
+     * 
+     * @param categoryId ID of the category to filter by
+     * @param page Page number (0-indexed)
+     * @param size Number of books per page
+     * @param sortBy Field to sort by
+     * @param sortDir Sort direction ("asc" or "desc")
+     * @return Page of books in the specified category
+     */
     public Page<Book> getBooksByCategory(Long categoryId, int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? 
             Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -39,6 +60,18 @@ public class BookService {
         return bookRepository.findByCategoryCategoryId(categoryId, pageable);
     }
     
+    /**
+     * Searches books by title keyword with pagination and sorting.
+     * Performs case-insensitive partial matching on book titles.
+     * Used when user enters a search term in the search box.
+     * 
+     * @param keyword Search keyword to match against book titles
+     * @param page Page number (0-indexed)
+     * @param size Number of books per page
+     * @param sortBy Field to sort by
+     * @param sortDir Sort direction ("asc" or "desc")
+     * @return Page of books whose titles contain the keyword
+     */
     public Page<Book> searchBooks(String keyword, int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? 
             Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -46,7 +79,18 @@ public class BookService {
         return bookRepository.findByTitleContainingIgnoreCase(keyword, pageable);
     }
     
-    // Lấy sách theo khoảng giá
+    /**
+     * Retrieves books within a specified price range with pagination and sorting.
+     * Used when user applies a price filter (e.g., $10-$50).
+     * 
+     * @param minPrice Minimum price (inclusive)
+     * @param maxPrice Maximum price (inclusive)
+     * @param page Page number (0-indexed)
+     * @param size Number of books per page
+     * @param sortBy Field to sort by
+     * @param sortDir Sort direction ("asc" or "desc")
+     * @return Page of books within the specified price range
+     */
     public Page<Book> getBooksByPriceRange(Double minPrice, Double maxPrice, int page, int size, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? 
             Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -91,24 +135,48 @@ public class BookService {
         return bookRepository.findByStockGreaterThan(0, pageable);
     }
     
-    // Lấy sách đang giảm giá
+    /**
+     * Retrieves books currently on sale (with active discount) with pagination and sorting.
+     * A book is considered "on sale" if its discountPercent is greater than 0.
+     * Used when user clicks "Sale Only" filter to see discounted books.
+     * 
+     * @param page Page number (0-indexed)
+     * @param size Number of books per page
+     * @param sortBy Field to sort by (if "discount", maps to "discountPercent")
+     * @param sortDir Sort direction ("asc" or "desc")
+     * @return Page of books that are currently on sale
+     */
     public Page<Book> getOnSaleBooks(int page, int size, String sortBy, String sortDir) {
-        // map 'discount' to 'discountPercent' for sorting
+        // Map 'discount' alias to actual field name 'discountPercent' for sorting
         if ("discount".equalsIgnoreCase(sortBy)) {
             sortBy = "discountPercent";
-            sortDir = "desc"; // mặc định giảm giá nhiều trước
+            sortDir = "desc"; // Default: show highest discount first
         }
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         return bookRepository.findByDiscountPercentGreaterThan(0.0, pageable);
     }
-    // Đếm số lượng sách theo category
+    
+    /**
+     * Counts the number of books in a specific category.
+     * Used for displaying book counts in category filters.
+     * 
+     * @param categoryId ID of the category
+     * @return Total number of books in the category
+     */
     public long countBooksByCategory(Long categoryId) {
         return bookRepository.findByCategoryCategoryId(categoryId).size();
     }
     
-    // Lấy sách ngẫu nhiên (limit số lượng)
+    /**
+     * Retrieves a random selection of books.
+     * Used for sidebar recommendations and featured book sections.
+     * Fetches all books, shuffles them, and returns the requested number.
+     * 
+     * @param limit Maximum number of random books to return
+     * @return List of randomly selected books (up to the limit)
+     */
     public List<Book> getRandomBooks(int limit) {
         List<Book> allBooks = bookRepository.findAll();
         Collections.shuffle(allBooks);
