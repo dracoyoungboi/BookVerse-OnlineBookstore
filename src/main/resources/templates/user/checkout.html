@@ -131,7 +131,7 @@
                             <tr th:if="${couponDiscount != null && couponDiscount > 0}" class="cart-discount">
                                 <th>Coupon Discount</th>
                                 <td>
-                                    <span class="amount" style="color: #28a745;" th:text="|-$#numbers.formatDecimal(couponDiscount, 1, 2)|">-$0.00</span>
+                                    <span class="amount" style="color: #28a745;" th:text="'-$' + ${#numbers.formatDecimal(couponDiscount, 1, 2)}">-$0.00</span>
                                 </td>
                             </tr>
                             <tr class="order-total">
